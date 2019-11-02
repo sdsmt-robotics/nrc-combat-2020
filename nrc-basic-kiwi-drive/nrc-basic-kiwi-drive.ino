@@ -1,15 +1,22 @@
 #include "L289N.h"
 #include <PS3BT.h>
+#include <Wire.h>
+#include <LIS3MDL.h>
+#include <math.h>
 
+float avg = 0;
+float setpoint, theta;
+
+LIS3MDL mag;
 USB Usb;
 BTD Btd(&Usb);
 PS3BT PS3(&Btd);
 
-L289N w1(A14, A15, 8); //setup a motor object with pins A14 and A15 controlling direction and 4 controlling speed
-L289N w2(A13, A12, 9);
-L289N w3(A12, A11, 10);
+L289N w3(A14, A15, 8); //setup a motor object with pins A14 and A15 controlling direction and 4 controlling speed
+L289N w1(A13, A12, 9);
+L289N w2(A11, A10, 11);
 
-int x, y;
+int x, y, xp, yp, r;
 int w1s, w2s, w3s;
 
 void setup() {
@@ -18,6 +25,24 @@ void setup() {
   }
 
   Serial.begin(115200);
+
+  Wire.begin();
+
+  if (!mag.init())
+  {
+      Serial.println("Failed to detect and initialize magnetometer!");
+      while (1);
+  }
+  mag.enableDefault();
+  for(int i = 0; i < 5; i++)
+  {
+      mag.read();
+      float angle = atan2(x, y) + PI;
+      avg += angle;
+      delay(100);
+  }
+  avg = avg / 5;
+  setpoint = avg;
 }
 
 void loop() {
@@ -30,21 +55,35 @@ void loop() {
       //  can use
       x = joyToPWM(PS3.getAnalogHat(RightHatX));
       y = joyToPWM(PS3.getAnalogHat(RightHatY));
+      //xp = joyToPWM(PS3.getAnalogHat(RightHatX));
+      //yp = joyToPWM(PS3.getAnalogHat(RightHatY));
+      r = joyToPWM(PS3.getAnalogHat(LeftHatX));
+
+      /*mag.read();
+      float mag_x = mag.m.x - 250;
+      float mag_y = mag.m.y + 3000;
+      float angle = atan2(mag_x, mag_y) + PI;
+      theta = setpoint - angle;
+      if(theta < 0)
+       theta = theta + 2 * PI;*/
+       
+      //x = xp*sin(theta) + yp*cos(theta);
+      //y = xp*cos(theta) - yp*sin(theta);
 
       //set the speed and direction of the motors using the L289N library
-      w1s = -0.5 * x - sqrt(3)/2 * y;
-      w2s = -0.5 * x + sqrt(3)/2 * y;
-      w3s = x;
-
-      Serial.print(w1s);
-      Serial.print(" ");
-      Serial.print(w2s);
-      Serial.print(" ");
-      Serial.println(w3s);
+      w1s = -0.5 * x - sqrt(3)/2 * y + r;
+      w2s = -0.5 * x + sqrt(3)/2 * y + r;
+      w3s = x + r;
 
       w1.setSpeedDirection(w1s);
       w2.setSpeedDirection(w2s);
       w3.setSpeedDirection(w3s);
+  }
+  else
+  {
+      w1.setSpeedDirection(0);
+      w2.setSpeedDirection(0);
+      w3.setSpeedDirection(0);  
   }
 }
 
@@ -61,7 +100,7 @@ int joyToPWM(int joyVal)
   {
     preCurve = -(map(joyVal, 137, 255, 0, 255));
   }
-  else if (joyVal < 117)
+  else if (joyVal <  117)
   {
     //the arduino map function can't invert a value so I wrote my own math
     preCurve = (-2.18*joyVal)+255;
