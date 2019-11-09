@@ -53,27 +53,33 @@ void loop() {
       //grab the analog value from the joystick and run it through the
       //  joyToPWM function to translate it to something the L289N library
       //  can use
-      x = joyToPWM(PS3.getAnalogHat(RightHatX));
-      y = joyToPWM(PS3.getAnalogHat(RightHatY));
-      //xp = joyToPWM(PS3.getAnalogHat(RightHatX));
-      //yp = joyToPWM(PS3.getAnalogHat(RightHatY));
-      r = joyToPWM(PS3.getAnalogHat(LeftHatX));
+      //x = joyToPWM(PS3.getAnalogHat(RightHatX));
+      //y = joyToPWM(PS3.getAnalogHat(RightHatY));
+      xp = joyToPWM(PS3.getAnalogHat(LeftHatX));
+      yp = -1 * joyToPWM(PS3.getAnalogHat(LeftHatY));
+      r = joyToPWM(PS3.getAnalogHat(RightHatX));
 
-      /*mag.read();
-      float mag_x = mag.m.x - 250;
-      float mag_y = mag.m.y + 3000;
-      float angle = atan2(mag_x, mag_y) + PI;
+      mag.read();
+      float mag_x = mag.m.x - 5850;
+      float mag_y = mag.m.y + 6750;
+      float angle = atan2(mag_x, mag_y) + PI;      
       theta = setpoint - angle;
       if(theta < 0)
-       theta = theta + 2 * PI;*/
+       theta = theta + 2 * PI;
        
-      //x = xp*sin(theta) + yp*cos(theta);
-      //y = xp*cos(theta) - yp*sin(theta);
+      x = xp*sin(theta) + yp*cos(theta);
+      y = xp*cos(theta) - yp*sin(theta);
 
       //set the speed and direction of the motors using the L289N library
       w1s = -0.5 * x - sqrt(3)/2 * y + r;
       w2s = -0.5 * x + sqrt(3)/2 * y + r;
       w3s = x + r;
+
+      Serial.println(w1s);
+
+      w1s *= 0.35;
+      w2s *= 0.35;
+      w3s *= 0.35;
 
       w1.setSpeedDirection(w1s);
       w2.setSpeedDirection(w2s);
