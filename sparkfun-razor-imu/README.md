@@ -3,7 +3,7 @@
 This is information on setting up the Sparkfun Razor IMU.
 
 # IMU Info
-![enter image description here](https://cdn.sparkfun.com//assets/parts/3/4/5/4/09623-01b.jpg?resize=718,448)
+<img src="https://cdn.sparkfun.com//assets/parts/3/4/5/4/09623-01b.jpg" width="400" />
 
 This is the Sparkfun SEN-09623 9DOF Razor IMU. This is an old device, (circa 2009) and there are currently two newer versions available.
 
@@ -28,7 +28,7 @@ This code depends on the following libraries from [jrowberg's i2cdevlib repo](ht
 These can be installed by simply copying the folders from jrowberg's repo into the Arduino libraries folder (typically Documents\Arduino\libraries). 
 
 
-**Programming:**
+**Programming the Device:**  
 
  1. Connect the IMU to the PC using a [3.3v FTDI cable](https://www.sparkfun.com/products/9873).
  2. Open the Arduino IDE.
@@ -36,9 +36,9 @@ These can be installed by simply copying the folders from jrowberg's repo into t
  4. Upload the code as normal.
 
 **Interfacing With Another Device:**
-The device communicates with other devices via serial. In the example programs the data is sent as text for debugging 
-purposes and can be read using the serial monitor at 38400baud.
 
-In the main program, data is sent in response to a request for data (ascii Enquiry control character, 0x05). Data is then sent in binary from the imu. This is read by some other device connected by serial. 
+The device communicates with other devices via serial (the tx and rx pins on the device). In the example programs the data is sent as text for debugging purposes and can be read using the serial monitor at 38400baud.
 
-Note: the imu uses 3.3v logic. Its transmit line can be attached directly to a 5v device with no issues. The receive line however, needs either a level shifter (preferred) or a 10k resistor (janky) to be put in the line to prevent damage.
+In the main example program, the imu sends data in response to a request for data (ascii Enquiry control character, 0x05) from the connected device. The imu then sends the response data.
+
+Note: the imu uses 3.3v logic. The transmit line (tx) can be attached directly to a 5v device with no issues. The receive line (rx) however, needs either a level shifter (preferred) or a 10k resistor (janky) to prevent damage.
