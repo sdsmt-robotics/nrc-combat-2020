@@ -1,20 +1,20 @@
-#include "L289N.h"
+#include <BTS7960.h>
 #include <PS3BT.h>
 #include <Wire.h>
-#include <LIS3MDL.h>
+//#include <LIS3MDL.h>
 #include <math.h>
 
 float avg = 0;
 float setpoint, theta;
 
-LIS3MDL mag;
+//LIS3MDL mag;
 USB Usb;
 BTD Btd(&Usb);
 PS3BT PS3(&Btd);
 
-L289N w3(A14, A15, 8); //setup a motor object with pins A14 and A15 controlling direction and 4 controlling speed
-L289N w1(A13, A12, 9);
-L289N w2(A11, A10, 11);
+BTS7960 w1(9, 39, 37, true);
+BTS7960 w2(10, 43, 41, true);
+BTS7960 w3(11, 47, 45, true);
 
 int x, y, xp, yp, r;
 int w1s, w2s, w3s;
@@ -28,21 +28,22 @@ void setup() {
 
   Wire.begin();
 
-  if (!mag.init())
-  {
-      Serial.println("Failed to detect and initialize magnetometer!");
-      while (1);
-  }
-  mag.enableDefault();
-  for(int i = 0; i < 5; i++)
-  {
-      mag.read();
-      float angle = atan2(x, y) + PI;
-      avg += angle;
-      delay(100);
-  }
-  avg = avg / 5;
-  setpoint = avg;
+  //if (!mag.init())
+  //{
+  //    Serial.println("Failed to detect and initialize magnetometer!");
+  //    while (1);
+  //}
+  //mag.enableDefault();
+  
+  //for(int i = 0; i < 5; i++)
+  //{
+  //    mag.read();
+  //    float angle = atan2(x, y) + PI;
+  //    avg += angle;
+  //    delay(100);
+  //}
+  //avg = avg / 5;
+  //setpoint = avg;
 }
 
 void loop() {
@@ -59,37 +60,50 @@ void loop() {
       yp = -1 * joyToPWM(PS3.getAnalogHat(LeftHatY));
       r = joyToPWM(PS3.getAnalogHat(RightHatX));
 
-      mag.read();
-      float mag_x = mag.m.x - 5850;
-      float mag_y = mag.m.y + 6750;
-      float angle = atan2(mag_x, mag_y) + PI;      
-      theta = setpoint - angle;
-      if(theta < 0)
-       theta = theta + 2 * PI;
+      //mag.read();
+      //float mag_x = mag.m.x - 5850;
+      //float mag_y = mag.m.y + 6750;
+      //float angle = atan2(mag_x, mag_y) + PI;      
+      //theta = setpoint - angle;
+      //if(theta < 0)
+       //theta = theta + 2 * PI;
        
-      x = xp*sin(theta) + yp*cos(theta);
-      y = xp*cos(theta) - yp*sin(theta);
+      //x = xp*sin(theta) + yp*cos(theta);
+      //y = xp*cos(theta) - yp*sin(theta);
 
       //set the speed and direction of the motors using the L289N library
-      w1s = -0.5 * x - sqrt(3)/2 * y + r;
-      w2s = -0.5 * x + sqrt(3)/2 * y + r;
+      w1s = -0.5 * xp - sqrt(3)/2 * yp + r;
+      w2s = -0.5 * xp + sqrt(3)/2 * yp + r;
       w3s = x + r;
-
-      Serial.println(w1s);
 
       w1s *= 0.35;
       w2s *= 0.35;
       w3s *= 0.35;
 
-      w1.setSpeedDirection(w1s);
-      w2.setSpeedDirection(w2s);
-      w3.setSpeedDirection(w3s);
+      Serial.println(w1s);
+      Serial.println(w2s);
+      Serial.println(w3s);
+
+    if(w1s < 0)
+    {
+      
+    }
+    
+    if(w2s < 0)
+    {
+  
+    }
+  
+    if(w3s < 0)
+    {
+      
+    }
+  
   }
   else
   {
-      w1.setSpeedDirection(0);
-      w2.setSpeedDirection(0);
-      w3.setSpeedDirection(0);  
+    Serial.println("No controller connected. \n");
+    delay(500);
   }
 }
 
