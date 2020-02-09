@@ -12,9 +12,9 @@ USB Usb;
 BTD Btd(&Usb);
 PS3BT PS3(&Btd);
 
-BTS7960 w1(9, 39, 37, true);
-BTS7960 w2(10, 43, 41, true);
-BTS7960 w3(11, 47, 45, true);
+BTS7960 w1(9, 39, 37);
+BTS7960 w2(10, 43, 41);
+BTS7960 w3(11, 47, 45);
 
 int x, y, xp, yp, r;
 int w1s, w2s, w3s;
@@ -74,8 +74,9 @@ void loop() {
       //set the speed and direction of the motors using the L289N library
       w1s = -0.5 * xp - sqrt(3)/2 * yp + r;
       w2s = -0.5 * xp + sqrt(3)/2 * yp + r;
-      w3s = x + r;
+      w3s = xp + r;
 
+      //limit speed
       w1s *= 0.35;
       w2s *= 0.35;
       w3s *= 0.35;
@@ -86,24 +87,38 @@ void loop() {
 
     if(w1s < 0)
     {
-      
+      w1.TurnRight(w1s);
+    }
+    else
+    {
+      w1.TurnLeft(w1s);
     }
     
     if(w2s < 0)
     {
-  
+      w2.TurnRight(w2s);
+    }
+    else
+    {
+      w2.TurnLeft(w2s);
     }
   
     if(w3s < 0)
     {
-      
+      w3.TurnRight(w3s);
     }
-  
+    else
+    {
+      w3.TurnLeft(w3s);
+    }
   }
   else
   {
-    Serial.println("No controller connected. \n");
-    delay(500);
+    //Serial.println("No controller connected. \n");
+    w1.TurnRight(0);
+    w2.TurnRight(0);
+    w3.TurnRight(0);
+    //delay(500);
   }
 }
 
