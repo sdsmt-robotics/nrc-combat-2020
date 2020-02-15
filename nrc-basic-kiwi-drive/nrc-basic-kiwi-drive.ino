@@ -7,14 +7,25 @@
 float avg = 0;
 float setpoint, theta;
 
+//Motor 1
+const int REN1 = 45;
+const int LEN1 = 47;
+const int PWM1 = 11;
+
+//Motor 2
+const int REN2 = 41;
+const int LEN2 = 43;
+const int PWM2 = 5;
+
+//Motor 3
+const int REN3 = 37;
+const int LEN3 = 39;
+const int PWM3 = 6;
+
 //LIS3MDL mag;
 USB Usb;
 BTD Btd(&Usb);
 PS3BT PS3(&Btd);
-
-BTS7960 w1(9, 39, 37);
-BTS7960 w2(10, 43, 41);
-BTS7960 w3(11, 47, 45);
 
 int x, y, xp, yp, r;
 int w1s, w2s, w3s;
@@ -23,103 +34,91 @@ void setup() {
   if (Usb.Init() == -1) {
     while (1); //halt
   }
+  // put your setup code here, to run once:
 
+  pinMode(REN3,OUTPUT);
+  pinMode(LEN3,OUTPUT);
+  pinMode(PWM3,OUTPUT);
+  pinMode(REN2,OUTPUT);
+  pinMode(LEN2,OUTPUT);
+  pinMode(PWM2,OUTPUT);
+  pinMode(REN1,OUTPUT);
+  pinMode(LEN1,OUTPUT);
+  pinMode(PWM1,OUTPUT);
+  
   Serial.begin(115200);
 
   Wire.begin();
-
-  //if (!mag.init())
-  //{
-  //    Serial.println("Failed to detect and initialize magnetometer!");
-  //    while (1);
-  //}
-  //mag.enableDefault();
-  
-  //for(int i = 0; i < 5; i++)
-  //{
-  //    mag.read();
-  //    float angle = atan2(x, y) + PI;
-  //    avg += angle;
-  //    delay(100);
-  //}
-  //avg = avg / 5;
-  //setpoint = avg;
 }
 
 void loop() {
-  Usb.Task(); //this wil manage the controller connection
-
-  if (PS3.PS3Connected) //only run the drive code if the controller is connected
+  Usb.Task();
+  if (PS3.PS3Connected)
   {
-      //grab the analog value from the joystick and run it through the
-      //  joyToPWM function to translate it to something the L289N library
-      //  can use
-      //x = joyToPWM(PS3.getAnalogHat(RightHatX));
-      //y = joyToPWM(PS3.getAnalogHat(RightHatY));
-      xp = joyToPWM(PS3.getAnalogHat(LeftHatX));
-      yp = -1 * joyToPWM(PS3.getAnalogHat(LeftHatY));
-      r = joyToPWM(PS3.getAnalogHat(RightHatX));
+    xp = joyToPWM(PS3.getAnalogHat(LeftHatX));
+    yp = -1 * joyToPWM(PS3.getAnalogHat(LeftHatY));
+    r = joyToPWM(PS3.getAnalogHat(RightHatX));
+    
+    //set the speed and direction of the motors using the L289N library
+    w1s = -0.5 * xp - sqrt(3)/2 * yp + r;
+    w2s = -0.5 * xp + sqrt(3)/2 * yp + r;
+    w3s = xp + r;
 
-      //mag.read();
-      //float mag_x = mag.m.x - 5850;
-      //float mag_y = mag.m.y + 6750;
-      //float angle = atan2(mag_x, mag_y) + PI;      
-      //theta = setpoint - angle;
-      //if(theta < 0)
-       //theta = theta + 2 * PI;
-       
-      //x = xp*sin(theta) + yp*cos(theta);
-      //y = xp*cos(theta) - yp*sin(theta);
+    //limit speed
+    w1s *= 0.35;
+    w2s *= 0.35;
+    w3s *= 0.35;
 
-      //set the speed and direction of the motors using the L289N library
-      w1s = -0.5 * xp - sqrt(3)/2 * yp + r;
-      w2s = -0.5 * xp + sqrt(3)/2 * yp + r;
-      w3s = xp + r;
-
-      //limit speed
-      w1s *= 0.35;
-      w2s *= 0.35;
-      w3s *= 0.35;
-
-      Serial.println(w1s);
-      Serial.println(w2s);
-      Serial.println(w3s);
-
+    Serial.print(w1s);
+    Serial.print(" ");
+    Serial.print(w2s);
+    Serial.print(" ");
+    Serial.print(w3s);
+    Serial.println();
+        
     if(w1s < 0)
     {
-      w1.TurnRight(w1s);
+      digitalWrite(LEN1,HIGH);
+      digitalWrite(REN1,LOW);
+      analogWrite(PWM1,-1*w1s);
     }
     else
     {
-      w1.TurnLeft(w1s);
+      digitalWrite(REN1,LOW);
+      digitalWrite(LEN1,HIGH);
+      analogWrite(PWM1,w1s);
     }
     
     if(w2s < 0)
     {
-      w2.TurnRight(w2s);
+      digitalWrite(LEN2,HIGH);
+      digitalWrite(REN2,LOW);
+      analogWrite(PWM2,-1*w2s);
     }
     else
     {
-      w2.TurnLeft(w2s);
+      digitalWrite(REN2,LOW);
+      digitalWrite(LEN2,HIGH);
+      analogWrite(PWM2,w2s);
     }
   
     if(w3s < 0)
     {
-      w3.TurnRight(w3s);
+      digitalWrite(LEN3,HIGH);
+      digitalWrite(REN3,LOW);
+      analogWrite(PWM3,-1*w3s);
     }
     else
     {
-      w3.TurnLeft(w3s);
+      digitalWrite(REN3,LOW);
+      digitalWrite(LEN3,HIGH);
+      analogWrite(PWM3,w3s);
     }
+    delay(10);
   }
-  else
-  {
-    //Serial.println("No controller connected. \n");
-    w1.TurnRight(0);
-    w2.TurnRight(0);
-    w3.TurnRight(0);
-    //delay(500);
-  }
+  analogWrite(11,0);
+  analogWrite(5,0);
+  analogWrite(6,0);
 }
 
 //a function to map a raw joystick value to a value that works with
