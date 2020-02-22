@@ -40,12 +40,12 @@ const int PWM1 = 6;
 
 
 //instantiate a structure for initializing the SpeedController object
-InitSpeedControllerValues setupValues; //the structure already has default values set
+//InitSpeedControllerValues setupValues; //the structure already has default values set
 
 //***Motor 1***
 //Create the motor
 BTS7960 motor(REN1, LEN1, PWM1, true);
-SpeedController motorSpeedController(setupValues, new AS5134(DATA_PIN, CS_PIN, CLK_PIN));
+SpeedController motorSpeedController(new AS5134(DATA_PIN, CS_PIN, CLK_PIN));
 
 
 int mySpeed = 0; //this global variable is used to set the desired speed
