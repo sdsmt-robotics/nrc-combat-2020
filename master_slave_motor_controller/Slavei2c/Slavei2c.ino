@@ -77,7 +77,7 @@ void setup() {
   motor.run(INIT_POWER);
   
   //Start serial
-  Serial.begin(38400);  
+  Serial.begin(115200);  
 }
 
 
@@ -92,7 +92,7 @@ void loop() {
   
   motorPower = motorSpeedController.motorSpeedToPower(mySpeed); // checks the encoder and sets the power to keep the motor at the desired speed
   motorSpeed = motorSpeedController.getSpeed1(); // gets the speed from the encoder
-
+ 
 
   motor.run(motorPower);
 
