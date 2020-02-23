@@ -1,0 +1,30 @@
+#define led 1
+#define interrupt 8
+
+int pulses = 2;
+int timer = 0;
+
+void setup() 
+{
+  pinMode(led, OUTPUT);
+  pinMode(interrupt, INPUT_PULLUP);
+  attachInterrupt(interrupt, counter, CHANGE);
+}
+
+void loop() 
+{
+  static int i;
+  for(i=0;i<pulses;i++)
+  {
+    digitalWrite(led, HIGH);
+    delay(250);
+    digitalWrite(led, LOW);
+    delay(250);
+  }
+  delay(2000);
+}
+
+void counter()
+{
+  pulses++;
+}
