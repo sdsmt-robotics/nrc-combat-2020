@@ -70,7 +70,7 @@ int SpeedController::computeMotorPower(int motorSpeed, int desiredSpeed)
    derivative = float((error) - lastError) / elapsedTime;
  
    //calculate the output
-   output = kp * error;// + ki * integral + kd * derivative;
+   output = kp * error + ki * integral + kd * derivative;
 
    //map the output
    output = map(output, -500, 500, minOutCap, maxOutCap);
