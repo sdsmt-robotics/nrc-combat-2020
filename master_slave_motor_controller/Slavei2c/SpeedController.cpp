@@ -57,7 +57,12 @@ int SpeedController::computeMotorPower(int motorSpeed, int desiredSpeed)
  
    //Get the integral of the error
    integral += float(error) * elapsedTime;
- 
+   
+   if(desiredSpeed < 100 && desiredSpeed > -100)
+   {
+      integral = 0;
+   }
+
    //constrain acumulator
    constrain(integral,minAcumulator,maxAcumulator);
  
@@ -66,6 +71,11 @@ int SpeedController::computeMotorPower(int motorSpeed, int desiredSpeed)
  
    //calculate the output
    output = kp * error + ki * integral + kd * derivative;
+
+   //map the output
+   output = map(output, -500, 500, minOutCap, maxOutCap);
+
+   lastError = error;
  
    //cap the output and return
    return constrain(output, minOutCap, maxOutCap);
@@ -97,15 +107,22 @@ int SpeedController::filterMotorSpeed(int curMotorSpeed)
    return total;
 }
  
-int SpeedController::getSpeed()
+float SpeedController::getSpeed()
 {
    static unsigned long curTime, lastTime  = micros();
    static int curPos, lastPos  = encoder->readMultiTurnAngle();
- 
+
    //Calculate the speed based on the current position
    curPos = encoder->readMultiTurnAngle();
+
+//   Serial.print("CurPos: ");
+//   Serial.print(curPos);
+//   Serial.print("  ");
+//   Serial.print("lastPos: ");
+//   Serial.println(lastPos);
+ 
    curTime = micros();
-   curMotorSpeed1 = long(curPos - lastPos) * 166667 / (curTime - lastTime); //rpm
+   curMotorSpeed1 = (float(curPos) - float(lastPos)) * 166667.0 / (float(curTime) - float(lastTime)); //rpm
  
    //reset counter and reset set last pos and time to new values
    encoder->resetCounter();
@@ -115,7 +132,7 @@ int SpeedController::getSpeed()
    return curMotorSpeed1;
 }
  
-int SpeedController::getSpeed1()
+float SpeedController::getSpeed1()
 {
    return curMotorSpeed1;
 }

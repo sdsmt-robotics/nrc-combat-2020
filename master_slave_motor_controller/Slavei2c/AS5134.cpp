@@ -88,7 +88,12 @@ long AS5134::readMultiTurnAngle() {
         angle = readAngle();
         turns2 = readCounter();  //re-read this just for timing consistancy
     }
-    
+
+    if( turns2 > 255)
+    {
+      turns2 -= 512; 
+    }
+
     return (long)turns2 * 360 + angle;
 }
 
