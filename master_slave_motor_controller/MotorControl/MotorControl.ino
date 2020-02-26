@@ -1,86 +1,15 @@
 #include "Nidec24H.h"
 #include "Filter.h"
+#include "SpeedController.h"
 
 #define INIT_POWER 30
 #define INIT_TARGET 1000
 
-
+//motor we are running
 Nidec24H motor(11, 7, 8, 2);
 
-
-
-//=====SPEED CONTROL=========================================================
-//Reading speed
-int target = INIT_TARGET;
-
-float integral = 0;
-float derivative = 0;
-int error = 0;
-
-Filter powerFilter(10);
-
-//Define constants for the control
-const double k = 0.3;
-const int minPower = 30;
-const int maxPower = 40;
-const int proportionalThresh = 1080;
-const int lowSpeedThresh = 360;
-const int stopThresh = 25;
-
-
-int computeOutput(int curRpm, bool reset = false) {
-  //Define some constants
-  const int maxOutput = 255;    //max output value
-  const int minOutput = 0;   //min output value
-  const int maxOutCap = 255;     //max output we will send
-  const int minOutCap = 5;    //min output we will send
-  //const int maxInput  = 5000;  //max possible input value
-  //const int minInput  = 5; //min possible input value
-  static long lastTime = 0;
-  static int lastError = 0;
-  long curTime = micros();
-
-  //Define PID constants
-  const float kp = 0.08;
-  const float ki = 1;
-  const float kd = 0.02;
-
-
-  int output = 0;
-  float elapsedTime;
-
-
-  // Skip if first loop so we can get initial values
-  if (lastTime == 0 || reset) {
-    lastTime = micros();
-    lastError = target - curRpm;
-    integral = 0;
-    return (maxOutput + minOutput) / 2;
-  }
-
-  //update the time
-  elapsedTime = (curTime - lastTime) / 1000000.0;
-
-  lastTime = curTime;
-
-  //get the error
-  error = target - curRpm;
-
-  //Get the integral of the error
-  integral += (float)error * elapsedTime;
-
-  //Get the derivative of the error
-  derivative = (float)(error - lastError) / elapsedTime;
-
-  //calculate the output
-  output = kp * error + ki * integral + kd * derivative;
-
-  //update for next call
-  lastError = error;
-
-  //cap the output and return
-  return constrain(output, minOutCap, maxOutCap);
-}
+//motor speed controller
+SpeedController speedControl;
 
 
 //=====SETUP=========================================================
@@ -90,6 +19,10 @@ int computeOutput(int curRpm, bool reset = false) {
 void setup() {
   //Setup serial
   Serial.begin(115200);
+
+  speedControl.setPIDConsts(0.08, 1, 0.02);
+  speedControl.setOutputLimits(5, 255);
+  speedControl.setTarget(INIT_TARGET);
 
   //initialize the motor
   motor.init();
@@ -153,7 +86,7 @@ void testFilter() {
   static long lastPrint = millis();
 
   //Do the calculation just so we get the same amount of lag as normal
-  powerFilter.filter(computeOutput(motor.getFilteredSpeed()));
+  speedControl.calcOutput(motor.getFilteredSpeed());
 
   //set the motor power
   motor.setPower(power);
@@ -176,23 +109,24 @@ void testSetSpeed() {
   static long lastPrint = millis();
 
   //set the target speed
-  target = 1000;
+  speedControl.setTarget(1000);
 
   //Get the power level from the speed controller
-  power = powerFilter.filter(computeOutput(motor.getFilteredSpeed()));
+  power = speedControl.calcOutput(motor.getFilteredSpeed());
 
   //set the motor power
   motor.setPower(power);
   
   //Output current speed
   if (millis() - lastPrint > 20) {
-    Serial.print(target);
+    Serial.print(speedControl.getTarget());
     Serial.print(",\t");
     Serial.println(motor.getFilteredSpeed());
     
     lastPrint = millis();
   }
 }
+
 
 /**
  * Test changing the speed to a new value every three seconds.
@@ -217,17 +151,17 @@ void testChangingSpeed() {
   }
 
   //set the target speed
-  target = speeds[speedIndex];
+  speedControl.setTarget(speeds[speedIndex]);
 
   //Get the power level from the speed controller
-  power = powerFilter.filter(computeOutput(motor.getFilteredSpeed()));
+  power = speedControl.calcOutput(motor.getFilteredSpeed());
 
   //set the motor power
   motor.setPower(power);
   
   //Output current speed
   if (millis() - lastPrint > 20) {
-    Serial.print(target);
+    Serial.print(speedControl.getTarget());
     Serial.print(",\t");
     Serial.println(motor.getFilteredSpeed());
     
@@ -259,15 +193,14 @@ void testSpeedControls() {
     } else {
       //read the new speed value
       motorRunning = true;
-      target = Serial.parseInt();
-      computeOutput(motor.getFilteredSpeed(), true);
+      speedControl.setTarget(Serial.parseInt());
     }
   }
 
   
   //update the motor
   if (motorRunning) {
-    power = powerFilter.filter(computeOutput(motor.getFilteredSpeed()));
+    power = speedControl.calcOutput(motor.getFilteredSpeed());
     motor.setPower(power);
   } else {
     motor.setPower(0);
@@ -275,7 +208,7 @@ void testSpeedControls() {
   
   //Output current speed
   if (millis() - lastPrint > 20) {
-    Serial.print(target);
+    Serial.print(speedControl.getTarget());
     Serial.print(",\t");
     Serial.println(motor.getFilteredSpeed());
     
