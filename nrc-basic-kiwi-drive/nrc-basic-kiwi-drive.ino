@@ -99,7 +99,13 @@ void loop() {
 
     //limit speed
     w1s *= 8;
-    w2s =0; //*= 0.35;
+
+
+
+
+
+    
+    w2s *= 8; 
     w3s =0; //*= 0.35;
 
 
@@ -111,37 +117,33 @@ void loop() {
       w1sOld = w1s;
       if(w1s < 0)
       {
-        //digitalWrite(LEN1,HIGH);
-        //digitalWrite(REN1,LOW);
-        //analogWrite(PWM1,-1*w1s);
         Wire.beginTransmission(1); // transmit to device #1      // sends five bytes
-        Wire.write(-1*w1s);              // sends one byte  
-        Wire.write((-1*w1s)>>8);  
+        Wire.write(w1s);              // sends one byte  
+        Wire.write((w1s)>>8);  
         Wire.endTransmission();    // stop transmitting
       }
       else
       {
-        //digitalWrite(REN1,LOW);
-        //digitalWrite(LEN1,HIGH);
-        //analogWrite(PWM1,w1s);
         Wire.beginTransmission(1); // transmit to device #1      // sends five bytes
-        Wire.write(-1*w1s);              // sends one byte  
-        Wire.write((-1*w1s)>>8);  
+        Wire.write(w1s);              // sends one byte  
+        Wire.write((w1s)>>8);  
         Wire.endTransmission();    // stop transmitting
       }
     }
     
     if(w2s < 0)
     {
-      digitalWrite(LEN2,HIGH);
-      digitalWrite(REN2,LOW);
-      analogWrite(PWM2,-1*w2s);
+        Wire.beginTransmission(2); // transmit to device #1      // sends five bytes
+        Wire.write(w2s);              // sends one byte  
+        Wire.write((w2s)>>8);  
+        Wire.endTransmission();    // stop transmitting
     }
     else
     {
-      digitalWrite(REN2,LOW);
-      digitalWrite(LEN2,HIGH);
-      analogWrite(PWM2,w2s);
+        Wire.beginTransmission(2); // transmit to device #1      // sends five bytes
+        Wire.write(w2s);              // sends one byte  
+        Wire.write((w2s)>>8);  
+        Wire.endTransmission();    // stop transmitting
     }
   
     if(w3s < 0)
