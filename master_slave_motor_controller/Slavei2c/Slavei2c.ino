@@ -1,15 +1,15 @@
 /* 1/15/2020
  * Christian Wea
  * Wiring:
- * _______________           _______________
- * | Arduino  GND|---------->|GND Arver
  * 
  * This code offloads the encoder and motor control management froma "master" Arduino to a "slave" 
  * Arduino. The "master" arduino sends an RPM value (of type int) over I2C to a "slave" Arduino
  * that is connected to an encoder and motor controller. The slave Arduino will regulate the motor
  * and keep it running at the RPM sent by the master Arduino. Multiple "slave" Arduinos may be 
  * connected to the same "master" arduion. 
- * duino  |
+ * duino  
+ * _______________           _______________
+ * | Arduino  GND|---------->|GND Arver|
  * | (slave)     |           |   (master)  |
  * |             |           |             |
  * |          SDA|---------->|SDA          |
@@ -38,11 +38,13 @@ const int REN1 = 7;
 const int LEN1 = 8;
 const int PWM1 = 6;
 
+const int motorSelect = 2;
+
 
 //instantiate a structure for initializing the SpeedController object
 //InitSpeedControllerValues setupValues; //the structure already has default values set
 
-//***Motor 1***
+//***Motor***
 //Create the motor
 BTS7960 motor(REN1, LEN1, PWM1, true);
 SpeedController motorSpeedController(new AS5134(DATA_PIN, CS_PIN, CLK_PIN));
@@ -60,7 +62,7 @@ void receiveEvent(int howMany)
   //get rid of all but the most recent bites
   while(Wire.available() > 2)
   {
-    Wire.read()
+    Wire.read();
   }
     
   int c = Wire.read();
@@ -74,7 +76,7 @@ void receiveEvent(int howMany)
 void setup() {
  
   //start I2C
-  Wire.begin(3);                // join i2c bus with address #1
+  Wire.begin(motorSelect); // join i2c bus with address #1
   Wire.onReceive(receiveEvent); // register event
 
   //Initialize the motor
@@ -99,7 +101,11 @@ void loop() {
   motorPower = motorSpeedController.motorSpeedToPower(mySpeed); // checks the encoder and sets the power to keep the motor at the desired speed
   motorSpeed = motorSpeedController.getSpeed1(); // gets the speed from the encoder
  
+<<<<<<< HEAD
   if((millis()-lastUpdate ) > 0.5)
+=======
+  if((millis()-lastUpdate) > 500)
+>>>>>>> 8347608d58a96c1ef062d3adacdeae294589365f
   {
     motorPower = 0;
   }
