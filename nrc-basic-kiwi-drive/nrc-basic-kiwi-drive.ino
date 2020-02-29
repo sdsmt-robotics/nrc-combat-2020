@@ -99,11 +99,14 @@ void loop() {
     w3s = xp + r;
 
     //limit speed
-    w1s *= 8;    
-    w2s *= 8; 
-    w3s *= 8;
+    w1s *= 1.5;    
+    w2s *= 1.5; 
+    w3s *= 1.5;
 
-
+    Serial.println(w1s);
+    Serial.println(w2s);
+    Serial.println(w3s);
+    
     if(w1sOld != w1s)
     {
       w1sOld = w1s;
@@ -124,7 +127,7 @@ void loop() {
       Wire.endTransmission();    // stop transmitting
     }
   
-    if(w3Old != w3s)
+    if(w3sOld != w3s)
     {
       w3sOld = w3s;
       lastUpdate = millis();
@@ -134,8 +137,16 @@ void loop() {
       Wire.endTransmission();    // stop transmitting
     }
 
-    if((millis() - lastUpdate) > 100))
+    if((millis() - lastUpdate) > 100)
     {
+      Wire.beginTransmission(1); // transmit to device #3      // sends five bytes
+      Wire.write(w1s);              // sends one byte  
+      Wire.write((w1s)>>8);  
+      Wire.endTransmission();    // stop transmitting
+      Wire.beginTransmission(2); // transmit to device #3      // sends five bytes
+      Wire.write(w2s);              // sends one byte  
+      Wire.write((w2s)>>8);  
+      Wire.endTransmission();    // stop transmitting
       Wire.beginTransmission(3); // transmit to device #3      // sends five bytes
       Wire.write(w3s);              // sends one byte  
       Wire.write((w3s)>>8);  

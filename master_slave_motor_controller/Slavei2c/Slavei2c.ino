@@ -99,7 +99,7 @@ void loop() {
   motorPower = motorSpeedController.motorSpeedToPower(mySpeed); // checks the encoder and sets the power to keep the motor at the desired speed
   motorSpeed = motorSpeedController.getSpeed1(); // gets the speed from the encoder
  
-  if((millis()-lastUpdate) > 0.5)
+  if((millis()-lastUpdate ) > 0.5)
   {
     motorPower = 0;
   }
