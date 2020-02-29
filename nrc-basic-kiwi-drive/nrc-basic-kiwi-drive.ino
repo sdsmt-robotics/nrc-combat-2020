@@ -144,18 +144,21 @@ void loop() {
 
     delay(10);
   }
-  Wire.beginTransmission(1); // transmit to device #1      // sends five bytes
-  Wire.write(0);              // sends one byte  
-  Wire.write((0)>>8);  
-  Wire.endTransmission();    // stop transmitting
-  Wire.beginTransmission(2); // transmit to device #2      // sends five bytes
-  Wire.write(0);              // sends one byte  
-  Wire.write((0)>>8);  
-  Wire.endTransmission();    // stop transmitting
-  Wire.beginTransmission(3); // transmit to device #3      // sends five bytes
-  Wire.write(0);              // sends one byte  
-  Wire.write((0)>>8);  
-  Wire.endTransmission();    // stop transmitting
+  else // set speed to zero if controller is not connected
+  {
+    Wire.beginTransmission(1); // transmit to device #1      // sends five bytes
+    Wire.write(0);              // sends one byte  
+    Wire.write((0)>>8);  
+    Wire.endTransmission();    // stop transmitting
+    Wire.beginTransmission(2); // transmit to device #2      // sends five bytes
+    Wire.write(0);              // sends one byte  
+    Wire.write((0)>>8);  
+    Wire.endTransmission();    // stop transmitting
+    Wire.beginTransmission(3); // transmit to device #3      // sends five bytes
+    Wire.write(0);              // sends one byte  
+    Wire.write((0)>>8);  
+    Wire.endTransmission();    // stop transmitting
+  }
 }
 
 //a function to map a raw joystick value to a value that works with
