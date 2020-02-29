@@ -30,6 +30,7 @@ PS3BT PS3(&Btd);
 int x, y, xp, yp, r;
 int w1s, w2s, w3s;
 int w1sOld, w2sOld, w3sOld;
+unsigned long lastUpdate = 0;
 
 void setup() {
   if (Usb.Init() == -1) {
@@ -98,76 +99,63 @@ void loop() {
     w3s = xp + r;
 
     //limit speed
-    w1s *= 8;
-
-
-
-
-
-    
+    w1s *= 8;    
     w2s *= 8; 
-    w3s =0; //*= 0.35;
+    w3s *= 8;
 
 
     if(w1sOld != w1s)
     {
-      Serial.print(w1s);
-      Serial.print(" ");
-      Serial.println();
       w1sOld = w1s;
-      if(w1s < 0)
-      {
-        Wire.beginTransmission(1); // transmit to device #1      // sends five bytes
-        Wire.write(w1s);              // sends one byte  
-        Wire.write((w1s)>>8);  
-        Wire.endTransmission();    // stop transmitting
-      }
-      else
-      {
-        Wire.beginTransmission(1); // transmit to device #1      // sends five bytes
-        Wire.write(w1s);              // sends one byte  
-        Wire.write((w1s)>>8);  
-        Wire.endTransmission();    // stop transmitting
-      }
+      lastUpdate = millis();
+      Wire.beginTransmission(1); // transmit to device #1      // sends five bytes
+      Wire.write(w1s);              // sends one byte  
+      Wire.write((w1s)>>8);  
+      Wire.endTransmission();    // stop transmitting
     }
     
-    if(w2s < 0)
+    if(w2sOld != w2s)
     {
-        Wire.beginTransmission(2); // transmit to device #1      // sends five bytes
-        Wire.write(w2s);              // sends one byte  
-        Wire.write((w2s)>>8);  
-        Wire.endTransmission();    // stop transmitting
-    }
-    else
-    {
-        Wire.beginTransmission(2); // transmit to device #1      // sends five bytes
-        Wire.write(w2s);              // sends one byte  
-        Wire.write((w2s)>>8);  
-        Wire.endTransmission();    // stop transmitting
+      w2sOld = w2s;
+      lastUpdate = millis();
+      Wire.beginTransmission(2); // transmit to device #2      // sends five bytes
+      Wire.write(w2s);              // sends one byte  
+      Wire.write((w2s)>>8);  
+      Wire.endTransmission();    // stop transmitting
     }
   
-    if(w3s < 0)
+    if(w3Old != w3s)
     {
-      digitalWrite(LEN3,HIGH);
-      digitalWrite(REN3,LOW);
-      analogWrite(PWM3,-1*w3s);
-    }
-    else
-    {
-      digitalWrite(REN3,LOW);
-      digitalWrite(LEN3,HIGH);
-      analogWrite(PWM3,w3s);
+      w3sOld = w3s;
+      lastUpdate = millis();
+      Wire.beginTransmission(3); // transmit to device #3      // sends five bytes
+      Wire.write(w3s);              // sends one byte  
+      Wire.write((w3s)>>8);  
+      Wire.endTransmission();    // stop transmitting
     }
 
-    //Serial.print(w2s);
-    //Serial.print(" ");
-    //Serial.print(w3s);
-    //Serial.println();
+    if((millis() - lastUpdate) > 100))
+    {
+      Wire.beginTransmission(3); // transmit to device #3      // sends five bytes
+      Wire.write(w3s);              // sends one byte  
+      Wire.write((w3s)>>8);  
+      Wire.endTransmission();    // stop transmitting
+    }
+
     delay(10);
   }
-  analogWrite(11,0);
-  analogWrite(5,0);
-  analogWrite(6,0);
+  Wire.beginTransmission(1); // transmit to device #1      // sends five bytes
+  Wire.write(0);              // sends one byte  
+  Wire.write((0)>>8);  
+  Wire.endTransmission();    // stop transmitting
+  Wire.beginTransmission(2); // transmit to device #2      // sends five bytes
+  Wire.write(0);              // sends one byte  
+  Wire.write((0)>>8);  
+  Wire.endTransmission();    // stop transmitting
+  Wire.beginTransmission(3); // transmit to device #3      // sends five bytes
+  Wire.write(0);              // sends one byte  
+  Wire.write((0)>>8);  
+  Wire.endTransmission();    // stop transmitting
 }
 
 //a function to map a raw joystick value to a value that works with

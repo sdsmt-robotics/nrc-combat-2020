@@ -1,15 +1,15 @@
 /* 1/15/2020
- * Christian Weaver
+ * Christian Wea
+ * Wiring:
+ * _______________           _______________
+ * | Arduino  GND|---------->|GND Arver
  * 
  * This code offloads the encoder and motor control management froma "master" Arduino to a "slave" 
  * Arduino. The "master" arduino sends an RPM value (of type int) over I2C to a "slave" Arduino
  * that is connected to an encoder and motor controller. The slave Arduino will regulate the motor
  * and keep it running at the RPM sent by the master Arduino. Multiple "slave" Arduinos may be 
  * connected to the same "master" arduion. 
- * 
- * Wiring:
- * _______________           _______________
- * | Arduino  GND|---------->|GND Arduino  |
+ * duino  |
  * | (slave)     |           |   (master)  |
  * |             |           |             |
  * |          SDA|---------->|SDA          |
@@ -49,26 +49,32 @@ SpeedController motorSpeedController(new AS5134(DATA_PIN, CS_PIN, CLK_PIN));
 
 
 int mySpeed = 0; //this global variable is used to set the desired speed
-
+unsigned long lastUpdate = 0;
 
 // function that executes whenever data is received from master
 // this function is registered as an event, see setup()
 void receiveEvent(int howMany)
 {
+  lastUpdate = millis();
+ 
+  //get rid of all but the most recent bites
+  while(Wire.available() > 2)
+  {
+    Wire.read()
+  }
+    
   int c = Wire.read();
   mySpeed = c;    // set the lower byte
   c = Wire.read();
   mySpeed |= c<<8; // set the upper byte
+
 }
-
-
-
 
 //=====setup==============================
 void setup() {
  
   //start I2C
-  Wire.begin(1);                // join i2c bus with address #1
+  Wire.begin(3);                // join i2c bus with address #1
   Wire.onReceive(receiveEvent); // register event
 
   //Initialize the motor
@@ -93,7 +99,11 @@ void loop() {
   motorPower = motorSpeedController.motorSpeedToPower(mySpeed); // checks the encoder and sets the power to keep the motor at the desired speed
   motorSpeed = motorSpeedController.getSpeed1(); // gets the speed from the encoder
  
-
+  if((millis()-lastUpdate) > 0.5)
+  {
+    motorPower = 0;
+  }
+  
   motor.run(motorPower);
 
   Serial.println(mySpeed);
