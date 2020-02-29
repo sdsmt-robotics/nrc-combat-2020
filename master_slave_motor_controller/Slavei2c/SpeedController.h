@@ -26,8 +26,8 @@ private:
     AS5134* encoder;
     const int maxOutput = 255;    //max output value
     const int minOutput = -255;   //min output value
-    const int maxOutCap = 80;     //max output we will send
-    const int minOutCap = -80;    //min output we will send
+    const int maxOutCap = 120;     //max output we will send
+    const int minOutCap = -120;    //min output we will send
     const int maxInput = 18000;  //max possible input value
     const int minInput = -18000; //min possible input value
     const float maxAcumulator = 300;
