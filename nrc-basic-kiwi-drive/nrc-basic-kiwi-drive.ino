@@ -1,73 +1,50 @@
 #include <BTS7960.h>
 #include <PS3BT.h>
 #include <Wire.h>
-//#include <LIS3MDL.h>
+#include <LIS3MDL.h>
 #include <math.h>
 
 float avg = 0;
 float setpoint, theta;
 
-//Motor 1
-const int REN1 = 45;
-const int LEN1 = 47;
-const int PWM1 = 11;
-
-//Motor 2
-const int REN2 = 41;
-const int LEN2 = 43;
-const int PWM2 = 5;
-
-//Motor 3
-const int REN3 = 37;
-const int LEN3 = 39;
-const int PWM3 = 6;
-
-//LIS3MDL mag;
+LIS3MDL mag;
 USB Usb;
 BTD Btd(&Usb);
 PS3BT PS3(&Btd);
 
-int x, y, xp, yp, r;
+int xp, yp, r;
 int w1s, w2s, w3s;
 int w1sOld, w2sOld, w3sOld;
 unsigned long lastUpdate = 0;
-
+float maxx = 0, maxy =0 , minx =0, miny=0 ;
 void setup() {
   if (Usb.Init() == -1) {
     while (1); //halt
   }
   // put your setup code here, to run once:
-
-  pinMode(REN3,OUTPUT);
-  pinMode(LEN3,OUTPUT);
-  pinMode(PWM3,OUTPUT);
-  pinMode(REN2,OUTPUT);
-  pinMode(LEN2,OUTPUT);
-  pinMode(PWM2,OUTPUT);
-  pinMode(REN1,OUTPUT);
-  pinMode(LEN1,OUTPUT);
-  pinMode(PWM1,OUTPUT);
   
   Serial.begin(115200);
 
   Wire.begin();
 
-  //if (!mag.init())
-  //{
-  //    Serial.println("Failed to detect and initialize magnetometer!");
-  //    while (1);
-  //}
-  //mag.enableDefault();
+  if (!mag.init())
+  {
+      Serial.println("Failed to detect and initialize magnetometer!");
+      while (1);
+  }
+  mag.enableDefault();
   
-  //for(int i = 0; i < 5; i++)
-  //{
-  //    mag.read();
-  //    float angle = atan2(x, y) + PI;
-  //    avg += angle;
-  //    delay(100);
-  //}
-  //avg = avg / 5;
-  //setpoint = avg;
+  for(int i = 0; i < 5; i++)
+  {
+    mag.read();
+    float mag_x = mag.m.x + 6501;// - 5850;
+    float mag_y = mag.m.y; + 4753;// + 6750;
+    float angle = atan2(mag_x, mag_y) + PI; 
+    avg += angle;
+    delay(100);
+  }
+  avg = avg / 5;
+  setpoint = avg;
 }
 
 void loop() {
@@ -82,17 +59,31 @@ void loop() {
     yp = -1 * joyToPWM(PS3.getAnalogHat(LeftHatY));
     r = joyToPWM(PS3.getAnalogHat(RightHatX));
 
-    //mag.read();
-    //float mag_x = mag.m.x - 5850;
-    //float mag_y = mag.m.y + 6750;
-    //float angle = atan2(mag_x, mag_y) + PI;      
-    //theta = setpoint - angle;
-    //if(theta < 0)
-    //theta = theta + 2 * PI;
+    mag.read();
+    float mag_x = mag.m.x + 6501;
+    float mag_y = mag.m.y + 4753;
+    //maxx = max(maxx,mag_x);
+    //maxy = max(maxy,mag_y);
+    //minx = min(minx,mag_x);
+    //miny = min(miny,mag_y);
+    //Serial.println(maxx);
+    //Serial.println(minx);
+    //Serial.println(maxy);
+    //Serial.println(miny);
+    Serial.print(mag.m.x);
+    Serial.print(',');
+    Serial.println(mag.m.y);
+
+    float angle = atan2(mag_x, mag_y) + PI;      
+    theta = setpoint - angle;
+    if(theta < 0)
+    theta = theta + 2 * PI;
        
-    //x = xp*sin(theta) + yp*cos(theta);
-    //y = xp*cos(theta) - yp*sin(theta);
+    xp = xp*sin(theta) + yp*cos(theta);
+    yp = xp*cos(theta) - yp*sin(theta);
     
+    //Serial.println(theta);
+
     //set the speed and direction of the motors using the L289N library
     w1s = -0.5 * xp - sqrt(3)/2 * yp + r;
     w2s = -0.5 * xp + sqrt(3)/2 * yp + r;
@@ -102,10 +93,6 @@ void loop() {
     w1s *= 1.5;    
     w2s *= 1.5; 
     w3s *= 1.5;
-
-    Serial.println(w1s);
-    Serial.println(w2s);
-    Serial.println(w3s);
     
     if(w1sOld != w1s)
     {
