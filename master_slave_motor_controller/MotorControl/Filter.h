@@ -19,10 +19,9 @@ public:
 private:
     unsigned bufferSize;  //size of the input buffer
     int* buffer;          //buffer of input values
-    int curIndex = 0;     //index in the input values buffer
+    unsigned curIndex = 0;     //index in the input values buffer
     int filteredVal = 0;  //filtered result
     long total = 0;       //running total of the values
-    
 };
 
 #endif

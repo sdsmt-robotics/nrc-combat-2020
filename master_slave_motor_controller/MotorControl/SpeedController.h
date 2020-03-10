@@ -9,6 +9,7 @@
 
 #include "Arduino.h"
 #include "Filter.h"
+//#include <SimpleKalmanFilter.h>
                                                  
 
 class SpeedController {
@@ -21,27 +22,32 @@ public:
     int getTarget();
 
     int calcOutput(int curSpeed);
+    
+    //integral of the error. Have to save between calculations since it accumulates.
+    float integral;
+    float derivative = 0;
+    int lastError;
 
 private:
     Filter outputFilter;  //filter to smooth output values
+    //SimpleKalmanFilter outputFilter;
 
     int targetSpeed;  //speed we are trying to maintain
 
     //output limits
     int maxOutput = 255;   //max output we will send
     int minOutput = 0;     //min output we will send
+    float maxIntegral;  //max value for the integral
+    float minIntegral;  //min value for the integral
 
     //values from the most recent speed calculation
     long lastTime;
-    int lastError;
 
-    //integral of the error. Have to save between calculations since it accumulates.
-    float integral;
 
     //Define PID constants
-    float kp = 0.08;    //guess: float(abs(maxOutput - minOutput)) / abs(maxInput - minInput);
+    float kp = 1;    //guess: float(abs(maxOutput - minOutput)) / abs(maxInput - minInput);
     float ki = 1;
-    float kd = 0.02;
+    float kd = 1;
 };
 
 

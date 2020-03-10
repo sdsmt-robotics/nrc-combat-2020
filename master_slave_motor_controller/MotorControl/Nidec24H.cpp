@@ -29,7 +29,7 @@ Nidec24H * Nidec24H::instance3;
  * @param fgPin - digital pin number for reading encoder ticks. Must be an inturrupt pin.
  */
 Nidec24H::Nidec24H(int pwmPin, int dirPin, int brakePin, int fgPin) 
-    : pwmPin(pwmPin), dirPin(dirPin), brakePin(brakePin), fgPin(fgPin), speedFilter(6) {
+    : pwmPin(pwmPin), dirPin(dirPin), brakePin(brakePin), fgPin(fgPin), speedFilter(150, 150, 0.05) {
 }
 
 /**
@@ -45,6 +45,8 @@ void Nidec24H::init() {
     if (fgPin != -1) {
         int intNum = digitalPinToInterrupt(fgPin);
         pinMode(fgPin, INPUT_PULLUP);
+        instance0 = this;
+        attachInterrupt(intNum, Nidec24H::isr0, RISING);
 
         //We can't pass a class method into the attachInterrupt function. So, 
         //we instead track instances and have dedicated ISRs to forward the 
@@ -73,7 +75,6 @@ void Nidec24H::init() {
         default:
             break;
         }
-
 
         //initialize the timer
         fgTime = micros();
@@ -122,7 +123,7 @@ void Nidec24H::setPower(int power) {
         digitalWrite(dirPin, HIGH);
     }
     
-    //set the power
+    //set the power.
     analogWrite(pwmPin, constrain(abs(255 - power), 0, 255));
 }
 
@@ -151,7 +152,10 @@ void Nidec24H::brake() {
  * 
  * @return the current speed of the motor.
  */
-int Nidec24H::getSpeed() {
+uint16_t Nidec24H::getSpeed() {
+  if (encoderTimedOut()) {
+    return estimateSpeed();
+  }
   return speed;
 }
 
@@ -161,17 +165,57 @@ int Nidec24H::getSpeed() {
  * @return the filtered current speed of the motor.
  */
 int Nidec24H::getFilteredSpeed() {
-  return speedFilter.getFilteredVal();
+  //check for timeout
+  if (encoderTimedOut()) {
+    return estimateSpeed();
+  }
+  return filteredSpeed;
 }
+
+/**
+ * @brief Check if the encoder has timed out (likely because it has stopped turning).
+ * 
+ * @return true if encoder has timed out, false otherwise.
+ */
+bool Nidec24H::encoderTimedOut() {
+  //Return result if already set
+  if (readTimedOut) {
+    return true;
+  }
+
+  //check if we have timed out (compare to last delta t and check if over 1ms)
+  if ((micros() - fgTime) > (lastInterval * 8) && (micros() - fgTime) > 1000) {
+    readTimedOut = true;
+    return true;
+  }
+
+  //all is good in the hood.
+  return false;
+}
+
+/**
+ * @brief Estimate the speed of the motor based on time that has elapsed since last update.
+ * 
+ * @return the estimated speed in rpm.
+ */
+ //TODO: might need to add filtering to this
+int Nidec24H::estimateSpeed() {
+  return 1250000ul / (micros() - fgTime);
+}
+
 
 
 /**
    @brief Called on encoder tick. Update the speed.
 */
 void Nidec24H::updateSpeed() {
-    speed = 10000000.0 / (micros() - fgTime);
+    lastInterval = micros() - fgTime;
+    //1250000ul
+    speed = 1250000ul / lastInterval;
     fgTime = micros();
-    speedFilter.filter(speed);
+    filteredSpeed = speedFilter.updateEstimate(speed);
+    readTimedOut = false;
+    ticks++;
 }
 
 /**

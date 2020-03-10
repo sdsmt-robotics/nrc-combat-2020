@@ -49,7 +49,7 @@ void Filter::reset(int fillVal) {
         buffer[i] = fillVal;
     }
 
-    //update the running totla
+    //update the running totals
     total = fillVal * bufferSize;
 
     //update the filtered value
@@ -82,6 +82,7 @@ int Filter::filter(int newVal) {
   //return the filtered value
   return filteredVal;
 }
+
 
 /**
  * @brief Get the filtered value from the filter.
