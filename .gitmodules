@@ -1,0 +1,3 @@
+[submodule "master_slave_motor_controller/MotorSpeedController"]
+	path = master_slave_motor_controller/MotorSpeedController
+	url = https://github.com/sdsmt-robotics/MotorSpeedController.git
