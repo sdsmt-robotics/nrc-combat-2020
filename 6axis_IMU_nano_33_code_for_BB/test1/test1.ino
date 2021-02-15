@@ -23,7 +23,6 @@ CRGB leds[NUM_LEDS];
 //average LMU vals
 float IMU_avg_vals[6] = {0,0,0,0,0,0}; //aX, aY, aZ, gX, g
 
-
 struct stripe
 {
    stripe()
@@ -222,17 +221,16 @@ void setup() {
 //**********main loop**********
 void loop() {
 
-  //**********variable setup complete**********
+  //**********variable setup**********
   //record the start time at the beginning of each loop
   unsigned long Loop_start_time = micros();
  
   //generic counter var
-  int i = 1;
+  int i = 0;
 
   //imu variables
   float IMUvals[6] = {0,0,0,0,0,0}; //aX, aY, aZ, gX, gY, gZ
   float IMU_old_vals[6] = {0,0,0,0,0,0}; //aX, aY, aZ, gX, gY, gZ
-  const char * spacer = ", ";
 
   //simpsons 1/3 variables
   static int mid = 1;
@@ -243,15 +241,10 @@ void loop() {
   //time between measurements (should be based off of an internal timer)
   static float delta_t = .01;
 
-  //exponential filter
-  const float filter_weight = 1;
-  
-  //real values
-  float degree = 0;
-
-  
   float screen_step = 360/float(bot_resolution);
   static int screen_point = 0;
+
+  static float degree = 0;
 
 
   //**********imu get**********
@@ -264,7 +257,7 @@ void loop() {
     for(i=0;(i<6) && debug && debug_level < 1; ++i)
     {
       Serial.print(IMUvals[i]);
-      Serial.print(spacer);
+      Serial.print(" ");
     }
     
     if(debug && debug_level < 2 && Serial.println("*")) {}
@@ -279,14 +272,6 @@ void loop() {
     }
     //fix gravity
     IMUvals[2] = IMUvals[2] + 1;
-  
-    //**********exponential filter**********
-  
-    //for(i = 0; i < 6; ++i)
-    //{
-    //  IMUvals[i] = (IMU_old_vals[i]*filter_weight + IMUvals[i])/(filter_weight+1);
-    //  IMU_old_vals[i] = IMUvals[i];
-    //}
    
     //**********numerical integration**********
     //based off of simpsons 1/3 to find the approximate angle
@@ -313,7 +298,7 @@ void loop() {
 
   integral = integral + velocity*delta_t;
   
-  //**********integral to degree**********
+  //**********integral to rad**********
   if (integral > gyro_to_degree)
   {
     integral -= gyro_to_degree;
@@ -327,14 +312,10 @@ void loop() {
   degree = float(360)/gyro_to_degree*integral;
 
   //debug outputs
-  if(debug && debug_level < 3 && Serial.print(integral)) {}
-  if(debug && debug_level < 3 && Serial.print(" ")) {}
+  if(debug && debug_level < 3 && Serial.print(integral)) {Serial.print(" ");}
   if(debug && debug_level < 4 && Serial.println(degree)) {}
 
-
-  //**********variable setup complete**********
-
-  // test led code
+  // led code
   if(use_led)
   {
     if (degree-screen_step > screen_step*screen_point)
