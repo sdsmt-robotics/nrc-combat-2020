@@ -2,13 +2,19 @@
 #include <math.h>
 #include <FastLED.h>
 #include <Arduino_LSM6DS3.h>
-#include "/home/joseph/Desktop/Robot/NRC/MotorSpeedController/Software/controllerInterfaceLib/Nidec24hController.h"
+#include <SPI.h>
+#include "/home/joseph/Desktop/Robot/NRC/MotorSpeedController/Software/controllerInterfaceLib/Nidec24hController.cpp" //?
 
 // How many leds in your strip?
 #define NUM_LEDS 8
 
 // Pin for data to led strip
 #define DATA_PIN 5
+
+// Pin for motor slaves
+#define MOTOR_PIN_1 1
+#define MOTOR_PIN_2 2
+#define MOTOR_PIN_3 3
 
 //**********constants for the motors**********
 
@@ -18,6 +24,13 @@ const float m2Offset = ( (4*PI)/3);
 
 //the output from 1 gyro rotaion to 2pi rad
 const int gyro_to_rad = 420;
+
+//**********motor objects**********
+
+// Motor Controller class (check that i am using this right
+Nidec24hController motor1(SPI, MOTOR_PIN_1);
+Nidec24hController motor2(SPI, MOTOR_PIN_2);
+Nidec24hController motor3(SPI, MOTOR_PIN_3);
 
 //**********constants for the LEDs********** (move some of this to a seperate class)
 //the number of adressible horizontal stripes of leds around the robot
@@ -137,9 +150,26 @@ void setup() {
   int i = 0;
   int j = 0;
   
-  //add leds for the fast led library
-    FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);  // GRB ordering is assumed
+  //**********SPI setup**********
+  // Initialize the SPI communications
+  SPI.begin ();
+  SPI.setClockDivider(SPI_CLOCK_DIV4);
 
+  //**********motor setup**********
+  // Initialize the motor control
+  motor1.init();
+  motor2.init();
+  motor3.init();
+
+  motor1.setPower(100);
+  motor2.setPower(100);
+  motor3.setPower(100);
+
+  motor1.brake();
+  motor2.brake();
+  motor3.brake();
+
+  //**********controller setup**********
   // start serial if debug is true
   if(debug)
   {
@@ -148,7 +178,7 @@ void setup() {
     while (!Serial && debug) {}
   }
   
-  //ps3 controller setup (to be removed/repalced)
+  //**********controller setup**********
   if (false)//Usb.Init() == -1) 
   {
       while (true)
@@ -157,8 +187,8 @@ void setup() {
         delay(500);
       }
   }
-
-  //test for imu initialization
+  
+  //**********imu initialization**********
   if (!IMU.begin())
   {
     if(debug)
@@ -171,6 +201,10 @@ void setup() {
   }
 
   //**********Testing classes and LED's**********
+  
+  //add leds for the fast led library
+  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);  // GRB ordering is assumed
+    
   stripe TEST();
   
   screen TEST2(bot_resolution,bot_resolution);
@@ -405,24 +439,10 @@ void loop() {
     }
 
     //**********send out motor speeds**********
-    //motor 1
-    //Wire.beginTransmission(1); // transmit to device #3      // sends five bytes
-    //Wire.write(w1s);              // sends one byte  
-    //Wire.write((w1s)>>8);  
-    //Wire.endTransmission();    // stop transmitting
-  
-    //motor 2
-    //Wire.beginTransmission(2); // transmit to device #3      // sends five bytes
-    //Wire.write(w2s);              // sends one byte  
-    //Wire.write((w2s)>>8);  
-    //Wire.endTransmission();    // stop transmitting
-  
-    //motor 3
-    //Wire.beginTransmission(3); // transmit to device #3      // sends five bytes
-    //Wire.write(w3s);              // sends one byte  
-    //Wire.write((w3s)>>8);  
-    //Wire.endTransmission();    // stop transmitting
-  
+    motor1.setSpeed(w1s);
+    motor2.setSpeed(w2s);
+    motor3.setSpeed(w3s);
+    
     //debug
     if(debug && debug_level < 2)
     {
@@ -433,7 +453,7 @@ void loop() {
       Serial.println(w3s);
     }
 
-    // led code
+    //**********LED's**********
     if(use_led)
     {
       if (theta-screen_step > screen_step*screen_point)
@@ -462,18 +482,9 @@ void loop() {
 
   //set motor speed to zero as the bot is nolonger in run mode
   
-  //Wire.beginTransmission(1); // transmit to device #1      // sends five bytes
-  //Wire.write(0);              // sends one byte  
-  //Wire.write((0)>>8);  
-  //Wire.endTransmission();    // stop transmitting
-  //Wire.beginTransmission(2); // transmit to device #2      // sends five bytes
-  //Wire.write(0);              // sends one byte  
-  //Wire.write((0)>>8);  
-  //Wire.endTransmission();    // stop transmitting
-  //Wire.beginTransmission(3); // transmit to device #3      // sends five bytes
-  //Wire.write(0);              // sends one byte  
-  //Wire.write((0)>>8);  
-   //Wire.endTransmission();    // stop transmitting
+    motor1.brake();
+    motor2.brake();
+    motor3.brake();
 }
 
 // a function to map a raw joystick values to a value that works with the motors.
