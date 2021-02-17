@@ -4,17 +4,7 @@
 #include <Arduino_LSM6DS3.h>
 #include <SPI.h>
 #include "/home/joseph/Desktop/Robot/NRC/MotorSpeedController/Software/controllerInterfaceLib/Nidec24hController.cpp" //?
-
-// How many leds in your strip?
-#define NUM_LEDS 8
-
-// Pin for data to led strip
-#define DATA_PIN 5
-
-// Pin for motor slaves
-#define MOTOR_PIN_1 1
-#define MOTOR_PIN_2 2
-#define MOTOR_PIN_3 3
+#include "/home/joseph/Desktop/Robot/NRC/Controller/Code/receive/Controller.cpp" //?
 
 //**********constants for the motors**********
 
@@ -22,19 +12,43 @@
 const float m1Offset = ( (2*PI)/3);
 const float m2Offset = ( (4*PI)/3);
 
-//the output from 1 gyro rotaion to 2pi rad
+//the output from 1 gyro rotaion
 const int gyro_to_rad = 420;
 
+//constant rotaiononal speed for the bot
+const float rotation_speed = 400;
+
 //**********motor objects**********
+
+// Pin for motor slaves
+#define MOTOR_PIN_1 5
+#define MOTOR_PIN_2 6
+#define MOTOR_PIN_3 7
 
 // Motor Controller class (check that i am using this right
 Nidec24hController motor1(SPI, MOTOR_PIN_1);
 Nidec24hController motor2(SPI, MOTOR_PIN_2);
 Nidec24hController motor3(SPI, MOTOR_PIN_3);
 
-//**********constants for the LEDs********** (move some of this to a seperate class)
+//**********Controller object and key binding**********
+
+//Create the communications object. Use Serial for the communications.
+Controller controller(Serial1);
+
+#define START_BUTTON UP
+#define STOP_BUTTON DOWN
+#define DRIVE_JOYSTICK LEFT
+
+//**********constants for the LEDs********** (move some of this to a seperate file and class)
+
 //the number of adressible horizontal stripes of leds around the robot
 const int bot_resolution = 50;
+
+// How many leds in your strip?
+#define NUM_LEDS 8
+
+// Pin for data to led strip
+#define DATA_PIN 4
 
 //the number of adressible radial led's per horizontal stripe
 CRGB leds[NUM_LEDS];
@@ -143,7 +157,6 @@ const bool debug = false;
 const int debug_level = 1; //0 to 4
 const bool use_led = true;
 
-
 //**********setup**********
 void setup() {
   //generic counter var
@@ -170,13 +183,19 @@ void setup() {
   motor3.brake();
 
   //**********controller setup**********
-  // start serial if debug is true
-  if(debug)
-  {
-    //wait for serial to connect
-    Serial.begin(9600);
-    while (!Serial && debug) {}
-  }
+  
+  //initlise the controller class
+  controller.init();
+
+  if(debug && Serial.println("Waiting for connection..."));
+
+  //wait for inital controller conection
+  while (!controller.connected()) { delay(10); }
+  
+  if(debug && Serial.println("Connected..."));
+
+  //set a deadzone for the joysticks
+  controller.setJoyDeadzone(0.08);
   
   //**********controller setup**********
   if (false)//Usb.Init() == -1) 
@@ -284,8 +303,8 @@ void setup() {
 void loop() {
 
   //**********variable setup**********
-  int xp, yp, r; //the instructed values for x & y movment as well as rotaion
-  int w1s, w2s, w3s;// the rotaional velocity set for each motor
+  float xp, yp; //the instructed values for x & y movment
+  float w1s, w2s, w3s;// the rotaional velocity set for each motor
   const int x_y_limit = 100; //limit the x/y velocity by a specifyed %
 
   float theta = 0; //the angle of the bot
@@ -311,13 +330,13 @@ void loop() {
   unsigned long Loop_start_time = 0;
   unsigned  long time_at_controller_loss = 0;
   
-  //ps3 controller setup (to be removed/repalced)
-  //Usb.Task();
+  //Should the main code run?
+  bool run_mode = false;
 
-  bool run_mode = true;
-  //run_mode (update based on controller input)
-
-  
+  if(controller.connected() && controller.buttonClick(START_BUTTON))
+  {
+    run_mode = true;
+  }
   
   while(run_mode)
   {
@@ -325,7 +344,6 @@ void loop() {
     //record the start time at the beginning of each loop
     Loop_start_time = micros();
 
-    
     //**********imu get**********
     
     //get raw IMU values
@@ -398,23 +416,27 @@ void loop() {
     if(debug && debug_level < 4 && Serial.println(theta)) {}
       
     //check if controoler is conected
-    if (true)//PS3.PS3Connected)
+    if (controller.connected())
     {
 
       //**********controller get**********
-      //grab the analog value from the joystick and run it through the
-      //joyToPWM function to translate it to something usefull.
-      xp = 0;//joyToPWM(PS3.getAnalogHat(LeftHatX));
-      yp = 0;//-1 * joyToPWM(PS3.getAnalogHat(LeftHatY));
-      r = 0;//joyToPWM(PS3.getAnalogHat(RightHatX));
-      //run_mode (update run mode based on controler inut)
+      
+      //grab the analog value from the joystick and scalil it to 100%
+
+      xp = controller.joystick(DRIVE_JOYSTICK,X);
+      yp = controller.joystick(DRIVE_JOYSTICK,Y);
+
+      if(controller.button(STOP_BUTTON))
+      {
+        run_mode = false;
+      }
 
       //**********update motor speeds**********
       
       //set the velocity of the motors
-      w1s = r + x_y_limit*(sin(theta - m2Offset)*yp - cos(theta-m2Offset)*xp)/100;
-      w2s = r + x_y_limit*(sin(theta - m1Offset)*yp - cos(theta-m1Offset)*xp)/100;
-      w3s = r + x_y_limit*(sin(theta)*yp - cos(theta)*xp)/100;
+      w1s = rotation_speed + x_y_limit*(sin(theta - m2Offset)*yp - cos(theta-m2Offset)*xp)/100;
+      w2s = rotation_speed + x_y_limit*(sin(theta - m1Offset)*yp - cos(theta-m1Offset)*xp)/100;
+      w3s = rotation_speed + x_y_limit*(sin(theta)*yp - cos(theta)*xp)/100;
 
       //update time for tracking when the controller is lost
       time_at_controller_loss = Loop_start_time;
@@ -427,9 +449,9 @@ void loop() {
       //**********update motor speeds for no controller**********
       
       //set the velocity of the motors
-      w1s = r;
-      w2s = r;
-      w3s = r;
+      w1s = rotation_speed;
+      w2s = rotation_speed;
+      w3s = rotation_speed;
       
       //run_mode (update based on time delay)
       if(time_at_controller_loss > (Loop_start_time - 1000000)) //one second
@@ -485,40 +507,4 @@ void loop() {
     motor1.brake();
     motor2.brake();
     motor3.brake();
-}
-
-// a function to map a raw joystick values to a value that works with the motors.
-
-int joy_to_motor(int joyVal)
-{
-  int preCurve;
-  int postCurve;
-
-  //if joyVal is >137 or <117, it's outside of the deadzone and
-  // power should be sent to the motors
-  if (joyVal > 137)
-  {
-    preCurve = -(map(joyVal, 137, 255, 0, 255));
-  }
-  else if (joyVal <  117)
-  {
-    //the arduino map function can't invert a value so I wrote my own math
-    preCurve = (-2.18*joyVal)+255;
-  }
-  
-  //otherwise, it must be in the deadzone and the motors should not
-  // receive power
-  else
-  {
-    return 0;
-  }
-
-  //apply an easing curve to the value
-  postCurve = pow(2.718, 0.0198 * abs(preCurve)) + 99;
-
-  //the curve doesn't handle negative values, manually negate if needed
-  if (preCurve < 0)
-    postCurve = -postCurve;
-
-  return postCurve;
 }
