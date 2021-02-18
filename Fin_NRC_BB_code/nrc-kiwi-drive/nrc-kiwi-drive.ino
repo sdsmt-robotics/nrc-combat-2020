@@ -1,3 +1,16 @@
+/************************************************************************//**
+*@file
+*@brief The main code to load onto the NRC 2021 battle bot
+*
+*TO DO
+* - move led stuff into its own class
+* - figure out what is wrong with the last two includes
+* - test on hardware
+* - clean up code more
+* - figure out how to store and load the images for the leds
+* - debug
+***************************************************************************/
+
 //#include <PS3BT.h> (controller library)
 #include <math.h>
 #include <FastLED.h>
@@ -6,17 +19,40 @@
 #include "/home/joseph/Desktop/Robot/NRC/MotorSpeedController/Software/controllerInterfaceLib/Nidec24hController.cpp" //?
 #include "/home/joseph/Desktop/Robot/NRC/Controller/Code/receive/Controller.cpp" //?
 
+/*********************Pin labels***********************
+ * 0 for serial to the xBee
+ * 1 for serial to the xBee
+ * 2
+ * 3
+ * 4 for the led strips
+ * 5 for the slave motor boards
+ * 6 for the slave motor boards
+ * 7 for the slave motor boards
+ * 8
+ * 9
+ * 10
+ * 11 for SPI to the motor boards
+ * 12 for SPI to the motor boards
+ * 13 for SPI to the motor boards
+ * A1
+ * A2
+ * A3
+ * A4
+ * A5
+ * A6
+ * A7
+ ***************************************************/
+
+
 //**********constants for the motors**********
 
-//radian offsets used for the first and second motors 
+//radian offsets used for the first and second motors
 const float m1Offset = ( (2*PI)/3);
 const float m2Offset = ( (4*PI)/3);
 
-//the output from 1 gyro rotaion
-const int gyro_to_rad = 420;
-
-//constant rotaiononal speed for the bot
+//constant rotational speed for the bot
 const float rotation_speed = 400;
+
 
 //**********motor objects**********
 
@@ -30,6 +66,7 @@ Nidec24hController motor1(SPI, MOTOR_PIN_1);
 Nidec24hController motor2(SPI, MOTOR_PIN_2);
 Nidec24hController motor3(SPI, MOTOR_PIN_3);
 
+
 //**********Controller object and key binding**********
 
 //Create the communications object. Use Serial for the communications.
@@ -38,6 +75,9 @@ Controller controller(Serial1);
 #define START_BUTTON UP
 #define STOP_BUTTON DOWN
 #define DRIVE_JOYSTICK LEFT
+#define PHASE_LEAD RIGHT
+#define PHASE_LAG LEFT
+
 
 //**********constants for the LEDs********** (move some of this to a seperate file and class)
 
@@ -50,11 +90,16 @@ const int bot_resolution = 50;
 // Pin for data to led strip
 #define DATA_PIN 4
 
-//the number of adressible radial led's per horizontal stripe
+//the number of addressable radial led's per horizontal stripe
 CRGB leds[NUM_LEDS];
 
 const float screen_step = (2*PI)/float(bot_resolution);
 
+/***********************************************************************/ /**
+*@class
+*@brief Holds the information for a single LED row in an easy to work with
+*format.
+***************************************************************************/
 struct stripe
 {
    stripe()
@@ -72,7 +117,12 @@ struct stripe
    CRGB pixels[NUM_LEDS];
 };
 
-//this class manages the virtual screens used for animations and backgrounds of the display.
+/***********************************************************************/ /**
+*@class
+*@brief This class manages the virtual screens used for animations and
+*backgrounds of the display. Essentially it groups "stripe"s together to make
+*images.
+***************************************************************************/
 class screen
 {
   public:
@@ -142,31 +192,35 @@ class screen
 //construct screens(class is a work in progress)
 screen  main_screen(bot_resolution,bot_resolution);
 
-
 //**********Other global vars and consts**********
 
 //average LMU vals
 float IMU_avg_vals[6] = {0,0,0,0,0,0}; //aX, aY, aZ, gX, g
 
-//set up ps3 controller related objects (to be removed/repalced)
-//USB Usb;
-//BTD Btd(&Usb);
-//PS3BT PS3(&Btd);
-
 const bool debug = false;
 const int debug_level = 1; //0 to 4
 const bool use_led = true;
 
+
 //**********setup**********
+/** ***************************************************************************
+* @par Setup:
+* Sets up any objects that need initialization, makes tests for valid
+* configurations, and finds global variables that then remain constant throughout
+* the rest of the code.
+*
+ *****************************************************************************/
 void setup() {
   //generic counter var
   int i = 0;
   int j = 0;
-  
+
+ 
   //**********SPI setup**********
   // Initialize the SPI communications
   SPI.begin ();
   SPI.setClockDivider(SPI_CLOCK_DIV4);
+
 
   //**********motor setup**********
   // Initialize the motor control
@@ -182,54 +236,44 @@ void setup() {
   motor2.brake();
   motor3.brake();
 
+
   //**********controller setup**********
-  
-  //initlise the controller class
+ 
+  //initialize the controller class
   controller.init();
 
   if(debug && Serial.println("Waiting for connection..."));
 
-  //wait for inital controller conection
+  //wait for initial controller connection
   while (!controller.connected()) { delay(10); }
-  
+ 
   if(debug && Serial.println("Connected..."));
 
   //set a deadzone for the joysticks
   controller.setJoyDeadzone(0.08);
-  
-  //**********controller setup**********
-  if (false)//Usb.Init() == -1) 
-  {
-      while (true)
-      {
-        Serial.println("Failed to detect and initialize USB!");
-        delay(500);
-      }
-  }
-  
+
+ 
   //**********imu initialization**********
   if (!IMU.begin())
   {
-    if(debug)
-    {
-      Serial.println("Failed to initialize IMU!");
-    }
+    if(debug && Serial.println("Failed to initialize IMU!")) {}
 
     // halt program
     while(true) {}
   }
 
+
   //**********Testing classes and LED's**********
-  
+ 
   //add leds for the fast led library
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);  // GRB ordering is assumed
     
   stripe TEST();
-  
+ 
   screen TEST2(bot_resolution,bot_resolution);
 
   CRGB temp2[NUM_LEDS] = {CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue};
-  
+ 
   CRGB* temp = TEST2.get_columb(1);
 
   for(i = 0; i < NUM_LEDS; ++i)
@@ -239,7 +283,7 @@ void setup() {
 
   FastLED.show();
 
-  
+ 
   delay(500);
 
   TEST2.set_columb(2,temp2);
@@ -254,12 +298,13 @@ void setup() {
   FastLED.show();
 
   delay(500);
-  
+ 
   if(debug && Serial.println("Test Passed")){}
 
   FastLED.clear();  // clear all pixel data
   FastLED.show();
-  
+
+ 
   //**********IMU setup**********
   //find imu static average values
 
@@ -285,12 +330,13 @@ void setup() {
     if(debug && Serial.println(IMU_avg_vals[i])) {}
   }
 
+
   //**********LED screen setup**********
   CRGB temp_blue[NUM_LEDS] = {CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue};
   CRGB temp_red[NUM_LEDS] = {CRGB::Red,CRGB::Red,CRGB::Red,CRGB::Red,CRGB::Red,CRGB::Red,CRGB::Red,CRGB::Red};
   CRGB temp_green[NUM_LEDS] = {CRGB::Green,CRGB::Green,CRGB::Green,CRGB::Green,CRGB::Green,CRGB::Green,CRGB::Green,CRGB::Green};
   CRGB temp_yellow[NUM_LEDS] = {CRGB::Yellow,CRGB::Yellow,CRGB::Yellow,CRGB::Yellow,CRGB::Yellow,CRGB::Yellow,CRGB::Yellow,CRGB::Yellow};
-  
+ 
   main_screen.set_columb(0,temp_blue);
   main_screen.set_columb((bot_resolution/4)-1,temp_red);
   main_screen.set_columb((bot_resolution/2)-1,temp_green);
@@ -299,13 +345,21 @@ void setup() {
   if(debug && Serial.println("Setup compleat")){}
 }
 
+
 //**********main loop**********
+/** ***************************************************************************
+* @par Main loop:
+* The main loop for the arduino code,
+*
+ *****************************************************************************/
 void loop() {
 
+
   //**********variable setup**********
-  float xp, yp; //the instructed values for x & y movment
-  float w1s, w2s, w3s;// the rotaional velocity set for each motor
-  const int x_y_limit = 100; //limit the x/y velocity by a specifyed %
+ 
+  float xp, yp; //the instructed values for x & y movement
+  float w1s, w2s, w3s;// the rotational velocity set for each motor
+  const int x_y_limit = 100; //limit the x/y velocity by a specified %
 
   float theta = 0; //the angle of the bot
 
@@ -313,23 +367,21 @@ void loop() {
 
   //imu variables
   float IMUvals[6] = {0,0,0,0,0,0}; //aX, aY, aZ, gX, gY, gZ
-  float IMU_old_vals[6] = {0,0,0,0,0,0}; //aX, aY, aZ, gX, gY, gZ
 
-  //simpsons 1/3 variables
-  int mid = 1;
-  float vals[3] = {0,0,0};
+  //intigral variables
   float integral = 0;
   float velocity = 0;
 
-  //time between measurements (should be based off of an internal timer)
-  float delta_t = .01;
+  float delta_t = .01; //time between measurements.
 
-  int screen_point = 0; //row of the screan being displayed ///////////
+  int screen_point = 0; //row of the screen being displayed ///////////
+
+  static int gyro_to_rad = 420; //the output from 1 gyro rotation
 
   //time recording vars
   unsigned long Loop_start_time = 0;
   unsigned  long time_at_controller_loss = 0;
-  
+ 
   //Should the main code run?
   bool run_mode = false;
 
@@ -337,19 +389,21 @@ void loop() {
   {
     run_mode = true;
   }
-  
+
+
+  //**********main loop**********
   while(run_mode)
   {
 
     //record the start time at the beginning of each loop
     Loop_start_time = micros();
 
+
     //**********imu get**********
     
     //get raw IMU values
-    if ( IMU.gyroscopeAvailable()) // IMU.accelerationAvailable() &&
+    if ( IMU.gyroscopeAvailable())
     {      
-      //IMU.readAcceleration(IMUvals[0], IMUvals[1], IMUvals[2]);
       IMU.readGyroscope(IMUvals[3], IMUvals[4], IMUvals[5]);
       for(i=0;(i<6) && debug && debug_level < 1; ++i)
       {
@@ -358,6 +412,7 @@ void loop() {
       }
         
       if(debug && debug_level < 2 && Serial.println("*")) {}
+
 
       //**********signal conditioning**********
       
@@ -368,35 +423,18 @@ void loop() {
       }
       //fix gravity
       IMUvals[2] = IMUvals[2] + 1;
+
        
       //**********numerical integration**********
-      //based off of simpsons 1/3 to find the approximate angle
-
-      //scan through the array to add the new value
-      if(mid > 2)
-      {
-        mid = 0;
-        vals[2] = IMUvals[5];
-      }
-      else if(mid == 0)
-      {
-        vals[0] = IMUvals[5];
-      }
-      else
-      {
-        vals[1] = IMUvals[5];
-      }
-
-      //compute simpsons 1/3 for the past three values without multiplying by delta t
-      velocity = ((vals[0] + vals[1] + vals[2] + vals[mid])/2);
-
-      //update the new mid of the array
-      ++mid;
       
+      //compute simpsons 1/3
+      velocity = simpson_one_third(IMUvals[5]);
+
     }
 
-    //update the intigral (rotaion postion) based on the last known average velocity and delta_t 
+    //update the integral (rotation position) based on the last known average velocity and delta_t
     integral = integral + velocity*delta_t;
+
       
     //**********integral to rad**********
     if (integral > gyro_to_rad)
@@ -415,9 +453,10 @@ void loop() {
     if(debug && debug_level < 3 && Serial.print(integral)) {Serial.print(" ");}
     if(debug && debug_level < 4 && Serial.println(theta)) {}
       
-    //check if controoler is conected
+    //check if controller is connected
     if (controller.connected())
     {
+
 
       //**********controller get**********
       
@@ -431,6 +470,16 @@ void loop() {
         run_mode = false;
       }
 
+      if (controller.button(PHASE_LAG))
+      {
+        ++gyro_to_rad;
+      }
+      else if (controller.button(PHASE_LEAD))
+      {
+        --gyro_to_rad;
+      }
+
+
       //**********update motor speeds**********
       
       //set the velocity of the motors
@@ -441,11 +490,10 @@ void loop() {
       //update time for tracking when the controller is lost
       time_at_controller_loss = Loop_start_time;
     }
-    else // set speed to zero if controller is not connected
+    else // set horizontal speed to zero if controller is not connected
     {
-      //if(debug)
-      //  Serial.println("Failed to detect PS3.");
 
+      
       //**********update motor speeds for no controller**********
       
       //set the velocity of the motors
@@ -459,6 +507,7 @@ void loop() {
          run_mode = false;
       }
     }
+
 
     //**********send out motor speeds**********
     motor1.setSpeed(w1s);
@@ -474,6 +523,7 @@ void loop() {
       Serial.print(',');
       Serial.println(w3s);
     }
+
 
     //**********LED's**********
     if(use_led)
@@ -497,14 +547,55 @@ void loop() {
         screen_point = 0;
       }
 
-      if(debug && debug_level < 3 && Serial.print("Screen point:")) 
+      if(debug && debug_level < 3 && Serial.print("Screen point:"))
       {Serial.println(screen_point);}
     }  
   }
 
-  //set motor speed to zero as the bot is nolonger in run mode
-  
+  //set motor speed to zero as the bot is no longer in run mode
+ 
     motor1.brake();
     motor2.brake();
     motor3.brake();
+}
+
+/** ***************************************************************************
+* @par Description:
+* Performs simpsons 1/3 integration on the last three data points without
+* multiplying by delta t. The function doesn't return useful values until
+* the first three values are passed in and you must pass in at least three
+* new values to completely clear the function.
+*
+* @param [in] new_val : the newest value to be used in the estimation.
+*
+* @returns float - the estamie of the integral value not multiplied by delta t
+* from the last three values passed in.
+ *****************************************************************************/
+float simpson_one_third(float new_val)
+{
+  //based off of simpsons 1/3 to find the approximate integral
+
+  static int mid = 1;
+  static float vals[3] = {0,0,0};
+
+  //scan through the array to add the new value
+  if(mid > 2)
+  {
+    mid = 0;
+    vals[2] = new_val;
+  }
+  else if(mid == 0)
+  {
+    vals[0] = new_val;
+  }
+  else
+  {
+    vals[1] = new_val;
+  }
+
+  //update the new mid of the array
+  ++mid;
+
+  //compute simpsons 1/3 for the past three values without multiplying by delta t
+  return ((vals[0] + vals[1] + vals[2] + vals[mid-1])/2);
 }
