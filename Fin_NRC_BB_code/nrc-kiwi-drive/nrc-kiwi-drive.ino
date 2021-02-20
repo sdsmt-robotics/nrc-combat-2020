@@ -11,7 +11,6 @@
 * - debug
 ***************************************************************************/
 
-//#include <PS3BT.h> (controller library)
 #include <math.h>
 #include <FastLED.h>
 #include <Arduino_LSM6DS3.h>
@@ -20,20 +19,20 @@
 #include "/home/joseph/Desktop/Robot/NRC/Controller/Code/receive/Controller.cpp" //?
 
 /*********************Pin labels***********************
- * 0 for serial to the xBee
- * 1 for serial to the xBee
+ * 0 for serial to the xBee REQ
+ * 1 for serial to the xBee REQ
  * 2
  * 3
  * 4 for the led strips
- * 5 for the slave motor boards
+ * 5 
  * 6 for the slave motor boards
  * 7 for the slave motor boards
  * 8
  * 9
- * 10
- * 11 for SPI to the motor boards
- * 12 for SPI to the motor boards
- * 13 for SPI to the motor boards
+ * 10 for the slave motor boards REQ
+ * 11 for SPI to the motor boards REQ
+ * 12 for SPI to the motor boards REQ
+ * 13 for SPI to the motor boards REQ
  * A1
  * A2
  * A3
@@ -57,7 +56,7 @@ const float rotation_speed = 400;
 //**********motor objects**********
 
 // Pin for motor slaves
-#define MOTOR_PIN_1 5
+#define MOTOR_PIN_1 SS
 #define MOTOR_PIN_2 6
 #define MOTOR_PIN_3 7
 
@@ -198,7 +197,7 @@ screen  main_screen(bot_resolution,bot_resolution);
 float IMU_avg_vals[6] = {0,0,0,0,0,0}; //aX, aY, aZ, gX, g
 
 const bool debug = false;
-const int debug_level = 1; //0 to 4
+const int debug_level = 3; //0 to 4
 const bool use_led = true;
 
 
@@ -215,18 +214,30 @@ void setup() {
   int i = 0;
   int j = 0;
 
- 
+  // start serial if debug is true
+  if(debug)
+  {
+    //wait for serial to connect
+    Serial.begin(9600);
+    while (!Serial && debug) {}
+  }
+  
+  if(debug) {Serial.println("Serial start");}
+  
   //**********SPI setup**********
   // Initialize the SPI communications
   SPI.begin ();
   SPI.setClockDivider(SPI_CLOCK_DIV4);
 
-
+  if(debug && Serial.println("SPI start")) {}
+  
   //**********motor setup**********
   // Initialize the motor control
   motor1.init();
   motor2.init();
   motor3.init();
+
+  if(debug && Serial.println("Motor init")) {}
 
   motor1.setPower(100);
   motor2.setPower(100);
@@ -236,7 +247,8 @@ void setup() {
   motor2.brake();
   motor3.brake();
 
-
+  if(debug && Serial.println("Motor set")) {}
+  
   //**********controller setup**********
  
   //initialize the controller class
@@ -245,13 +257,12 @@ void setup() {
   if(debug && Serial.println("Waiting for connection..."));
 
   //wait for initial controller connection
-  while (!controller.connected()) { delay(10); }
+  //while (!controller.connected()) { delay(10); }
  
   if(debug && Serial.println("Connected..."));
 
   //set a deadzone for the joysticks
   controller.setJoyDeadzone(0.08);
-
  
   //**********imu initialization**********
   if (!IMU.begin())
@@ -261,6 +272,8 @@ void setup() {
     // halt program
     while(true) {}
   }
+
+  if(debug && Serial.println("IMU start"));
 
 
   //**********Testing classes and LED's**********
@@ -343,6 +356,7 @@ void setup() {
   main_screen.set_columb((bot_resolution/4*3)-1,temp_yellow);
 
   if(debug && Serial.println("Setup compleat")){}
+
 }
 
 
@@ -353,8 +367,6 @@ void setup() {
 *
  *****************************************************************************/
 void loop() {
-
-
   //**********variable setup**********
  
   float xp, yp; //the instructed values for x & y movement
@@ -376,7 +388,7 @@ void loop() {
 
   int screen_point = 0; //row of the screen being displayed ///////////
 
-  static int gyro_to_rad = 420; //the output from 1 gyro rotation
+  static int gyro_to_rad = 405; //the output from 1 gyro rotation
 
   //time recording vars
   unsigned long Loop_start_time = 0;
@@ -385,7 +397,7 @@ void loop() {
   //Should the main code run?
   bool run_mode = false;
 
-  if(controller.connected() && controller.buttonClick(START_BUTTON))
+  if(true) //controller.connected() && controller.buttonClick(START_BUTTON))
   {
     run_mode = true;
   }
@@ -450,11 +462,10 @@ void loop() {
     theta = (PI*2)/gyro_to_rad*integral;
 
     //debug outputs
-    if(debug && debug_level < 3 && Serial.print(integral)) {Serial.print(" ");}
-    if(debug && debug_level < 4 && Serial.println(theta)) {}
+    if(debug && debug_level < 4 && Serial.print(integral)) {Serial.print(" "); Serial.println(theta);}
       
     //check if controller is connected
-    if (controller.connected())
+    if (true)//controller.connected())
     {
 
 
@@ -462,19 +473,19 @@ void loop() {
       
       //grab the analog value from the joystick and scalil it to 100%
 
-      xp = controller.joystick(DRIVE_JOYSTICK,X);
-      yp = controller.joystick(DRIVE_JOYSTICK,Y);
+      xp = 0;//controller.joystick(DRIVE_JOYSTICK,X);
+      yp = 0;//controller.joystick(DRIVE_JOYSTICK,Y);
 
-      if(controller.button(STOP_BUTTON))
+      if(false)//controller.button(STOP_BUTTON))
       {
         run_mode = false;
       }
 
-      if (controller.button(PHASE_LAG))
+      if (false)//controller.button(PHASE_LAG))
       {
         ++gyro_to_rad;
       }
-      else if (controller.button(PHASE_LEAD))
+      else if (false)//controller.button(PHASE_LEAD))
       {
         --gyro_to_rad;
       }
@@ -530,6 +541,7 @@ void loop() {
     {
       if (theta-screen_step > screen_step*screen_point)
       {
+        FastLED.clear();
         
         CRGB* temp = main_screen.get_columb(screen_point);
         
@@ -550,6 +562,12 @@ void loop() {
       if(debug && debug_level < 3 && Serial.print("Screen point:"))
       {Serial.println(screen_point);}
     }  
+
+  
+    //**********end loop**********
+    //update the time of the loop based on the last loop
+    delta_t = float(micros() - Loop_start_time)/1000000;
+ 
   }
 
   //set motor speed to zero as the bot is no longer in run mode

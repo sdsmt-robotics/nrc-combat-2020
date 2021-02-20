@@ -5,7 +5,7 @@
 #define NUM_LEDS 8
 
 // Pin for data to led strip
-#define DATA_PIN 5
+#define DATA_PIN 4
 
 const bool debug = false;
 const int debug_level = 1; //0 to 4
