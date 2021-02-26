@@ -17,6 +17,7 @@
 #include <SPI.h>
 #include "/home/joseph/Desktop/Robot/NRC/MotorSpeedController/Software/controllerInterfaceLib/Nidec24hController.cpp" //?
 #include "/home/joseph/Desktop/Robot/NRC/Controller/Code/receive/Controller.cpp" //?
+#include "/home/joseph/Desktop/Robot/NRC/nrc-combat-2020/Fin_NRC_BB_code/POV_Display.cpp" //?
 
 /*********************Pin labels***********************
  * 0 for serial to the xBee REQ
@@ -94,102 +95,8 @@ CRGB leds[NUM_LEDS];
 
 const float screen_step = (2*PI)/float(bot_resolution);
 
-/***********************************************************************/ /**
-*@class
-*@brief Holds the information for a single LED row in an easy to work with
-*format.
-***************************************************************************/
-struct stripe
-{
-   stripe()
-   {
-      int i = 0;
-      
-      for(i;i<NUM_LEDS;++i)
-      {
-        pixels[i] = CRGB::Black;
-      }
-      
-      return;
-   }
-
-   CRGB pixels[NUM_LEDS];
-};
-
-/***********************************************************************/ /**
-*@class
-*@brief This class manages the virtual screens used for animations and
-*backgrounds of the display. Essentially it groups "stripe"s together to make
-*images.
-***************************************************************************/
-class screen
-{
-  public:
- 
-    //input the resolution in number coulombs of the screen as well as the total coulombs stored
-    screen(int resolution_in, int stored_in)
-    {
-
-      //sore inputs
-      stored = stored_in;
-      resolution = resolution_in;
-      
-      //make a new array of stripe structures of the total size of stored
-      stripe* temp = new stripe[stored];
-
-      //see if the new array is valid and stop the program if it is not
-      while(temp == NULL)
-      {
-        Serial.println("Failed get memory for stripe array!");
-        delay(2000);
-      }
-
-      //update the coulombs pointer
-      coulombs = temp;
-
-      return;
-    }
-
-    //get the pointer to the relevant stripe
-    CRGB* get_columb(int c)
-    {
-      //if the input is invalid, return a blank stripe
-      if(c >= resolution)
-      {
-        return blank_stripe.pixels;
-      }
-
-      //return the correct stripe
-      return (coulombs[c]).pixels;
-    }
-    
-    //set the indicated columb
-    void set_columb(int c, CRGB columb_pixel[NUM_LEDS])
-    {
-      int i = 0;
-
-      //if c is valid, update the corresponding strip
-      if(c < stored)
-      {
-        for(i; i < NUM_LEDS; ++i)
-        {  
-          (coulombs[c]).pixels[i] = columb_pixel[i];
-        }
-      }
-
-      return;      
-    }
- 
-   private:
-   stripe *coulombs; //pointer to the array of strips
-   int resolution; //the number of strips that should be displayed at once
-   int stored; //the total number of strips
-   int scan_start = 0; //where the scan in stored starts for the desired resolution
-   stripe blank_stripe; //the blank stripe for this screen (background)
-};
-
 //construct screens(class is a work in progress)
-screen  main_screen(bot_resolution,bot_resolution);
+screen  main_screen(bot_resolution,NUM_LEDS,bot_resolution);
 
 //**********Other global vars and consts**********
 
@@ -283,7 +190,7 @@ void setup() {
     
   stripe TEST();
  
-  screen TEST2(bot_resolution,bot_resolution);
+  screen TEST2(bot_resolution,NUM_LEDS,bot_resolution);
 
   CRGB temp2[NUM_LEDS] = {CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue};
  
@@ -615,5 +522,5 @@ float simpson_one_third(float new_val)
   ++mid;
 
   //compute simpsons 1/3 for the past three values without multiplying by delta t
-  return ((vals[0] + vals[1] + vals[2] + vals[mid-1])/2);
+  return ((vals[0] + vals[1] + vals[2] + 3*vals[mid-1])/3);
 }
