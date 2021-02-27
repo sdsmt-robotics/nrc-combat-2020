@@ -79,7 +79,7 @@ Controller controller(Serial1);
 #define PHASE_LAG LEFT
 
 
-//**********constants for the LEDs********** (move some of this to a seperate file and class)
+//**********constants for the LEDs********** 
 
 //the number of adressible horizontal stripes of leds around the robot
 const int bot_resolution = 50;
@@ -97,6 +97,15 @@ const float screen_step = (2*PI)/float(bot_resolution);
 
 //construct screens(class is a work in progress)
 screen  main_screen(bot_resolution,NUM_LEDS,bot_resolution);
+
+//**********DATA for the LEDs********** (continued in setup)
+//these arrays contain all data for static led paterns and simple animations not defined by a helper function
+
+CRGB blue[NUM_LEDS];
+CRGB red[NUM_LEDS];
+CRGB green[NUM_LEDS];
+CRGB yellow[NUM_LEDS];
+
 
 //**********Other global vars and consts**********
 
@@ -252,15 +261,18 @@ void setup() {
 
 
   //**********LED screen setup**********
-  CRGB temp_blue[NUM_LEDS] = {CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue,CRGB::Blue};
-  CRGB temp_red[NUM_LEDS] = {CRGB::Red,CRGB::Red,CRGB::Red,CRGB::Red,CRGB::Red,CRGB::Red,CRGB::Red,CRGB::Red};
-  CRGB temp_green[NUM_LEDS] = {CRGB::Green,CRGB::Green,CRGB::Green,CRGB::Green,CRGB::Green,CRGB::Green,CRGB::Green,CRGB::Green};
-  CRGB temp_yellow[NUM_LEDS] = {CRGB::Yellow,CRGB::Yellow,CRGB::Yellow,CRGB::Yellow,CRGB::Yellow,CRGB::Yellow,CRGB::Yellow,CRGB::Yellow};
- 
-  main_screen.set_columb(0,temp_blue);
-  main_screen.set_columb((bot_resolution/4)-1,temp_red);
-  main_screen.set_columb((bot_resolution/2)-1,temp_green);
-  main_screen.set_columb((bot_resolution/4*3)-1,temp_yellow);
+  for(i =0; i < NUM_LEDS; ++i)
+  {
+    blue[i] = CRGB::Blue;
+    red[i] = CRGB::Red;
+    green[i] = CRGB::Green;
+    blue[i] = CRGB::Blue;
+  }
+  
+  main_screen.set_columb(0,blue);
+  main_screen.set_columb((bot_resolution/4)-1,red);
+  main_screen.set_columb((bot_resolution/2)-1,green);
+  main_screen.set_columb((bot_resolution/4*3)-1,yellow);
 
   if(debug && Serial.println("Setup compleat")){}
 

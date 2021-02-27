@@ -10,6 +10,7 @@
 
 struct stripe;
 
+
 /***********************************************************************/ /**
 *@class
 *@brief This class manages the virtual screens used for animations and
@@ -30,12 +31,11 @@ public:
 
 private:
   int num_leds;
-  stripe *columns  = nullptr ;      //pointer to the array of strips
+  stripe *columns  = NULL;      //pointer to the array of strips
   int resolution;       //the number of strips that should be displayed at once
   int stored;           //the total number of strips
   int scan_start = 0;   //where the scan in stored starts for the desired resolution
-  stripe *blank_stripe  = nullptr; //the blank stripe for this screen (background)
-  bool initialized = false;
+  stripe *blank_stripe  = NULL; //the blank stripe for this screen (background)
 };
 
 /***********************************************************************/ /**
@@ -48,14 +48,11 @@ struct stripe
   //default constructor
   stripe();
 
-  //constructor to make a stripe of led's
-  stripe(int num_leds_in);
-
-  //initalse a stripe made with the default constructor
-  bool init(int num_leds_in);
-
   //pointer to the array of CRGB leds
-  CRGB *pixels = nullptr;
+  CRGB *pixels = NULL;
+
+  ~stripe();
+
 };
 
 #endif
