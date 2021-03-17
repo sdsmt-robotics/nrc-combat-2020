@@ -15,9 +15,9 @@
 #include <FastLED.h>
 #include <Arduino_LSM6DS3.h>
 #include <SPI.h>
-#include "/home/joseph/Desktop/Robot/NRC/MotorSpeedController/Software/controllerInterfaceLib/Nidec24hController.cpp" //?
-#include "/home/joseph/Desktop/Robot/NRC/Controller/Code/receive/Controller.cpp" //?
-#include "/home/joseph/Desktop/Robot/NRC/nrc-combat-2020/Fin_NRC_BB_code/POV_Display.cpp" //?
+#include "Nidec24hController.h" //?
+#include "Controller.h" //?
+#include "POV_Display.h" //?
 
 /*********************Pin labels***********************
  * 0 for serial to the xBee REQ
@@ -47,11 +47,12 @@
 //**********constants for the motors**********
 
 //radian offsets used for the first and second motors
-const float m1Offset = ( (2*PI)/3);
-const float m2Offset = ( (4*PI)/3);
+const float m1Offset = (-(2*PI)/3);
+const float m2Offset = 0;
+const float m3Offset = ( (2*PI)/3);
 
 //constant rotational speed for the bot
-const float rotation_speed = 400;
+const float rotation_speed = 100;
 
 
 //**********motor objects**********
@@ -112,7 +113,7 @@ CRGB yellow[NUM_LEDS];
 //average LMU vals
 float IMU_avg_vals[6] = {0,0,0,0,0,0}; //aX, aY, aZ, gX, g
 
-const bool debug = false;
+const bool debug = true;
 const int debug_level = 3; //0 to 4
 const bool use_led = true;
 
@@ -143,7 +144,7 @@ void setup() {
   //**********SPI setup**********
   // Initialize the SPI communications
   SPI.begin ();
-  SPI.setClockDivider(SPI_CLOCK_DIV4);
+  SPI.setClockDivider(SPI_CLOCK_DIV32);
 
   if(debug && Serial.println("SPI start")) {}
   
@@ -173,7 +174,7 @@ void setup() {
   if(debug && Serial.println("Waiting for connection..."));
 
   //wait for initial controller connection
-  //while (!controller.connected()) { delay(10); }
+  while (!controller.connected()) { delay(10); }
  
   if(debug && Serial.println("Connected..."));
 
@@ -290,7 +291,7 @@ void loop() {
  
   float xp, yp; //the instructed values for x & y movement
   float w1s, w2s, w3s;// the rotational velocity set for each motor
-  const int x_y_limit = 100; //limit the x/y velocity by a specified %
+  const int x_y_limit = 300; //limit the x/y velocity by a specified %
 
   float theta = 0; //the angle of the bot
 
@@ -316,18 +317,18 @@ void loop() {
   //Should the main code run?
   bool run_mode = false;
 
-  if(true) //controller.connected() && controller.buttonClick(START_BUTTON))
+  if(controller.connected() && controller.buttonClick(START_BUTTON))
   {
     run_mode = true;
   }
 
 
   //**********main loop**********
-  while(run_mode)
+  while(run_mode && controller.connected())
   {
 
     //record the start time at the beginning of each loop
-    Loop_start_time = micros();
+    controller.receiveData();
 
 
     //**********imu get**********
@@ -336,6 +337,8 @@ void loop() {
     if ( IMU.gyroscopeAvailable())
     {      
       IMU.readGyroscope(IMUvals[3], IMUvals[4], IMUvals[5]);
+      delta_t = float(micros() - Loop_start_time)/1000000;  //TODO: Find a good place to get this
+      Loop_start_time = micros();
       for(i=0;(i<6) && debug && debug_level < 1; ++i)
       {
         Serial.print(IMUvals[i]);
@@ -362,6 +365,9 @@ void loop() {
       velocity = simpson_one_third(IMUvals[5]);
 
     }
+  
+    //Update time
+    //update the time of the loop based on the last loop
 
     //update the integral (rotation position) based on the last known average velocity and delta_t
     integral = integral + velocity*delta_t;
@@ -381,21 +387,21 @@ void loop() {
     theta = (PI*2)/gyro_to_rad*integral;
 
     //debug outputs
-    if(debug && debug_level < 4 && Serial.print(integral)) {Serial.print(" "); Serial.println(theta);}
+    //if(debug && debug_level < 4 && Serial.print(integral)) {Serial.print(" "); Serial.println(theta);}
       
     //check if controller is connected
     if (true)//controller.connected())
     {
 
-
+    
       //**********controller get**********
       
       //grab the analog value from the joystick and scalil it to 100%
 
-      xp = 0;//controller.joystick(DRIVE_JOYSTICK,X);
-      yp = 0;//controller.joystick(DRIVE_JOYSTICK,Y);
+      xp = controller.joystick(DRIVE_JOYSTICK,X);
+      yp = controller.joystick(DRIVE_JOYSTICK,Y);
 
-      if(false)//controller.button(STOP_BUTTON))
+      if(controller.button(STOP_BUTTON))
       {
         run_mode = false;
       }
@@ -413,9 +419,18 @@ void loop() {
       //**********update motor speeds**********
       
       //set the velocity of the motors
-      w1s = rotation_speed + x_y_limit*(sin(theta - m2Offset)*yp - cos(theta-m2Offset)*xp)/100;
-      w2s = rotation_speed + x_y_limit*(sin(theta - m1Offset)*yp - cos(theta-m1Offset)*xp)/100;
-      w3s = rotation_speed + x_y_limit*(sin(theta)*yp - cos(theta)*xp)/100;
+      float targetAngle = atan2(yp, -xp);  // X is inverted??
+      float mag = sqrt(yp*yp + xp*xp);
+
+      float relativeAngle = targetAngle - theta;
+      
+      w1s = rotation_speed + x_y_limit*mag*sin(relativeAngle-m1Offset);
+      w2s = rotation_speed + x_y_limit*mag*sin(relativeAngle-m2Offset);
+      w3s = rotation_speed + x_y_limit*mag*sin(relativeAngle-m3Offset);
+      
+      /*w1s = rotation_speed + x_y_limit*(sin(theta - m2Offset)*yp - cos(theta-m2Offset)*xp);
+      w2s = rotation_speed + x_y_limit*(sin(theta - m1Offset)*yp - cos(theta-m1Offset)*xp);
+      w3s = rotation_speed + x_y_limit*(sin(theta)*yp + cos(theta)*xp);*/
 
       //update time for tracking when the controller is lost
       time_at_controller_loss = Loop_start_time;
@@ -440,9 +455,16 @@ void loop() {
 
 
     //**********send out motor speeds**********
-    motor1.setSpeed(w1s);
-    motor2.setSpeed(w2s);
-    motor3.setSpeed(w3s);
+    if(debug && debug_level < 4) {
+      Serial.print(w1s);
+      Serial.print(" ");
+      Serial.print(w2s);
+      Serial.print(" ");
+      Serial.println(w3s);
+    }
+    motor1.setPower(w1s);
+    motor2.setPower(w2s);
+    motor3.setPower(w3s);
     
     //debug
     if(debug && debug_level < 2)
@@ -482,10 +504,6 @@ void loop() {
       {Serial.println(screen_point);}
     }  
 
-  
-    //**********end loop**********
-    //update the time of the loop based on the last loop
-    delta_t = float(micros() - Loop_start_time)/1000000;
  
   }
 
