@@ -35,7 +35,9 @@ private:
   int resolution;       //the number of strips that should be displayed at once
   int stored;           //the total number of strips
   int scan_start = 0;   //where the scan in stored starts for the desired resolution
-  stripe *blank_stripe  = NULL; //the blank stripe for this screen (background)
+  CRGB * blank;
+  //CRGB blank_temp[8] = {CRGB::Black,CRGB::Black,CRGB::Black,CRGB::Black,
+  //  CRGB::Black,CRGB::Black,CRGB::Black,CRGB::Black};
 };
 
 /***********************************************************************/ /**

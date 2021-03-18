@@ -15,35 +15,27 @@
 * @returns none.
 *****************************************************************************/
 screen::screen(int resolution_in, int leds, int stored_in) : num_leds(leds),
-                                                            resolution(resolution_in), stored(stored_in)
+    resolution(resolution_in), stored(stored_in)
 {
  
    //generic counter
    int i = 0;
- 
-   //set up the stripe for a blank/black default
-   blank_stripe = new stripe;
- 
-   //see if the new array is valid and not allow the class to be used if it isn't
-   if (blank_stripe == NULL)
-   {
-       return;
-   }
- 
+
    //set up the pixels of the
-   blank_stripe->pixels = new CRGB[num_leds];
+   blank = new CRGB[num_leds];
  
    //see if the new array is valid and not allow the class to be used if it isn't
-   if (blank_stripe->pixels == NULL)
+   if (blank == NULL)
    {
        return;
    }
  
    for (i = 0; i < num_leds; ++i)
    {
-       blank_stripe->pixels[i] = CRGB::Black;
+       blank[i] = CRGB::Black;
    }
  
+
    //make a new array of stripe structures of the total size of stored
    //data for the POOR screen layer
    stripe *temp = new stripe[stored];
@@ -54,14 +46,17 @@ screen::screen(int resolution_in, int leds, int stored_in) : num_leds(leds),
        return;
    }
  
-   for (i; i < stored_in; ++i)
-   {
-       //initialize all of the screens to the default
-       temp[i].pixels = blank_stripe->pixels;
-   }
- 
    //update the columns pointer
    columns = temp;
+
+   for (i; i < stored; ++i)
+   {
+       //initialize all of the screens to the default
+       (columns[i]).pixels = blank;
+
+       while(true)
+       {}
+   }
  
    return;
 }
@@ -101,7 +96,7 @@ CRGB *screen::get_columb(int c)
    //if the input is invalid, return a blank stripe
    if (c >= resolution)
    {
-       return blank_stripe->pixels;
+       return blank; //blank_temp
    }
  
    //return the correct stripe
@@ -130,8 +125,8 @@ stripe::stripe(){};
 *****************************************************************************/
 stripe::~stripe()
 {
-   if (pixels != NULL)
-       delete pixels;
+   //if (pixels != NULL)
+      // delete pixels;
  
    return;
 }

@@ -15,9 +15,12 @@
 #include <FastLED.h>
 #include <Arduino_LSM6DS3.h>
 #include <SPI.h>
-#include "Nidec24hController.h" //?
-#include "Controller.h" //?
-#include "POV_Display.h" //?
+#include "/home/joseph/Desktop/Robot/NRC/MotorSpeedController/Software/controllerInterfaceLib/Nidec24hController.cpp" //?
+#include "/home/joseph/Desktop/Robot/NRC/Controller/Code/receive/Controller.cpp" //?
+#include "/home/joseph/Desktop/Robot/NRC/nrc-combat-2020/Fin_NRC_BB_code/POV_Display.cpp" //?
+//#include "Nidec24hController.h" //?
+//#include "Controller.h" //?
+//#include "POV_Display.h" //?
 
 /*********************Pin labels***********************
  * 0 for serial to the xBee REQ
@@ -100,7 +103,7 @@ const float screen_step = (2*PI)/float(bot_resolution);
 screen  main_screen(bot_resolution,NUM_LEDS,bot_resolution);
 
 //**********DATA for the LEDs********** (continued in setup)
-//these arrays contain all data for static led paterns and simple animations not defined by a helper function
+//these arrays contain all data for static led patterns and simple animations not defined by a helper function
 
 CRGB blue[NUM_LEDS];
 CRGB red[NUM_LEDS];
@@ -111,9 +114,9 @@ CRGB yellow[NUM_LEDS];
 //**********Other global vars and consts**********
 
 //average LMU vals
-float IMU_avg_vals[6] = {0,0,0,0,0,0}; //aX, aY, aZ, gX, g
+float IMU_avg_vals[3] = {0,0,0}; //aX, aY, aZ, gX, g
 
-const bool debug = true;
+const bool debug = false;
 const int debug_level = 3; //0 to 4
 const bool use_led = true;
 
@@ -155,10 +158,6 @@ void setup() {
   motor3.init();
 
   if(debug && Serial.println("Motor init")) {}
-
-  motor1.setPower(100);
-  motor2.setPower(100);
-  motor3.setPower(100);
 
   motor1.brake();
   motor2.brake();
@@ -239,22 +238,21 @@ void setup() {
   //find imu static average values
 
   //IMU variables
-  float IMUvals[6] = {0,0,0,0,0,0}; //aX, aY, aZ, gX, gY, gZ
+  float IMUvals[3] = {0,0,0}; //gX, gY, gZ
  
   while(j < 100)
   {
-    if (IMU.accelerationAvailable() && IMU.gyroscopeAvailable())
+    if (IMU.gyroscopeAvailable())
     {      
-      IMU.readAcceleration(IMUvals[0], IMUvals[1], IMUvals[2]);
-      IMU.readGyroscope(IMUvals[3], IMUvals[4], IMUvals[5]);
-      for(i=0; i < 6; ++i)
+      IMU.readGyroscope(IMUvals[0], IMUvals[1], IMUvals[2]);
+      for(i=0; i < 3; ++i)
       {
         IMU_avg_vals[i] = IMU_avg_vals[i] + IMUvals[i];
       }
       ++j;
     }
   }
-  for(i = 0; i < 6; ++i)
+  for(i = 0; i < 3; ++i)
   {
     IMU_avg_vals[i] = IMU_avg_vals[i]/100;
     if(debug && Serial.println(IMU_avg_vals[i])) {}
@@ -294,26 +292,30 @@ void loop() {
   const int x_y_limit = 300; //limit the x/y velocity by a specified %
 
   float theta = 0; //the angle of the bot
+  float phase = 0; // the phase offset necessitated by the motor speed
+  //(may what to make this a function of the rotation speed later)
 
   int i = 0;//generic counter var
 
   //imu variables
-  float IMUvals[6] = {0,0,0,0,0,0}; //aX, aY, aZ, gX, gY, gZ
+  float IMUvals[3] = {0,0,0}; //gX, gY, gZ
 
   //intigral variables
   float integral = 0;
   float velocity = 0;
 
-  float delta_t = .01; //time between measurements.
-
   int screen_point = 0; //row of the screen being displayed ///////////
 
-  static int gyro_to_rad = 405; //the output from 1 gyro rotation
+  static int gyro_to_rad = 412; //the output from 1 gyro rotation
 
+  CRGB* temp;
+  
   //time recording vars
-  unsigned long Loop_start_time = 0;
+  unsigned long loop_start_time = 0;
   unsigned  long time_at_controller_loss = 0;
- 
+  float max_loop_time = 0.00001;
+  float delta_t = .00001; //time between measurements.
+
   //Should the main code run?
   bool run_mode = false;
 
@@ -337,8 +339,8 @@ void loop() {
     if ( IMU.gyroscopeAvailable())
     {      
       IMU.readGyroscope(IMUvals[3], IMUvals[4], IMUvals[5]);
-      delta_t = float(micros() - Loop_start_time)/1000000;  //TODO: Find a good place to get this
-      Loop_start_time = micros();
+      delta_t = float(micros() - loop_start_time)/1000000;  //TODO: Find a good place to get this
+      loop_start_time = micros();
       for(i=0;(i<6) && debug && debug_level < 1; ++i)
       {
         Serial.print(IMUvals[i]);
@@ -418,22 +420,17 @@ void loop() {
 
       //**********update motor speeds**********
       
-      //set the velocity of the motors
+      //set the target velocity of the motors
       float targetAngle = atan2(yp, -xp);  // X is inverted??
-      float mag = sqrt(yp*yp + xp*xp);
-
+      float mag = x_y_limit*sqrt(yp*yp + xp*xp)/100;
       float relativeAngle = targetAngle - theta;
       
-      w1s = rotation_speed + x_y_limit*mag*sin(relativeAngle-m1Offset);
-      w2s = rotation_speed + x_y_limit*mag*sin(relativeAngle-m2Offset);
-      w3s = rotation_speed + x_y_limit*mag*sin(relativeAngle-m3Offset);
+      w1s = rotation_speed + mag*sin(relativeAngle-m1Offset+phase);
+      w2s = rotation_speed + mag*sin(relativeAngle-m2Offset+phase);
+      w3s = rotation_speed + mag*sin(relativeAngle-m3Offset+phase);
       
-      /*w1s = rotation_speed + x_y_limit*(sin(theta - m2Offset)*yp - cos(theta-m2Offset)*xp);
-      w2s = rotation_speed + x_y_limit*(sin(theta - m1Offset)*yp - cos(theta-m1Offset)*xp);
-      w3s = rotation_speed + x_y_limit*(sin(theta)*yp + cos(theta)*xp);*/
-
       //update time for tracking when the controller is lost
-      time_at_controller_loss = Loop_start_time;
+      time_at_controller_loss = loop_start_time;
     }
     else // set horizontal speed to zero if controller is not connected
     {
@@ -447,7 +444,7 @@ void loop() {
       w3s = rotation_speed;
       
       //run_mode (update based on time delay)
-      if(time_at_controller_loss > (Loop_start_time - 1000000)) //one second
+      if(time_at_controller_loss > (loop_start_time - 1000000)) //one second
       {
          run_mode = false;
       }
@@ -483,8 +480,17 @@ void loop() {
       if (theta-screen_step > screen_step*screen_point)
       {
         FastLED.clear();
-        
-        CRGB* temp = main_screen.get_columb(screen_point);
+
+        //temp//temp//temp//temp//temp//temp//temp//temp
+        if(theta < (2*PI/10))
+        {
+          temp = blue;//main_screen.get_columb(screen_point);
+        }
+        else
+        {
+          temp = red;
+        }
+        //temp//temp//temp//temp//temp//temp//temp//temp
         
         for(i = 0; i< NUM_LEDS; ++i)
         {
@@ -504,14 +510,12 @@ void loop() {
       {Serial.println(screen_point);}
     }  
 
- 
   }
-
   //set motor speed to zero as the bot is no longer in run mode
  
-    motor1.brake();
-    motor2.brake();
-    motor3.brake();
+  motor1.brake();
+  motor2.brake();
+  motor3.brake();
 }
 
 /** ***************************************************************************
