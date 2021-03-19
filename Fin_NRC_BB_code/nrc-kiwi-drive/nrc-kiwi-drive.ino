@@ -54,7 +54,7 @@ const float m2Offset = 0;
 const float m3Offset = ((2 * PI) / 3);
 
 //constant rotational speed for the bot
-const float rotation_speed = 100;
+const float rotation_speed = 1200;
 
 //**********motor objects**********
 
@@ -96,7 +96,7 @@ CRGB leds[NUM_LEDS];
 const float screen_step = (2 * PI) / float(bot_resolution);
 
 //construct screens(class is a work in progress)
-screen main_screen(bot_resolution, NUM_LEDS, bot_resolution);
+//screen main_screen(bot_resolution, NUM_LEDS, bot_resolution);
 
 //**********DATA for the LEDs********** (continued in setup)
 //these arrays contain all data for static led patterns and simple animations not defined by a helper function
@@ -108,8 +108,8 @@ CRGB yellow[NUM_LEDS];
 
 //**********Other global vars and consts**********
 
-const bool debug = false;
-const int debug_level = 3; //0 to 4
+const bool debug = true;
+const int debug_level = 2; //0 to 4
 const bool use_led = true;
 
 bb_imu orintation;
@@ -214,6 +214,7 @@ void setup()
     //add leds for the fast led library
     FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // GRB ordering is assumed
 
+    /*
     stripe TEST();
 
     screen TEST2(bot_resolution, NUM_LEDS, bot_resolution);
@@ -251,6 +252,7 @@ void setup()
     FastLED.clear(); // clear all pixel data
     FastLED.show();
 
+    */
     //**********LED screen setup**********
     for (i = 0; i < NUM_LEDS; ++i)
     {
@@ -260,10 +262,13 @@ void setup()
         blue[i] = CRGB::Blue;
     }
 
+    /*
     main_screen.set_columb(0, blue);
     main_screen.set_columb((bot_resolution / 4) - 1, red);
     main_screen.set_columb((bot_resolution / 2) - 1, green);
     main_screen.set_columb((bot_resolution / 4 * 3) - 1, yellow);
+    */
+
 
     if (debug && Serial.println("Setup compleat"))
     {
@@ -282,7 +287,7 @@ void loop()
 
     float xp, yp;              //the instructed values for x & y movement
     float w1s, w2s, w3s;       // the rotational velocity set for each motor
-    const int x_y_limit = 50; //limit the x/y velocity by a specified %
+    const int x_y_limit = 100; //limit the x/y velocity by a specified %
 
     float theta = 0; //the angle of the bot
     float phase = 0; // the phase offset necessitated by the motor speed
@@ -387,12 +392,12 @@ void loop()
 
         //**********send out motor speeds**********
 
-        motor1.setPower(w1s);
-        motor2.setPower(w2s);
-        motor3.setPower(w3s);
+        motor1.setSpeed(w1s);
+        motor2.setSpeed(w2s);
+        motor3.setSpeed(w3s);
 
         //debug
-        if (debug && debug_level < 2)
+        if (debug && debug_level < 3)
         {
             Serial.print(w1s);
             Serial.print(',');
@@ -437,9 +442,16 @@ void loop()
                 Serial.println(screen_point);
             }
         }
+
+        delay(1);
     }
     //set motor speed to zero as the bot is no longer in run mode
 
+
+    if (debug && Serial.println("Break out"))
+    {
+    }
+    
     motor1.brake();
     motor2.brake();
     motor3.brake();
