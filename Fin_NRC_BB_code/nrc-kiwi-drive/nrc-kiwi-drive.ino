@@ -76,6 +76,7 @@ Controller controller(Serial1);
 #define START_BUTTON UP
 #define STOP_BUTTON DOWN
 #define DRIVE_JOYSTICK LEFT
+#define TURN_JOYSTICK RIGHT
 #define PHASE_LEAD RIGHT
 #define PHASE_LAG LEFT
 
@@ -214,45 +215,8 @@ void setup()
     //add leds for the fast led library
     FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // GRB ordering is assumed
 
-    /*
-    stripe TEST();
-
-    screen TEST2(bot_resolution, NUM_LEDS, bot_resolution);
-
-    CRGB temp2[NUM_LEDS] = {CRGB::Blue, CRGB::Blue, CRGB::Blue, CRGB::Blue, CRGB::Blue, CRGB::Blue, CRGB::Blue, CRGB::Blue};
-
-    CRGB *temp = TEST2.get_columb(1);
-
-    for (i = 0; i < NUM_LEDS; ++i)
-    {
-        leds[i] = temp[i];
-    }
-
-    FastLED.show();
-
-    delay(500);
-
-    TEST2.set_columb(2, temp2);
-
-    temp = TEST2.get_columb(2);
-
-    for (i = 0; i < NUM_LEDS; ++i)
-    {
-        leds[i] = temp[i];
-    }
-
-    FastLED.show();
-
-    delay(500);
-
-    if (debug && Serial.println("Test Passed"))
-    {
-    }
-
-    FastLED.clear(); // clear all pixel data
-    FastLED.show();
-
-    */
+    //re add test
+    
     //**********LED screen setup**********
     for (i = 0; i < NUM_LEDS; ++i)
     {
@@ -261,14 +225,6 @@ void setup()
         green[i] = CRGB::Green;
         blue[i] = CRGB::Blue;
     }
-
-    /*
-    main_screen.set_columb(0, blue);
-    main_screen.set_columb((bot_resolution / 4) - 1, red);
-    main_screen.set_columb((bot_resolution / 2) - 1, green);
-    main_screen.set_columb((bot_resolution / 4 * 3) - 1, yellow);
-    */
-
 
     if (debug && Serial.println("Setup compleat"))
     {
@@ -287,10 +243,11 @@ void loop()
 
     float xp, yp;              //the instructed values for x & y movement
     float w1s, w2s, w3s;       // the rotational velocity set for each motor
-    const int x_y_limit = 100; //limit the x/y velocity by a specified %
+    const int x_y_limit = 100; //magnify the x/y velocity by a specified amount
 
     float theta = 0; //the angle of the bot
     float phase = 0; // the phase offset necessitated by the motor speed
+    float offset = 0;
     //(may what to make this a function of the rotation speed later)
 
     int i = 0; //generic counter var
@@ -355,9 +312,23 @@ void loop()
             {
                 ++orintation.gyro_to_rad;
             }
-            else
+
+            //update the offset for turning
+            offset = offset+(controller.joystick(TURN_JOYSTICK, X)/-120);
+
+            //make sure that the offset is from 0 to 2PI
+            if(offset < 0)
             {
+              offset = offset + 2*PI;
             }
+            else if(offset > 2*PI)
+            {
+              offset = offset - 2*PI;
+            }
+
+            orintation.Set_offset(offset);
+
+            if (debug && Serial.print("---------------------------------Offset: ") && Serial.println(offset)){}
 
             //**********update motor speeds**********
 

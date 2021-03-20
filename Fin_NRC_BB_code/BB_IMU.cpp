@@ -27,6 +27,17 @@ bb_imu::bb_imu()
 
 /** ***************************************************************************
 * @par Description:
+* Destructor for the bb_imu class. Deletes pointers...
+* 
+* @returns none.
+*****************************************************************************/
+bb_imu::~bb_imu()
+{
+    delete(gyro_z.kf);
+}
+
+/** ***************************************************************************
+* @par Description:
 * Initialises the class by calibrating the sensors and testing if the IMU 
 * could be initialized.
 *
@@ -36,11 +47,19 @@ bool bb_imu::init()
 {
     int i = 0;
     int j;
+    float max[num_input];
+    float min[num_input];
 
     //test if the imu has started successfully
     if (!IMU.begin())
         return false;
 
+    for (i = 0; i < num_input; i++)
+    {
+        max[i] = 0;
+        min[i] = 0;
+    }
+    
     //average 100 values from the from the IMU to use for calibration
     while (i < 100)
     {
@@ -48,11 +67,39 @@ bool bb_imu::init()
         if (IMU.gyroscopeAvailable())
         {
 
-            IMU.readGyroscope(GYRO_vals[0], GYRO_vals[1], GYRO_vals[2]);
+            //when the gyroscope is avalible, read its values in
+            IMU.readGyroscope(GYRO_vals[gyroscope_x], 
+                GYRO_vals[gyroscope_y], GYRO_vals[gyroscope_z]);
             for (j = 0; j < num_input; ++j)
             {
                 //sum all measurements
                 AVG_gyro_vals[j] = AVG_gyro_vals[j] + GYRO_vals[j];
+            }
+
+            //if this is the first time
+            if (max[0] == 0)
+            {
+                //for loop to set them all to initl values
+                for (j = 0; j < num_input; j++)
+                {
+                    max[j] = GYRO_vals[j];
+                    min[j] = GYRO_vals[j];
+                }
+            }
+            else
+            {
+                //test for max and min
+                for (j = 0; j < num_input; j++)
+                {
+                    if (max[j] < GYRO_vals[j])
+                    {
+                        max[j] = GYRO_vals[j];
+                    }
+                    else if (min[j] > GYRO_vals[j])
+                    {
+                        min[j] = GYRO_vals[j];
+                    }
+                }
             }
             ++i;
         }
@@ -63,6 +110,10 @@ bool bb_imu::init()
     {
         AVG_gyro_vals[i] = AVG_gyro_vals[i] / 100;
     }
+
+    //set up the filer for gyro Z
+    gyro_z.kf = new SimpleKalmanFilter(max[gyroscope_z] - 
+        min[gyroscope_z],max[gyroscope_z] - min[gyroscope_z],0.1);
 
     return true;
 }
@@ -81,7 +132,8 @@ bool bb_imu::Get_raw()
     //average static error.
     if (IMU.gyroscopeAvailable())
     {
-        IMU.readGyroscope(GYRO_vals[0], GYRO_vals[1], GYRO_vals[2]);
+        IMU.readGyroscope(GYRO_vals[gyroscope_x], GYRO_vals[gyroscope_y],
+            GYRO_vals[gyroscope_z]);
 
         for (i = 0; i < 3; ++i)
         {
@@ -152,7 +204,11 @@ bool bb_imu::update()
     //if there are new raw values then recalculate the speed
     if (new_vals)
     {
-        gyro_z.speed = integrate(gyro_z, GYRO_vals[2]);
+        //filter the raw gyroscope_z value 
+        GYRO_vals[gyroscope_z] = gyro_z.kf->updateEstimate(GYRO_vals[gyroscope_z]);
+
+        //intigrate the gyroscope_z value
+        gyro_z.speed = integrate(gyro_z, GYRO_vals[gyroscope_z]);
     }
 
     //update time since last update
@@ -179,17 +235,18 @@ bool bb_imu::update()
 float bb_imu::make2pi(integrate_struct &data)
 {
     //**********integral to rad**********
-    if (data.integral > *(data.conversion))
+    if(data.integral > *(data.conversion))
     {
-        data.integral -= *(data.conversion);
+        data.integral = data.integral - *(data.conversion);
     }
-    else if ((data.conversion + *(data.conversion)) < 0)
+    else if (data.integral < 0)
     {
-        data.integral += *(data.conversion);
+        data.integral = data.integral + *(data.conversion);
     }
 
     //convert the integral to radians
-    return (PI * 2) / *(data.conversion) * data.integral;
+
+    return remainderf(((PI * 2) / *(data.conversion) * data.integral + offset) + PI, 2*PI) + PI;
 }
 
 /** ***************************************************************************
@@ -201,4 +258,15 @@ float bb_imu::make2pi(integrate_struct &data)
 float bb_imu::Get_val()
 {
     return make2pi(gyro_z);
+}
+
+/** ***************************************************************************
+* @par Description:
+* Takes a offset betwen 0 and 2PI and adds it to the return value.
+*
+* @returns WIP
+*****************************************************************************/
+void bb_imu::Set_offset(float new_offset)
+{
+    offset = remainderf(abs(new_offset), 2*PI);
 }
