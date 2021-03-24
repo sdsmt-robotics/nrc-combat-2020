@@ -54,7 +54,7 @@ const float m2Offset = 0;
 const float m3Offset = ((2 * PI) / 3);
 
 //constant rotational speed for the bot
-const float rotation_speed = 1200;
+const float rotation_speed = 700;
 
 //**********motor objects**********
 
@@ -109,7 +109,7 @@ CRGB yellow[NUM_LEDS];
 
 //**********Other global vars and consts**********
 
-const bool debug = true;
+const bool debug = false;
 const int debug_level = 2; //0 to 4
 const bool use_led = true;
 
@@ -243,10 +243,10 @@ void loop()
 
     float xp, yp;              //the instructed values for x & y movement
     float w1s, w2s, w3s;       // the rotational velocity set for each motor
-    const int x_y_limit = 100; //magnify the x/y velocity by a specified amount
+    const int x_y_limit = 200; //magnify the x/y velocity by a specified amount
 
     float theta = 0; //the angle of the bot
-    float phase = 0; // the phase offset necessitated by the motor speed
+    float phase = PI; // the phase offset necessitated by the motor speed
     float offset = 0;
     //(may what to make this a function of the rotation speed later)
 
@@ -270,7 +270,7 @@ void loop()
     //**********main loop**********
     while (run_mode)
     {
-
+        
         //record the start time at the beginning of each loop
         controller.receiveData();
 
@@ -337,9 +337,9 @@ void loop()
             float mag = x_y_limit * sqrt(yp * yp + xp * xp);
             float relativeAngle = targetAngle - theta;
 
-            w1s = rotation_speed + mag * sin(relativeAngle - m1Offset + phase);
+            w1s = rotation_speed; //+ mag * sin(relativeAngle - m1Offset + phase);
             w2s = rotation_speed + mag * sin(relativeAngle - m2Offset + phase);
-            w3s = rotation_speed + mag * sin(relativeAngle - m3Offset + phase);
+            w3s = rotation_speed; //+ mag * sin(relativeAngle - m3Offset + phase);
 
             //update time for tracking when the controller is lost
             time_at_controller_loss = micros();

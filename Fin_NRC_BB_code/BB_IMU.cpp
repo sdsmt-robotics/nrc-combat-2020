@@ -205,7 +205,7 @@ bool bb_imu::update()
     if (new_vals)
     {
         //filter the raw gyroscope_z value 
-        GYRO_vals[gyroscope_z] = gyro_z.kf->updateEstimate(GYRO_vals[gyroscope_z]);
+        //GYRO_vals[gyroscope_z] = gyro_z.kf->updateEstimate(GYRO_vals[gyroscope_z]);
 
         //intigrate the gyroscope_z value
         gyro_z.speed = integrate(gyro_z, GYRO_vals[gyroscope_z]);

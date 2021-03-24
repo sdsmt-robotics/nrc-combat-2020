@@ -9,6 +9,7 @@
 #include <Arduino_LSM6DS3.h>
 #include <math.h>
 #include <SimpleKalmanFilter.h>
+#include "Filter.h"
 
 #define num_input 3
 
@@ -64,7 +65,7 @@ public:
    float Get_val();               //get the updated estimate
    void Set_offset(float offset); //set the offset for the returned angle
 
-   int gyro_to_rad = 420;
+   int gyro_to_rad = 422;
 };
 
 #endif
