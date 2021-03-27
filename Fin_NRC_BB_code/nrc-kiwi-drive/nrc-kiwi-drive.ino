@@ -113,8 +113,8 @@ CRGB yellow[NUM_LEDS];
 
 //**********Other global vars and consts**********
 
-const bool debug = false;
-const int debug_level = 2; //0 to 4
+const bool debug = true;
+const int debug_level = 3; //0 to 4
 const bool use_led = true;
 
 bb_imu orintation;
@@ -249,7 +249,7 @@ void loop()
     float w1s, w2s, w3s;       // the rotational velocity set for each motor
 
     float theta = 0; //the angle of the bot
-    float phase = PI/2; // the phase offset necessitated by the motor speed
+    float phase = -PI/2; // the phase offset necessitated by the motor speed
     float offset = 0;
     //(may what to make this a function of the rotation speed later)
 
@@ -313,11 +313,13 @@ void loop()
             }
             else if (controller.buttonClick(PHASE_LEAD))
             {
-                ++orintation.gyro_to_rad;
+                --orintation.gyro_to_rad;
             }
 
             //update the offset for turning
-            offset = offset+(controller.joystick(TURN_JOYSTICK, X)/-120);
+            if (abs(controller.joystick(TURN_JOYSTICK, X)) > 0.2) {
+              offset = offset+(controller.joystick(TURN_JOYSTICK, X)/-120);
+            }
 
             //make sure that the offset is from 0 to 2PI
             if(offset < 0)
@@ -340,9 +342,9 @@ void loop()
             float mag = translateSpeed * sqrt(yp * yp + xp * xp);
             float relativeAngle = targetAngle - theta;
 
-            w1s = rotationSpeed; + mag * sin(relativeAngle - m1Offset + phase);
+            w1s = rotationSpeed + mag * sin(relativeAngle - m1Offset + phase);
             w2s = rotationSpeed + mag * sin(relativeAngle - m2Offset + phase);
-            w3s = rotationSpeed; + mag * sin(relativeAngle - m3Offset + phase);
+            w3s = rotationSpeed + mag * sin(relativeAngle - m3Offset + phase);
 
             //update time for tracking when the controller is lost
             time_at_controller_loss = micros();
