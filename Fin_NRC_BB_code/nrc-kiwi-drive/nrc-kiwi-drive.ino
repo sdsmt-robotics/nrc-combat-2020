@@ -18,7 +18,6 @@
 #include "/home/joseph/Desktop/Robot/NRC/Controller/Code/receive/Controller.cpp"                                      //?
 #include "/home/joseph/Desktop/Robot/NRC/nrc-combat-2020/Fin_NRC_BB_code/POV_Display.cpp"                             //?
 #include "/home/joseph/Desktop/Robot/NRC/nrc-combat-2020/Fin_NRC_BB_code/BB_IMU.cpp"                                  //?
-//#include "Nidec24hController.h" //?
 //#include "Controller.h" //?
 //#include "POV_Display.h" //?
 
@@ -54,7 +53,12 @@ const float m2Offset = 0;
 const float m3Offset = ((2 * PI) / 3);
 
 //constant rotational speed for the bot
-const float rotation_speed = 700;
+float rotation = 300; // Chassis rotation speed in RPM
+float translation = 1.5; // Driving feet per sec
+float chassisRad = 4; // Chassis radius in inches
+float wheelRad = 1; // Wheel radius in inches
+float translateSpeed = translation / wheelRad * (12 * 60 / 2 / PI);
+float rotationSpeed = rotation * chassisRad / wheelRad;
 
 //**********motor objects**********
 
@@ -243,10 +247,9 @@ void loop()
 
     float xp, yp;              //the instructed values for x & y movement
     float w1s, w2s, w3s;       // the rotational velocity set for each motor
-    const int x_y_limit = 200; //magnify the x/y velocity by a specified amount
 
     float theta = 0; //the angle of the bot
-    float phase = PI; // the phase offset necessitated by the motor speed
+    float phase = PI/2; // the phase offset necessitated by the motor speed
     float offset = 0;
     //(may what to make this a function of the rotation speed later)
 
@@ -334,12 +337,12 @@ void loop()
 
             //set the target velocity of the motors
             float targetAngle = atan2(yp, -xp); // X is inverted??
-            float mag = x_y_limit * sqrt(yp * yp + xp * xp);
+            float mag = translateSpeed * sqrt(yp * yp + xp * xp);
             float relativeAngle = targetAngle - theta;
 
-            w1s = rotation_speed; //+ mag * sin(relativeAngle - m1Offset + phase);
-            w2s = rotation_speed + mag * sin(relativeAngle - m2Offset + phase);
-            w3s = rotation_speed; //+ mag * sin(relativeAngle - m3Offset + phase);
+            w1s = rotationSpeed; + mag * sin(relativeAngle - m1Offset + phase);
+            w2s = rotationSpeed + mag * sin(relativeAngle - m2Offset + phase);
+            w3s = rotationSpeed; + mag * sin(relativeAngle - m3Offset + phase);
 
             //update time for tracking when the controller is lost
             time_at_controller_loss = micros();
@@ -350,9 +353,9 @@ void loop()
             //**********update motor speeds for no controller**********
 
             //set the velocity of the motors
-            w1s = rotation_speed;
-            w2s = rotation_speed;
-            w3s = rotation_speed;
+            w1s = rotationSpeed;
+            w2s = rotationSpeed;
+            w3s = rotationSpeed;
 
             //run_mode (update based on time delay)
             if (time_at_controller_loss > (micros() - 1000000)) //one second

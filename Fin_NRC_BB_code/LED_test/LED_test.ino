@@ -4,11 +4,11 @@
 #define NUM_LEDS 8
 
 // Pin for data to led strip
-#define DATA_PIN 4
+#define DATA_PIN 5
 
 //construct screens(class is a work in progress)
 screen  main_screen(30,NUM_LEDS,30);
-
+  
 //the number of addressable radial led's per horizontal stripe
 CRGB leds[NUM_LEDS];
 
@@ -20,6 +20,11 @@ CRGB black[NUM_LEDS];
 
 void setup() {
 
+  Serial.begin(9600);
+  while(!Serial) {}
+
+  Serial.println("start");
+  
   int i;
 
   //add leds for the fast led library
@@ -39,8 +44,6 @@ void setup() {
   main_screen.set_columb(4,green);
   main_screen.set_columb(6,yellow);
   main_screen.set_columb(8,black);
-  
-
 
 }
 
@@ -50,21 +53,26 @@ void loop() {
   int j;
 
   CRGB * temp;
-  
-  for(i = 0; i < 9; ++i)
+
+  Serial.println("test new");
+
+  while(true)
   {
-    temp = main_screen.get_columb(i);
-
-    for(j = 0; j < NUM_LEDS; ++j)
+    for(i = 0; i < 9; ++i)
     {
-      leds[j] = temp[j];
-    }
-    
-    FastLED.show();
-    delay(1000);
-    FastLED.clear();  // clear all pixel data
-    
-  }
+      //temp = main_screen.get_columb(i);
   
-
+      for(j = 0; j < NUM_LEDS; ++j)
+      {
+        leds[j] = blue[j];
+      }
+      
+      FastLED.show();
+      delay(500);
+      FastLED.clear();  // clear all pixel data
+      
+    }
+  
+    Serial.println("test");
+  }
 }

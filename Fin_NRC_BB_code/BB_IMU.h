@@ -44,7 +44,7 @@ private:
       float integral = 0;
       float speed = 0;
       int *conversion; //used to reffer to a public int
-      Filter rf = Filter(3); //set up a averaging low pass fileter for the last three values
+      Filter rf = Filter(3); //set up a averaging low pass filter for the last three values
    };
 
    unsigned long loop_start_time = micros(); //loop start time

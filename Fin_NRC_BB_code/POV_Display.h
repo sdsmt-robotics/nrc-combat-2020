@@ -10,6 +10,9 @@
 
 struct stripe;
 
+#define temp_num_leds 8
+#define temp_resolution 30
+#define temp_stored 30
 
 /***********************************************************************/ /**
 *@class
