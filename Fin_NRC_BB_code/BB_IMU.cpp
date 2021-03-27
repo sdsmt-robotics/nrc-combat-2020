@@ -31,9 +31,9 @@ bb_imu::bb_imu()
 * 
 * @returns none.
 *****************************************************************************/
-bb_imu::~bb_imu()
+bb_imu::~bb_imu() 
 {
-    delete(gyro_z.kf);
+    return;
 }
 
 /** ***************************************************************************
@@ -111,9 +111,6 @@ bool bb_imu::init()
         AVG_gyro_vals[i] = AVG_gyro_vals[i] / 100;
     }
 
-    //set up the filer for gyro Z
-    gyro_z.kf = new SimpleKalmanFilter(max[gyroscope_z] - 
-        min[gyroscope_z],max[gyroscope_z] - min[gyroscope_z],0.1);
 
     return true;
 }
@@ -139,6 +136,9 @@ bool bb_imu::Get_raw()
         {
             GYRO_vals[i] = GYRO_vals[i] - AVG_gyro_vals[i];
         }
+
+        //fileter gyroscope z value
+        GYRO_vals[gyroscope_z] = gyro_z.rf.filter(GYRO_vals[gyroscope_z]*100000) /100000.00;
 
         //imu was ready
         return true;

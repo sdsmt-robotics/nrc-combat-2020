@@ -5,11 +5,10 @@
 #ifndef BB_IMU
 #define BB_IMU
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include <Arduino_LSM6DS3.h>
 #include <math.h>
-#include <SimpleKalmanFilter.h>
-#include "Filter.h"
+#include "/home/joseph/Desktop/Robot/NRC/MotorSpeedController/Software/controller/Filter.cpp"
 
 #define num_input 3
 
@@ -45,7 +44,7 @@ private:
       float integral = 0;
       float speed = 0;
       int *conversion; //used to reffer to a public int
-      SimpleKalmanFilter * kf;
+      Filter rf = Filter(3); //set up a averaging low pass fileter for the last three values
    };
 
    unsigned long loop_start_time = micros(); //loop start time
@@ -65,7 +64,7 @@ public:
    float Get_val();               //get the updated estimate
    void Set_offset(float offset); //set the offset for the returned angle
 
-   int gyro_to_rad = 422;
+   int gyro_to_rad = 429;
 };
 
 #endif
