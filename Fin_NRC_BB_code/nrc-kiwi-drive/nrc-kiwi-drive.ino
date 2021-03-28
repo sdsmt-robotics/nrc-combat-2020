@@ -18,8 +18,6 @@
 #include "/home/joseph/Desktop/Robot/NRC/Controller/Code/receive/Controller.cpp"                                      //?
 #include "/home/joseph/Desktop/Robot/NRC/nrc-combat-2020/Fin_NRC_BB_code/POV_Display.cpp"                             //?
 #include "/home/joseph/Desktop/Robot/NRC/nrc-combat-2020/Fin_NRC_BB_code/BB_IMU.cpp"                                  //?
-//#include "Controller.h" //?
-//#include "POV_Display.h" //?
 
 /*********************Pin labels***********************
  * 0 for serial to the xBee REQ
@@ -27,7 +25,7 @@
  * 2
  * 3
  * 4 for the led strips
- * 5 
+ * 5
  * 6 for the slave motor boards
  * 7 for the slave motor boards
  * 8
@@ -77,12 +75,14 @@ Nidec24hController motor3(SPI, MOTOR_PIN_3);
 //Create the communications object. Use Serial for the communications.
 Controller controller(Serial1);
 
-#define START_BUTTON UP
-#define STOP_BUTTON DOWN
-#define DRIVE_JOYSTICK LEFT
-#define TURN_JOYSTICK RIGHT
-#define PHASE_LEAD RIGHT
-#define PHASE_LAG LEFT
+#define START_BUTTON UP //button
+#define STOP_BUTTON DOWN //button
+#define DRIVE_JOYSTICK LEFT //joystick
+#define TURN_JOYSTICK RIGHT //joystick
+#define PHASE_LEAD RIGHT //button
+#define PHASE_LAG LEFT //button
+#define SPEED_UP RIGHT //triger
+#define SPEED_DOWN LEFT //triger
 
 //**********constants for the LEDs**********
 
@@ -113,11 +113,11 @@ CRGB yellow[NUM_LEDS];
 
 //**********Other global vars and consts**********
 
-const bool debug = true;
+const bool debug = false;
 const int debug_level = 3; //0 to 4
 const bool use_led = true;
 
-bb_imu orintation;
+bb_imu orientation;
 
 //**********setup**********
 /** ***************************************************************************
@@ -181,7 +181,7 @@ void setup()
     controller.init();
 
     if (debug && Serial.println("Waiting for connection..."))
-    { 
+    {
     }
 
     //wait for initial controller connection
@@ -191,14 +191,14 @@ void setup()
     }
 
     if (debug && Serial.println("Connected..."))
-    { 
+    {
     }
     
     //set a deadzone for the joysticks
     controller.setJoyDeadzone(0.08);
 
     //**********imu initialization**********
-    if (!orintation.init())
+    if (!orientation.init())
     {
         if (debug && Serial.println("Failed to initialize IMU!"))
         {
@@ -211,7 +211,7 @@ void setup()
     }
 
     if (debug && Serial.println("IMU start"))
-    { 
+    {
     }
 
     //**********Testing classes and LED's**********
@@ -245,8 +245,9 @@ void loop()
 {
     //**********variable setup**********
 
-    float xp, yp;              //the instructed values for x & y movement
+    float xp, yp;              // the instructed values for x & y movement
     float w1s, w2s, w3s;       // the rotational velocity set for each motor
+    float amp;                 // the amplification of the rotation speed.
 
     float theta = 0; //the angle of the bot
     float phase = -PI/2; // the phase offset necessitated by the motor speed
@@ -280,16 +281,16 @@ void loop()
         //**********imu get**********
 
         //update IMU estimation
-        if (orintation.update())
+        if (orientation.update())
         {
-            if (debug && debug_level < 4 && Serial.print("Orintaion: "))
+            if (debug && debug_level < 4 && Serial.print("Orientation: "))
             {
-                Serial.println(orintation.Get_val());
+                Serial.println(orientation.Get_val());
             }
         }
 
         //convert the integral to radians
-        theta = orintation.Get_val();
+        theta = orientation.Get_val();
 
         //check if controller is connected
         if (controller.connected())
@@ -297,26 +298,46 @@ void loop()
 
             //**********controller get**********
 
-            //grab the analog value from the joystick and scalil it to 100%
+            //grab the analog value from the joystick
 
             xp = controller.joystick(DRIVE_JOYSTICK, X);
             yp = controller.joystick(DRIVE_JOYSTICK, Y);
+
+            //test to see if the robot should stop
 
             if (controller.button(STOP_BUTTON))
             {
                 run_mode = false;
             }
 
+            //adjust the drift trim
+            
             if (controller.buttonClick(PHASE_LAG))
             {
-                ++orintation.gyro_to_rad;
+                ++orientation.gyro_to_rad;
             }
             else if (controller.buttonClick(PHASE_LEAD))
             {
-                --orintation.gyro_to_rad;
+                --orientation.gyro_to_rad;
+            }
+
+            //adjust the rotation speed
+
+            if (controller.trigger(SPEED_DOWN) > 0.2) //if the trigger is sufficiently engaged.
+            {
+              amp = 1 - (controller.trigger(SPEED_DOWN)/2.0); //adjust the amplification variable
+            }
+            else if (controller.trigger(SPEED_UP) > 0.2)
+            {
+              amp = 1 + (controller.trigger(SPEED_UP)/2.0);
+            }
+            else
+            {
+              amp = 1;
             }
 
             //update the offset for turning
+            
             if (abs(controller.joystick(TURN_JOYSTICK, X)) > 0.2) {
               offset = offset+(controller.joystick(TURN_JOYSTICK, X)/-120);
             }
@@ -331,9 +352,19 @@ void loop()
               offset = offset - 2*PI;
             }
 
-            orintation.Set_offset(offset);
+            orientation.Set_offset(offset);
 
-            if (debug && Serial.print("---------------------------------Offset: ") && Serial.println(offset)){}
+            if (debug && (debug_level < 2))
+            {
+              Serial.print("---------------------------------Offset: ");
+              Serial.println(offset);
+              Serial.print("---------------------------------X: ");
+              Serial.println(xp);
+              Serial.print("---------------------------------Y: ");
+              Serial.println(yp);
+              Serial.print("---------------------------------Amp: ");
+              Serial.println(amp);
+            }
 
             //**********update motor speeds**********
 
@@ -342,9 +373,9 @@ void loop()
             float mag = translateSpeed * sqrt(yp * yp + xp * xp);
             float relativeAngle = targetAngle - theta;
 
-            w1s = rotationSpeed + mag * sin(relativeAngle - m1Offset + phase);
-            w2s = rotationSpeed + mag * sin(relativeAngle - m2Offset + phase);
-            w3s = rotationSpeed + mag * sin(relativeAngle - m3Offset + phase);
+            w1s = rotationSpeed*amp + mag * sin(relativeAngle - m1Offset + phase);
+            w2s = rotationSpeed*amp + mag * sin(relativeAngle - m2Offset + phase);
+            w3s = rotationSpeed*amp + mag * sin(relativeAngle - m3Offset + phase);
 
             //update time for tracking when the controller is lost
             time_at_controller_loss = micros();
