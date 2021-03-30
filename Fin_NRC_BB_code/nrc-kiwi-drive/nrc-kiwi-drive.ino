@@ -24,9 +24,9 @@
  * 1 for serial to the xBee REQ
  * 2 SS for the slave motor 2
  * 3 SS for the slave motor 3
- * 4 
+ * 4
  * 5
- * 6 
+ * 6
  * 7 SS for the slave motor
  * 8
  * 9
@@ -45,19 +45,12 @@
  ***************************************************/
 
 //**********constants for the motors**********
-
-//radian offsets used for the first and second motors
-const float m1Offset = (-(2 * PI) / 3);
-const float m2Offset = 0;
-const float m3Offset = ((2 * PI) / 3);
-
-//constant rotational speed for the bot
-float rotation = 300; // Chassis rotation speed in RPM
-float translation = 1.5; // Driving feet per sec
-float chassisRad = 4; // Chassis radius in inches
-float wheelRad = 1; // Wheel radius in inches
-float translateSpeed = translation / wheelRad * (12 * 60 / 2 / PI);
-float rotationSpeed = rotation * chassisRad / wheelRad;
+const float rotation = 300; // Chassis rotation speed in RPM
+const float translation = 1.5; // Driving feet per sec
+const float chassisRad = 6; // Chassis radius in inches
+const float wheelRad = 1; // Wheel radius in inches
+const float translateSpeed = translation / wheelRad * (12 * 60 / 2 / PI);
+const float rotationSpeed = rotation * chassisRad / wheelRad;
 
 //**********motor objects**********
 
@@ -82,8 +75,8 @@ Controller controller(Serial1);
 #define TURN_JOYSTICK RIGHT //joystick
 #define PHASE_LEAD RIGHT //button
 #define PHASE_LAG LEFT //button
-#define SPEED_UP RIGHT //triger
-#define SPEED_DOWN LEFT //triger
+#define SPEED_UP RIGHT //trigger
+#define SPEED_DOWN LEFT //trigger
 
 //**********constants for the LEDs**********
 
@@ -250,7 +243,7 @@ void setup()
     {
     }
 
-    if (debug && Serial.println("Setup compleat"))
+    if (debug && Serial.println("Setup complete"))
     {
     }
 }
@@ -265,19 +258,16 @@ void loop()
 {
     //**********variable setup**********
 
-    float xp, yp;              // the instructed values for x & y movement
-    float w1s, w2s, w3s;       // the rotational velocity set for each motor
-    float amp = 1;             // the amplification of the rotation speed.
+    float xp, yp;   // the instructed values for x & y movement
+    float w[3];     // the rotational velocity set for each motor
+    float amp = 1;  // the amplification of the rotation speed.
 
     float theta = 0; //the angle of the bot
-    float phase = -PI/2; // the phase offset necessitated by the motor speed
-    float offset = 0;
-    //(may what to make this a function of the rotation speed later)
 
     int i = 0; //generic counter var
 
     //row of the screen being displayed
-    int screen_point = 0; 
+    int screen_point = 0;
     int screen_before = 0;
     int screen_after = 0;
 
@@ -290,11 +280,6 @@ void loop()
     bool run_mode = false;
 
     //**********Stand By Code**********
-
-    if (controller.connected() && controller.buttonClick(START_BUTTON))
-    {
-        run_mode = true;
-    }
     
     for (i = 0; i < NUM_LEDS; ++i)
     {
@@ -302,8 +287,29 @@ void loop()
         leds2[i] = green[i];
         leds3[i] = green[i];
     }
-
+    
+    FastLED.clear();
     FastLED.show();
+
+    //wait untill 
+    while(!run_mode)
+    {
+      if (controller.connected() && controller.buttonClick(START_BUTTON))
+      {
+          run_mode = true;
+      }
+      
+      if (debug && Serial.println("Break out"))
+      {
+      }
+      
+      motor1.brake();
+      motor2.brake();
+      motor3.brake();
+  
+      delay(50);
+    
+    }
     
     //**********main loop**********
     while (run_mode)
@@ -332,84 +338,11 @@ void loop()
 
             //**********controller get**********
 
-            //grab the analog value from the joystick
-
-            xp = controller.joystick(DRIVE_JOYSTICK, X);
-            yp = controller.joystick(DRIVE_JOYSTICK, Y);
-
-            //test to see if the robot should stop
-
-            if (controller.button(STOP_BUTTON))
-            {
-                run_mode = false;
-            }
-
-            //adjust the drift trim
-            
-            if (controller.buttonClick(PHASE_LAG))
-            {
-                ++orientation.gyro_to_rad;
-            }
-            else if (controller.buttonClick(PHASE_LEAD))
-            {
-                --orientation.gyro_to_rad;
-            }
-
-            //adjust the rotation speed
-
-            if (controller.trigger(SPEED_DOWN) > 0.2) //if the trigger is sufficiently engaged.
-            {
-              amp = 1 - (controller.trigger(SPEED_DOWN)/2.0); //adjust the amplification variable
-            }
-            else if (controller.trigger(SPEED_UP) > 0.2)
-            {
-              amp = 1 + (controller.trigger(SPEED_UP)/2.0);
-            }
-            else
-            {
-              amp = 1;
-            }
-
-            //update the offset for turning
-            
-            if (abs(controller.joystick(TURN_JOYSTICK, X)) > 0.2) 
-            {
-              offset = offset+(controller.joystick(TURN_JOYSTICK, X)/-120);
-            
-              //make sure that the offset is from 0 to 2PI
-              if(offset < 0)
-              {
-                offset = offset + 2*PI;
-              }
-              else if(offset > 2*PI)
-              {
-                offset = offset - 2*PI;
-              }
-              orientation.Set_offset(offset);
-            }
-
-            if (debug && (debug_level < 2))
-            {
-              Serial.print("---------------------------------Offset: ");
-              Serial.println(offset);
-              Serial.print("---------------------------------X: ");
-              Serial.println(xp);
-              Serial.print("---------------------------------Y: ");
-              Serial.println(yp);
-              Serial.print("---------------------------------Amp: ");
-              Serial.println(amp);
-            }
+            retrieve_controller_inputs(xp, yp, run_mode, amp);
 
             //**********update motor speeds**********
 
-            //set the target velocity of the motors
-            float targetAngle = atan2(yp, -xp); // X is inverted??
-            float mag = translateSpeed * sqrt(yp * yp + xp * xp);
-            float relativeAngle = targetAngle - theta;
-
-            w1s = rotationSpeed*amp + mag * sin(relativeAngle - m1Offset + phase);
-            w2s = rotationSpeed*amp + mag * sin(relativeAngle - m2Offset + phase);
-            w3s = rotationSpeed*amp + mag * sin(relativeAngle - m3Offset + phase);
+            calculate_motor_speed(w,amp,xp,yp,theta);
 
             //update time for tracking when the controller is lost
             time_at_controller_loss = micros();
@@ -417,12 +350,12 @@ void loop()
         else // set horizontal speed to zero if controller is not connected
         {
 
-            //**********update motor speeds for no controller**********
+            //**********update for no controller**********
 
             //set the velocity of the motors
-            w1s = rotationSpeed;
-            w2s = rotationSpeed;
-            w3s = rotationSpeed;
+            w[0] = rotationSpeed;
+            w[1] = rotationSpeed;
+            w[2] = rotationSpeed;
 
             //run_mode (update based on time delay)
             if (time_at_controller_loss > (micros() - 1000000)) //one second
@@ -433,18 +366,18 @@ void loop()
 
         //**********send out motor speeds**********
 
-        motor1.setSpeed(w1s);
-        motor2.setSpeed(w2s);
-        motor3.setSpeed(w3s);
+        motor1.setSpeed(w[0]);
+        motor2.setSpeed(w[1]);
+        motor3.setSpeed(w[2]);
 
         //debug
         if (debug && debug_level < 3)
         {
-            Serial.print(w1s);
+            Serial.print(w[0]);
             Serial.print(',');
-            Serial.print(w2s);
+            Serial.print(w[1]);
             Serial.print(',');
-            Serial.println(w3s);
+            Serial.println(w[2]);
         }
 
         //**********LED's**********
@@ -453,7 +386,7 @@ void loop()
             //test if the leds need to be updated
             if (theta - screen_step > screen_step * screen_point)
             {
-                //calculate the possition of the other leds
+                //calculate the position of the other leds
                 screen_before = screen_point - bot_resolution/3;
                 screen_after = screen_point + bot_resolution/3;
 
@@ -474,7 +407,7 @@ void loop()
                 temp[1] = red;
                 temp[2] = red;
 
-                //if in a valid possition, set the color of the leds
+                //if in a valid position, set the color of the leds
                 if ((screen_before * screen_point) < (2 * PI / 10))
                 {
                     temp[0] = blue; //main_screen.get_columb(screen_point);
@@ -518,14 +451,99 @@ void loop()
     }
     //set motor speed to zero as the bot is no longer in run mode
 
+}
 
-    if (debug && Serial.println("Break out"))
+void calculate_motor_speed(float (&w)[3],float amp,float x,float y,float theta)
+{
+  //radian offsets used for the first and second motors
+  const float m1Offset = (-(2 * PI) / 3);
+  const float m2Offset = 0;
+  const float m3Offset = ((2 * PI) / 3);
+
+  float phase = -PI/2; // the phase offset necessitated by the motor speed
+  //may want the phase to be a function of the current rotation speed
+
+  //set the target velocity of the motors
+  float mag = translateSpeed * sqrt(y * y + x * x);
+  float relativeAngle = atan2(y, -x) - theta;
+  
+  w[0] = rotationSpeed*amp + mag * sin(relativeAngle - m1Offset + phase);
+  w[1] = rotationSpeed*amp + mag * sin(relativeAngle - m2Offset + phase);
+  w[2] = rotationSpeed*amp + mag * sin(relativeAngle - m3Offset + phase);
+            
+  return;
+}
+
+void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp)
+{
+  static float offset = 0;
+  
+  //grab the analog value from the joystick
+  
+  xp = controller.joystick(DRIVE_JOYSTICK, X);
+  yp = controller.joystick(DRIVE_JOYSTICK, Y);
+  
+  //test to see if the robot should stop
+  
+  if (controller.button(STOP_BUTTON))
+  {
+    run_mode = false;
+  }
+  
+  //adjust the drift trim
+              
+  if (controller.buttonClick(PHASE_LAG))
+  {
+    ++orientation.gyro_to_rad;
+  }
+  else if (controller.buttonClick(PHASE_LEAD))
+  {
+    --orientation.gyro_to_rad;
+  }
+  
+  //adjust the rotation speed
+  
+  if (controller.trigger(SPEED_DOWN) > 0.2) //if the trigger is sufficiently engaged.
+  {
+    amp = 1 - (controller.trigger(SPEED_DOWN)/2.0); //adjust the amplification variable
+  }
+  else if (controller.trigger(SPEED_UP) > 0.2)
+  {
+    amp = 1 + (controller.trigger(SPEED_UP)/2.0);
+  }
+  else
+  {
+    amp = 1;
+  }
+  
+  //update the offset for turning
+              
+  if (abs(controller.joystick(TURN_JOYSTICK, X)) > 0.2)
+  {
+    offset = offset+(controller.joystick(TURN_JOYSTICK, X)/-120);
+              
+    //make sure that the offset is from 0 to 2PI
+    if(offset < 0)
     {
+    offset = offset + 2*PI;
     }
-    
-    motor1.brake();
-    motor2.brake();
-    motor3.brake();
+    else if(offset > 2*PI)
+    {
+    offset = offset - 2*PI;
+    }
+    orientation.Set_offset(offset);
+  }
+  
+  if (debug && (debug_level < 2))
+  {
+    Serial.print("---------------------------------Offset: ");
+    Serial.println(offset);
+    Serial.print("---------------------------------X: ");
+    Serial.println(xp);
+    Serial.print("---------------------------------Y: ");
+    Serial.println(yp);
+    Serial.print("---------------------------------Amp: ");
+    Serial.println(amp);
+  }
 
-    delay(10);
 }
