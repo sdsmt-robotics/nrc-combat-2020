@@ -27,10 +27,18 @@ void loop() {
   {
 
     IMU_test.update();
-;
 
     Serial.print("Rotaion: ");    
     Serial.println(IMU_test.Get_val());
+    Serial.print("Orientation: ");
+    if(IMU_test.Get_upright())
+    {
+      Serial.println("Up");
+    } 
+    else   
+    {
+      Serial.println("Down");
+    }
     
     delay(1);
   }

@@ -114,7 +114,7 @@ CRGB purple[NUM_LEDS];
 //**********Other global vars and consts**********
 
 const bool debug = false;
-const int debug_level = 2; //0 to 4
+const int debug_level = 1; //0 to 4
 const bool use_led = true;
 
 bb_imu orientation;
@@ -154,7 +154,8 @@ void setup()
     FastLED.addLeds<NEOPIXEL, DATA_PIN_1>(leds1, NUM_LEDS); // GRB ordering is assumed
     FastLED.addLeds<NEOPIXEL, DATA_PIN_2>(leds2, NUM_LEDS); // GRB ordering is assumed
     FastLED.addLeds<NEOPIXEL, DATA_PIN_3>(leds3, NUM_LEDS); // GRB ordering is assumed
-
+    FastLED.setBrightness(50);
+    
     //re add test
     
     //**********LED screen setup**********
@@ -280,20 +281,20 @@ void loop()
     bool run_mode = false;
 
     //**********Stand By Code**********
-    
+      
     for (i = 0; i < NUM_LEDS; ++i)
     {
-        leds1[i] = green[i];
-        leds2[i] = green[i];
-        leds3[i] = green[i];
+        leds1[i] = purple[i];
+        leds2[i] = purple[i];
+        leds3[i] = purple[i];
     }
-    
-    FastLED.clear();
+      
     FastLED.show();
-
+      
     //wait untill 
     while(!run_mode)
     {
+          
       if (controller.connected() && controller.buttonClick(START_BUTTON))
       {
           run_mode = true;
@@ -307,16 +308,13 @@ void loop()
       motor2.brake();
       motor3.brake();
   
-      delay(50);
+      delay(10);
     
     }
     
     //**********main loop**********
     while (run_mode)
     {
-        
-        //record the start time at the beginning of each loop
-        controller.receiveData();
 
         //**********imu get**********
 
@@ -366,9 +364,18 @@ void loop()
 
         //**********send out motor speeds**********
 
-        motor1.setSpeed(w[0]);
-        motor2.setSpeed(w[1]);
-        motor3.setSpeed(w[2]);
+        if(orientation.Get_upright())
+        {
+          motor1.setSpeed(w[0]);
+          motor2.setSpeed(w[1]);
+          motor3.setSpeed(w[2]);
+        }
+        else
+        {
+          motor1.setSpeed(-w[0]);
+          motor2.setSpeed(-w[1]);
+          motor3.setSpeed(-w[2]);
+        }
 
         //debug
         if (debug && debug_level < 3)
@@ -383,6 +390,7 @@ void loop()
         //**********LED's**********
         if (use_led)
         {
+            
             //test if the leds need to be updated
             if (theta - screen_step > screen_step * screen_point)
             {
@@ -408,17 +416,17 @@ void loop()
                 temp[2] = red;
 
                 //if in a valid position, set the color of the leds
-                if ((screen_before * screen_point) < (2 * PI / 10))
+                if ((screen_before * screen_step) < (2 * PI / 10))
                 {
                     temp[0] = blue; //main_screen.get_columb(screen_point);
                 }
-                else if ((screen_after * screen_point) < (2 * PI / 10))
+                else if ((screen_after * screen_step) < (2 * PI / 10))
                 {
-                    temp[0] = blue; //main_screen.get_columb(screen_point);
+                    temp[1] = blue; //main_screen.get_columb(screen_point);
                 }
-                else if ((screen_step * screen_point) < (2 * PI / 10))
+                else if ((screen_point * screen_step) < (2 * PI / 10))
                 {
-                    temp[0] = blue; //main_screen.get_columb(screen_point);
+                    temp[2] = blue; //main_screen.get_columb(screen_point);
                 }
 
 //temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp
@@ -432,8 +440,7 @@ void loop()
                 }
 
                 screen_point++;
-
-                FastLED.clear();
+                
                 FastLED.show();
             }
             else if (screen_step * screen_point > (theta + screen_step))
@@ -477,6 +484,8 @@ void calculate_motor_speed(float (&w)[3],float amp,float x,float y,float theta)
 void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp)
 {
   static float offset = 0;
+
+  controller.receiveData();
   
   //grab the analog value from the joystick
   
@@ -545,5 +554,4 @@ void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp
     Serial.print("---------------------------------Amp: ");
     Serial.println(amp);
   }
-
 }

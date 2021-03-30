@@ -64,12 +64,16 @@ bool bb_imu::init()
     while (i < 100)
     {
 
-        if (IMU.gyroscopeAvailable())
+        if (IMU.gyroscopeAvailable() && IMU.accelerationAvailable())
         {
 
             //when the gyroscope is avalible, read its values in
             IMU.readGyroscope(GYRO_vals[gyroscope_x], 
                 GYRO_vals[gyroscope_y], GYRO_vals[gyroscope_z]);
+
+            IMU.readAcceleration(GYRO_vals[accelerometer_x], 
+                GYRO_vals[accelerometer_y], GYRO_vals[accelerometer_z]);
+            
             for (j = 0; j < num_input; ++j)
             {
                 //sum all measurements
@@ -111,7 +115,6 @@ bool bb_imu::init()
         AVG_gyro_vals[i] = AVG_gyro_vals[i] / 100;
     }
 
-
     return true;
 }
 
@@ -127,12 +130,17 @@ bool bb_imu::Get_raw()
 
     //if the gyroscope is ready, take the new values and subtract the
     //average static error.
-    if (IMU.gyroscopeAvailable())
+    if (IMU.gyroscopeAvailable() && IMU.accelerationAvailable())
     {
-        IMU.readGyroscope(GYRO_vals[gyroscope_x], GYRO_vals[gyroscope_y],
-            GYRO_vals[gyroscope_z]);
 
-        for (i = 0; i < 3; ++i)
+        //when the gyroscope is avalible, read its values in
+        IMU.readGyroscope(GYRO_vals[gyroscope_x], 
+            GYRO_vals[gyroscope_y], GYRO_vals[gyroscope_z]);
+
+        IMU.readAcceleration(GYRO_vals[accelerometer_x], 
+            GYRO_vals[accelerometer_y], GYRO_vals[accelerometer_z]);
+
+        for (i = 0; i < 6; ++i)
         {
             GYRO_vals[i] = GYRO_vals[i] - AVG_gyro_vals[i];
         }
@@ -204,8 +212,6 @@ bool bb_imu::update()
     //if there are new raw values then recalculate the speed
     if (new_vals)
     {
-        //filter the raw gyroscope_z value 
-        //GYRO_vals[gyroscope_z] = gyro_z.kf->updateEstimate(GYRO_vals[gyroscope_z]);
 
         //intigrate the gyroscope_z value
         gyro_z.speed = integrate(gyro_z, GYRO_vals[gyroscope_z]);
@@ -269,4 +275,20 @@ float bb_imu::Get_val()
 void bb_imu::Set_offset(float new_offset)
 {
     offset = remainderf(abs(new_offset), 2*PI);
+}
+
+/** ***************************************************************************
+* @par Description:
+* Tests the gyroscope to see if the bot is upright
+*
+* @returns true if the bot is upright or false if the bot is upside down
+*****************************************************************************/
+bool bb_imu::Get_upright()
+{
+    if(GYRO_vals[accelerometer_z] < -0.9)
+    {
+        return false;
+    }
+
+    return true;
 }

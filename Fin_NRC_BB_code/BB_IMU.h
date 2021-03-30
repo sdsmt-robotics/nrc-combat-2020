@@ -10,7 +10,7 @@
 #include <math.h>
 #include "/home/joseph/Desktop/Robot/NRC/MotorSpeedController/Software/controller/Filter.cpp"
 
-#define num_input 3
+#define num_input 6
 
 enum sensor
 {
@@ -60,9 +60,10 @@ public:
    bb_imu();
    ~bb_imu();
    bool init();                   //initialise
-   bool update();                 // update calculations
+   bool update();                 //update calculations
    float Get_val();               //get the updated estimate
    void Set_offset(float offset); //set the offset for the returned angle
+   bool Get_upright();
 
    int gyro_to_rad = 429;
 };
