@@ -22,25 +22,26 @@
 /*********************Pin labels***********************
  * 0 for serial to the xBee REQ
  * 1 for serial to the xBee REQ
- * 2
- * 3
- * 4 for the led strips
+ * 2 SS for the slave motor 2
+ * 3 SS for the slave motor 3
+ * 4 
  * 5
- * 6 for the slave motor boards
- * 7 for the slave motor boards
+ * 6 
+ * 7 SS for the slave motor
  * 8
  * 9
- * 10 for the slave motor boards REQ
+ * 10 SS for the slave motor 1
  * 11 for SPI to the motor boards REQ
  * 12 for SPI to the motor boards REQ
  * 13 for SPI to the motor boards REQ
- * A1
- * A2
- * A3
- * A4
- * A5
- * A6
- * A7
+ * A0/14
+ * A1/15
+ * A2/16
+ * A3/17 for the led strips 1
+ * A4/18 for the led strips 2
+ * A5/19 for the led strips 3
+ * A6/20
+ * A7/21
  ***************************************************/
 
 //**********constants for the motors**********
@@ -62,8 +63,8 @@ float rotationSpeed = rotation * chassisRad / wheelRad;
 
 // Pin for motor slaves
 #define MOTOR_PIN_1 SS
-#define MOTOR_PIN_2 6
-#define MOTOR_PIN_3 7
+#define MOTOR_PIN_2 2
+#define MOTOR_PIN_3 3
 
 // Motor Controller class (check that i am using this right
 Nidec24hController motor1(SPI, MOTOR_PIN_1);
@@ -93,10 +94,14 @@ const int bot_resolution = 50;
 #define NUM_LEDS 8
 
 // Pin for data to led strip
-#define DATA_PIN 4
+#define DATA_PIN_1 17
+#define DATA_PIN_2 18
+#define DATA_PIN_3 19
 
 //the number of addressable radial led's per horizontal stripe
-CRGB leds[NUM_LEDS];
+CRGB leds1[NUM_LEDS];
+CRGB leds2[NUM_LEDS];
+CRGB leds3[NUM_LEDS];
 
 const float screen_step = (2 * PI) / float(bot_resolution);
 
@@ -106,15 +111,17 @@ const float screen_step = (2 * PI) / float(bot_resolution);
 //**********DATA for the LEDs********** (continued in setup)
 //these arrays contain all data for static led patterns and simple animations not defined by a helper function
 
-CRGB blue[NUM_LEDS];
 CRGB red[NUM_LEDS];
-CRGB green[NUM_LEDS];
+CRGB orange[NUM_LEDS];
 CRGB yellow[NUM_LEDS];
+CRGB green[NUM_LEDS];
+CRGB blue[NUM_LEDS];
+CRGB purple[NUM_LEDS];
 
 //**********Other global vars and consts**********
 
 const bool debug = false;
-const int debug_level = 3; //0 to 4
+const int debug_level = 2; //0 to 4
 const bool use_led = true;
 
 bb_imu orientation;
@@ -148,6 +155,35 @@ void setup()
         Serial.println("Serial start");
     }
 
+    //**********Testing classes and LED's**********
+
+    //add leds for the fast led library
+    FastLED.addLeds<NEOPIXEL, DATA_PIN_1>(leds1, NUM_LEDS); // GRB ordering is assumed
+    FastLED.addLeds<NEOPIXEL, DATA_PIN_2>(leds2, NUM_LEDS); // GRB ordering is assumed
+    FastLED.addLeds<NEOPIXEL, DATA_PIN_3>(leds3, NUM_LEDS); // GRB ordering is assumed
+
+    //re add test
+    
+    //**********LED screen setup**********
+    for (i = 0; i < NUM_LEDS; ++i)
+    {
+      red[i]= CRGB::Red;
+      orange[i] = CRGB::Orange;
+      yellow[i] = CRGB::Yellow;
+      green[i] = CRGB::Green;
+      blue[i] = CRGB::Blue;
+      purple[i] = CRGB::Purple;
+    }
+
+    for (i = 0; i < NUM_LEDS; ++i)
+    {
+        leds1[i] = green[i];
+        leds2[i] = green[i];
+        leds3[i] = green[i];
+    }
+
+    FastLED.show();
+    
     //**********SPI setup**********
     // Initialize the SPI communications
     SPI.begin();
@@ -214,22 +250,6 @@ void setup()
     {
     }
 
-    //**********Testing classes and LED's**********
-
-    //add leds for the fast led library
-    FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // GRB ordering is assumed
-
-    //re add test
-    
-    //**********LED screen setup**********
-    for (i = 0; i < NUM_LEDS; ++i)
-    {
-        blue[i] = CRGB::Blue;
-        red[i] = CRGB::Red;
-        green[i] = CRGB::Green;
-        blue[i] = CRGB::Blue;
-    }
-
     if (debug && Serial.println("Setup compleat"))
     {
     }
@@ -247,7 +267,7 @@ void loop()
 
     float xp, yp;              // the instructed values for x & y movement
     float w1s, w2s, w3s;       // the rotational velocity set for each motor
-    float amp;                 // the amplification of the rotation speed.
+    float amp = 1;             // the amplification of the rotation speed.
 
     float theta = 0; //the angle of the bot
     float phase = -PI/2; // the phase offset necessitated by the motor speed
@@ -256,9 +276,12 @@ void loop()
 
     int i = 0; //generic counter var
 
-    int screen_point = 0; //row of the screen being displayed
+    //row of the screen being displayed
+    int screen_point = 0; 
+    int screen_before = 0;
+    int screen_after = 0;
 
-    CRGB *temp;
+    CRGB * temp[3];
 
     //time recording var
     unsigned long time_at_controller_loss = 0;
@@ -266,11 +289,22 @@ void loop()
     //Should the main code run?
     bool run_mode = false;
 
+    //**********Stand By Code**********
+
     if (controller.connected() && controller.buttonClick(START_BUTTON))
     {
         run_mode = true;
     }
+    
+    for (i = 0; i < NUM_LEDS; ++i)
+    {
+        leds1[i] = green[i];
+        leds2[i] = green[i];
+        leds3[i] = green[i];
+    }
 
+    FastLED.show();
+    
     //**********main loop**********
     while (run_mode)
     {
@@ -338,21 +372,21 @@ void loop()
 
             //update the offset for turning
             
-            if (abs(controller.joystick(TURN_JOYSTICK, X)) > 0.2) {
+            if (abs(controller.joystick(TURN_JOYSTICK, X)) > 0.2) 
+            {
               offset = offset+(controller.joystick(TURN_JOYSTICK, X)/-120);
+            
+              //make sure that the offset is from 0 to 2PI
+              if(offset < 0)
+              {
+                offset = offset + 2*PI;
+              }
+              else if(offset > 2*PI)
+              {
+                offset = offset - 2*PI;
+              }
+              orientation.Set_offset(offset);
             }
-
-            //make sure that the offset is from 0 to 2PI
-            if(offset < 0)
-            {
-              offset = offset + 2*PI;
-            }
-            else if(offset > 2*PI)
-            {
-              offset = offset - 2*PI;
-            }
-
-            orientation.Set_offset(offset);
 
             if (debug && (debug_level < 2))
             {
@@ -416,27 +450,57 @@ void loop()
         //**********LED's**********
         if (use_led)
         {
+            //test if the leds need to be updated
             if (theta - screen_step > screen_step * screen_point)
             {
-                FastLED.clear();
+                //calculate the possition of the other leds
+                screen_before = screen_point - bot_resolution/3;
+                screen_after = screen_point + bot_resolution/3;
 
-                //temp//temp//temp//temp//temp//temp//temp//temp
-                if (theta < (2 * PI / 10))
+                if (screen_before < 0)
                 {
-                    temp = blue; //main_screen.get_columb(screen_point);
+                  screen_before = screen_before + bot_resolution;
                 }
-                else
-                {
-                    temp = red;
-                }
-                //temp//temp//temp//temp//temp//temp//temp//temp
 
+                if (screen_after > bot_resolution)
+                {
+                  screen_after = screen_after - bot_resolution;
+                }
+                
+//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp
+
+                //set the temp array to red
+                temp[0] = red;
+                temp[1] = red;
+                temp[2] = red;
+
+                //if in a valid possition, set the color of the leds
+                if ((screen_before * screen_point) < (2 * PI / 10))
+                {
+                    temp[0] = blue; //main_screen.get_columb(screen_point);
+                }
+                else if ((screen_after * screen_point) < (2 * PI / 10))
+                {
+                    temp[0] = blue; //main_screen.get_columb(screen_point);
+                }
+                else if ((screen_step * screen_point) < (2 * PI / 10))
+                {
+                    temp[0] = blue; //main_screen.get_columb(screen_point);
+                }
+
+//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp
+
+                //update the led array to the saved array
                 for (i = 0; i < NUM_LEDS; ++i)
                 {
-                    leds[i] = temp[i];
+                    leds1[i] = (temp[0])[i];
+                    leds2[i] = (temp[1])[i];
+                    leds3[i] = (temp[2])[i];
                 }
 
                 screen_point++;
+
+                FastLED.clear();
                 FastLED.show();
             }
             else if (screen_step * screen_point > (theta + screen_step))
@@ -462,4 +526,6 @@ void loop()
     motor1.brake();
     motor2.brake();
     motor3.brake();
+
+    delay(10);
 }
