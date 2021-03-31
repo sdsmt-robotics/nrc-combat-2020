@@ -24,8 +24,8 @@
  * 1 for serial to the xBee REQ
  * 2 SS for the slave motor 2
  * 3 SS for the slave motor 3
- * 4
- * 5
+ * 4 for the led strips 2
+ * 5 for the led strips 3
  * 6
  * 7 SS for the slave motor
  * 8
@@ -38,8 +38,8 @@
  * A1/15
  * A2/16
  * A3/17 for the led strips 1
- * A4/18 for the led strips 2
- * A5/19 for the led strips 3
+ * A4/18 
+ * A5/19 
  * A6/20
  * A7/21
  ***************************************************/
@@ -53,6 +53,13 @@ const float translateSpeed = translation / wheelRad * (12 * 60 / 2 / PI);
 const float rotationSpeed = rotation * chassisRad / wheelRad;
 
 //**********motor objects**********
+
+
+
+
+
+
+
 
 // Pin for motor slaves
 #define MOTOR_PIN_1 SS
@@ -88,13 +95,11 @@ const int bot_resolution = 50;
 
 // Pin for data to led strip
 #define DATA_PIN_1 17
-#define DATA_PIN_2 18
-#define DATA_PIN_3 19
+#define DATA_PIN_2 4
+#define DATA_PIN_3 5
 
 //the number of addressable radial led's per horizontal stripe
-CRGB leds1[NUM_LEDS];
-CRGB leds2[NUM_LEDS];
-CRGB leds3[NUM_LEDS];
+CRGB leds[NUM_LEDS*3];
 
 const float screen_step = (2 * PI) / float(bot_resolution);
 
@@ -102,7 +107,8 @@ const float screen_step = (2 * PI) / float(bot_resolution);
 //screen main_screen(bot_resolution, NUM_LEDS, bot_resolution);
 
 //**********DATA for the LEDs********** (continued in setup)
-//these arrays contain all data for static led patterns and simple animations not defined by a helper function
+//these arrays contain all data for static led patterns and simple 
+//animations not defined by a helper function
 
 CRGB red[NUM_LEDS];
 CRGB orange[NUM_LEDS];
@@ -151,9 +157,9 @@ void setup()
     //**********Testing classes and LED's**********
 
     //add leds for the fast led library
-    FastLED.addLeds<NEOPIXEL, DATA_PIN_1>(leds1, NUM_LEDS); // GRB ordering is assumed
-    FastLED.addLeds<NEOPIXEL, DATA_PIN_2>(leds2, NUM_LEDS); // GRB ordering is assumed
-    FastLED.addLeds<NEOPIXEL, DATA_PIN_3>(leds3, NUM_LEDS); // GRB ordering is assumed
+    FastLED.addLeds<NEOPIXEL, DATA_PIN_1>(leds, 0, NUM_LEDS); // GRB ordering is assumed
+    FastLED.addLeds<NEOPIXEL, DATA_PIN_2>(leds, NUM_LEDS, NUM_LEDS); // GRB ordering is assumed
+    FastLED.addLeds<NEOPIXEL, DATA_PIN_3>(leds, 2*NUM_LEDS, NUM_LEDS); // GRB ordering is assumed
     FastLED.setBrightness(50);
     
     //re add test
@@ -171,9 +177,9 @@ void setup()
 
     for (i = 0; i < NUM_LEDS; ++i)
     {
-        leds1[i] = green[i];
-        leds2[i] = green[i];
-        leds3[i] = green[i];
+        leds[i] = green[i];
+        leds[NUM_LEDS+i] = green[i];
+        leds[NUM_LEDS*2+i] = green[i];
     }
 
     FastLED.show();
@@ -282,15 +288,6 @@ void loop()
 
     //**********Stand By Code**********
       
-    for (i = 0; i < NUM_LEDS; ++i)
-    {
-        leds1[i] = purple[i];
-        leds2[i] = purple[i];
-        leds3[i] = purple[i];
-    }
-      
-    FastLED.show();
-      
     //wait untill 
     while(!run_mode)
     {
@@ -303,7 +300,20 @@ void loop()
       if (debug && Serial.println("Break out"))
       {
       }
+
+    FastLED.clear();
+
+    delay(10);
+    
+    for (i = 0; i < NUM_LEDS; ++i)
+    {
+        leds[i] = purple[i];
+        leds[NUM_LEDS+i] = purple[i];
+        leds[NUM_LEDS*2+i] = purple[i];
+    }
       
+    FastLED.show();
+    
       motor1.brake();
       motor2.brake();
       motor3.brake();
@@ -434,9 +444,9 @@ void loop()
                 //update the led array to the saved array
                 for (i = 0; i < NUM_LEDS; ++i)
                 {
-                    leds1[i] = (temp[0])[i];
-                    leds2[i] = (temp[1])[i];
-                    leds3[i] = (temp[2])[i];
+                    leds[i] = (temp[0])[i];
+                    leds[i+NUM_LEDS] = (temp[1])[i];
+                    leds[i+NUM_LEDS*2] = (temp[2])[i];
                 }
 
                 screen_point++;
