@@ -54,13 +54,6 @@ const float rotationSpeed = rotation * chassisRad / wheelRad;
 
 //**********motor objects**********
 
-
-
-
-
-
-
-
 // Pin for motor slaves
 #define MOTOR_PIN_1 SS
 #define MOTOR_PIN_2 2
@@ -301,18 +294,18 @@ void loop()
       {
       }
 
-    FastLED.clear();
+     FastLED.clear();
 
-    delay(10);
-    
-    for (i = 0; i < NUM_LEDS; ++i)
-    {
-        leds[i] = purple[i];
-        leds[NUM_LEDS+i] = purple[i];
-        leds[NUM_LEDS*2+i] = purple[i];
-    }
+      delay(10);
       
-    FastLED.show();
+      for (i = 0; i < NUM_LEDS; ++i)
+      {
+          leds[i] = purple[i];
+          leds[NUM_LEDS+i] = purple[i];
+          leds[NUM_LEDS*2+i] = purple[i];
+      }
+      
+      FastLED.show();
     
       motor1.brake();
       motor2.brake();
@@ -544,11 +537,11 @@ void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp
     //make sure that the offset is from 0 to 2PI
     if(offset < 0)
     {
-    offset = offset + 2*PI;
+      offset = offset + 2*PI;
     }
     else if(offset > 2*PI)
     {
-    offset = offset - 2*PI;
+      offset = offset - 2*PI;
     }
     orientation.Set_offset(offset);
   }
@@ -564,4 +557,6 @@ void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp
     Serial.print("---------------------------------Amp: ");
     Serial.println(amp);
   }
+
+  return;
 }
