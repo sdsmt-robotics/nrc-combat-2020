@@ -14,10 +14,10 @@
 #include <math.h>
 #include <FastLED.h>
 #include <SPI.h>
-#include "/home/joseph/Desktop/Robot/NRC/MotorSpeedController/Software/controllerInterfaceLib/Nidec24hController.cpp" //?
-#include "/home/joseph/Desktop/Robot/NRC/Controller/Code/receive/Controller.cpp"                                      //?
-#include "/home/joseph/Desktop/Robot/NRC/nrc-combat-2020/Fin_NRC_BB_code/POV_Display.cpp"                             //?
-#include "/home/joseph/Desktop/Robot/NRC/nrc-combat-2020/Fin_NRC_BB_code/BB_IMU.cpp"                                  //?
+#include "Nidec24hController.h" //?
+#include "Controller.h"                                      //?
+#include "POV_Display.h"                             //?
+#include "BB_IMU.h"                                  //?
 
 /*********************Pin labels***********************
  * 0 for serial to the xBee REQ
@@ -47,8 +47,8 @@
 //**********constants for the motors**********
 const float rotation = 300; // Chassis rotation speed in RPM
 const float translation = 1.5; // Driving feet per sec
-const float chassisRad = 6; // Chassis radius in inches
-const float wheelRad = 1; // Wheel radius in inches
+const float chassisRad = 5.25; // Chassis radius in inches
+const float wheelRad = 1.18; // Wheel radius in inches
 const float translateSpeed = translation / wheelRad * (12 * 60 / 2 / PI);
 const float rotationSpeed = rotation * chassisRad / wheelRad;
 
@@ -56,8 +56,8 @@ const float rotationSpeed = rotation * chassisRad / wheelRad;
 
 // Pin for motor slaves
 #define MOTOR_PIN_1 SS
-#define MOTOR_PIN_2 2
-#define MOTOR_PIN_3 3
+#define MOTOR_PIN_2 A6
+#define MOTOR_PIN_3 A7
 
 // Motor Controller class (check that i am using this right
 Nidec24hController motor1(SPI, MOTOR_PIN_1);
@@ -87,9 +87,9 @@ const int bot_resolution = 50;
 #define NUM_LEDS 8
 
 // Pin for data to led strip
-#define DATA_PIN_1 17
-#define DATA_PIN_2 4
-#define DATA_PIN_3 5
+#define DATA_PIN_1 5
+#define DATA_PIN_2 6
+#define DATA_PIN_3 7
 
 //the number of addressable radial led's per horizontal stripe
 CRGB leds[NUM_LEDS*3];
@@ -150,9 +150,9 @@ void setup()
     //**********Testing classes and LED's**********
 
     //add leds for the fast led library
-    FastLED.addLeds<NEOPIXEL, DATA_PIN_1>(leds, 0, NUM_LEDS); // GRB ordering is assumed
-    FastLED.addLeds<NEOPIXEL, DATA_PIN_2>(leds, NUM_LEDS, NUM_LEDS); // GRB ordering is assumed
-    FastLED.addLeds<NEOPIXEL, DATA_PIN_3>(leds, 2*NUM_LEDS, NUM_LEDS); // GRB ordering is assumed
+    FastLED.addLeds<NEOPIXEL, DATA_PIN_1>(leds, NUM_LEDS); // GRB ordering is assumed
+    //FastLED.addLeds<NEOPIXEL, DATA_PIN_2>(leds, NUM_LEDS, NUM_LEDS); // GRB ordering is assumed
+    //FastLED.addLeds<NEOPIXEL, DATA_PIN_3>(leds, 2*NUM_LEDS, NUM_LEDS); // GRB ordering is assumed
     FastLED.setBrightness(50);
     
     //re add test
@@ -171,8 +171,8 @@ void setup()
     for (i = 0; i < NUM_LEDS; ++i)
     {
         leds[i] = green[i];
-        leds[NUM_LEDS+i] = green[i];
-        leds[NUM_LEDS*2+i] = green[i];
+        //leds[NUM_LEDS+i] = green[i];
+        //leds[NUM_LEDS*2+i] = green[i];
     }
 
     FastLED.show();
@@ -301,8 +301,8 @@ void loop()
       for (i = 0; i < NUM_LEDS; ++i)
       {
           leds[i] = purple[i];
-          leds[NUM_LEDS+i] = purple[i];
-          leds[NUM_LEDS*2+i] = purple[i];
+          //leds[NUM_LEDS+i] = purple[i];
+          //leds[NUM_LEDS*2+i] = purple[i];
       }
       
       FastLED.show();
@@ -346,7 +346,7 @@ void loop()
             calculate_motor_speed(w,amp,xp,yp,theta);
 
             //update time for tracking when the controller is lost
-            time_at_controller_loss = micros();
+            time_at_controller_loss = millis();
         }
         else // set horizontal speed to zero if controller is not connected
         {
@@ -359,7 +359,7 @@ void loop()
             w[2] = rotationSpeed;
 
             //run_mode (update based on time delay)
-            if (time_at_controller_loss > (micros() - 1000000)) //one second
+            if (millis() - time_at_controller_loss > 1000) //one second
             {
                 run_mode = false;
             }
@@ -438,8 +438,8 @@ void loop()
                 for (i = 0; i < NUM_LEDS; ++i)
                 {
                     leds[i] = (temp[0])[i];
-                    leds[i+NUM_LEDS] = (temp[1])[i];
-                    leds[i+NUM_LEDS*2] = (temp[2])[i];
+                    //leds[i+NUM_LEDS] = (temp[1])[i];
+                    //leds[i+NUM_LEDS*2] = (temp[2])[i];
                 }
 
                 screen_point++;
