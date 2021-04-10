@@ -1,4 +1,4 @@
-19435221138695745
+19401684948130460
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -7829,6 +7829,13 @@ Connector_BarrelJack
 BarrelJack_CUI_PJ-102AH_Horizontal
 Thin-pin DC Barrel Jack, https://cdn-shop.adafruit.com/datasheets/21mmdcjackDatasheet.pdf
 Power Jack
+0
+3
+3
+Connector_BarrelJack
+BarrelJack_GCT_DCJ200-10-A_Horizontal
+Barrel jack connector (5.5 mm outer diameter, 2.05 inner diameter ), https://gct.co/files/drawings/dcj200-10.pdf
+connector barrel jack
 0
 3
 3
@@ -44919,6 +44926,13 @@ usb usb-c 2.0 pd
 20
 17
 Connector_USB
+USB_C_Receptacle_JAE_DX07S016JA1R1500
+USB TYPE C, USB 2.0, SMT, https://www.jae.com/en/connectors/series/detail/product/id=91780
+USB C Type-C Receptacle SMD USB 2.0
+0
+22
+17
+Connector_USB
 USB_C_Receptacle_JAE_DX07S024WJ1R350
 http://www.jae.com/z-en/pdf_download_exec.cfm?param=SJ117219.pdf
 USB C Type-C Receptacle SMD
@@ -77216,6 +77230,13 @@ rotary encoder
 0
 5
 4
+S6B-XH-SM4-TB
+S6B-XH-SM4-TBLFSN
+
+
+0
+8
+8
 SN74AHCT541N
 SN74AHCT541N
 
@@ -84153,20 +84174,13 @@ varistor SIOV
 0
 2
 2
-XBee_PRO900HP_S3B
-DIP2200W51P200L3294H279Q20P
-
-
-0
-20
-20
 robologo-shenzen
 F.Mask_g1609
 
 
 0
-0
-0
+1
+1
 robologo-shenzen
 F.SilkS_g1611
 

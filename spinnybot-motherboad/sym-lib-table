@@ -2,4 +2,5 @@
   (lib (name "spinnybot")(type "KiCad")(uri "${KIPRJMOD}/spinnybot.kicad_sym")(options "")(descr ""))
   (lib (name "SN74AHCT541N")(type "KiCad")(uri "${KIPRJMOD}/lib/SN74AHCT541N.kicad_sym")(options "")(descr ""))
   (lib (name "SN74LVC1G74DCUR")(type "KiCad")(uri "${KIPRJMOD}/lib/dff/SN74LVC1G74DCUR.kicad_sym")(options "")(descr ""))
+  (lib (name "S6B-XH-SM4-TB")(type "Legacy")(uri "${KIPRJMOD}/lib/jst/S6B-XH-SM4-TB.lib")(options "")(descr ""))
 )
