@@ -1,0 +1,5 @@
+(fp_lib_table
+  (lib (name "SN74AHCT541N")(type "KiCad")(uri "${KIPRJMOD}/lib/footprints.pretty")(options "")(descr ""))
+  (lib (name "SN74LVC1G74DCUR")(type "KiCad")(uri "${KIPRJMOD}/lib/dff/SN74LVC1G74DCUR.pretty")(options "")(descr ""))
+  (lib (name "robologo-shenzen")(type "KiCad")(uri "${KIPRJMOD}/art6/.svg2shenzhen-cache/robologo-shenzen.pretty")(options "")(descr ""))
+)

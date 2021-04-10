@@ -1,0 +1,8 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP SN74AHCT541N
+D Buffer, Non-Inverting 1 Element 8 Bit per Element 3-State Output 20-PDIP
+K buffer
+$ENDCMP
+#
+#End Doc Library
