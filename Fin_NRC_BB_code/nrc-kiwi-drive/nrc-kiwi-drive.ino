@@ -17,7 +17,8 @@
 #include "Nidec24hController.h" //?
 #include "Controller.h"                                      //?
 #include "POV_Display.h"                             //?
-#include "BB_IMU.h"                                  //?
+#include "BB_IMU.h"                                  //?                            //?
+#include "LedStrip.h" 
 
 /*********************Pin labels***********************
  * 0 for serial to the xBee REQ
@@ -45,7 +46,7 @@
  ***************************************************/
 
 //**********constants for the motors**********
-const float rotation = 300; // Chassis rotation speed in RPM
+const float rotation = 400; // Chassis rotation speed in RPM
 const float translation = 1.5; // Driving feet per sec
 const float chassisRad = 5.25; // Chassis radius in inches
 const float wheelRad = 1.18; // Wheel radius in inches
@@ -86,15 +87,31 @@ const int bot_resolution = 50;
 // How many leds in your strip?
 #define NUM_LEDS 8
 
-// Pin for data to led strip
+// Pins for data to led strip
 #define DATA_PIN_1 5
 #define DATA_PIN_2 6
 #define DATA_PIN_3 7
 
-//the number of addressable radial led's per horizontal stripe
-CRGB leds[NUM_LEDS*3];
+// Define LED Strip angles
+const float stripOffset = 0.0;  // Offset for the #1 LED Strip
+float stripAngles[] = {0.0 + stripOffset,
+                       4*PI/3.0 + stripOffset,
+                       2*PI/3.0 + stripOffset};
 
-const float screen_step = (2 * PI) / float(bot_resolution);
+// Led strips setting managers
+LedStrip ledStrip1;
+LedStrip ledStrip2;
+LedStrip ledStrip3;
+
+// Temps for calculating strip colors
+CRGB stripColors[] = {CRGB::Red, CRGB::Red, CRGB::Red};
+
+//the number of addressable radial led's per horizontal stripe
+//CRGB leds[NUM_LEDS*3];
+
+//const float screen_step = (2 * PI) / float(bot_resolution);
+
+const float stripEpsilon = (2 * PI) / 60.0;
 
 //construct screens(class is a work in progress)
 //screen main_screen(bot_resolution, NUM_LEDS, bot_resolution);
@@ -103,16 +120,18 @@ const float screen_step = (2 * PI) / float(bot_resolution);
 //these arrays contain all data for static led patterns and simple 
 //animations not defined by a helper function
 
-CRGB red[NUM_LEDS];
+/*CRGB red[NUM_LEDS];
 CRGB orange[NUM_LEDS];
 CRGB yellow[NUM_LEDS];
 CRGB green[NUM_LEDS];
 CRGB blue[NUM_LEDS];
-CRGB purple[NUM_LEDS];
+CRGB purple[NUM_LEDS];*/
 
 //**********Other global vars and consts**********
 
-const bool debug = false;
+const bool debug = true;
+const bool debug_orientation = false;
+const bool debug_motor_speeds = false;
 const int debug_level = 1; //0 to 4
 const bool use_led = true;
 
@@ -136,7 +155,7 @@ void setup()
     if (debug)
     {
         //wait for serial to connect
-        Serial.begin(9600);
+        Serial.begin(115200);
         while (!Serial && debug)
         {
         }
@@ -148,17 +167,27 @@ void setup()
     }
 
     //**********Testing classes and LED's**********
+    // Offset angles for spinning
+    for (int i = 0; i < 3; i++) {
+      stripAngles[i] = normalizeAngle(stripAngles[i]);
+    }
 
-    //add leds for the fast led library
-    FastLED.addLeds<NEOPIXEL, DATA_PIN_1>(leds, NUM_LEDS); // GRB ordering is assumed
-    //FastLED.addLeds<NEOPIXEL, DATA_PIN_2>(leds, NUM_LEDS, NUM_LEDS); // GRB ordering is assumed
-    //FastLED.addLeds<NEOPIXEL, DATA_PIN_3>(leds, 2*NUM_LEDS, NUM_LEDS); // GRB ordering is assumed
+    // Fast LED stuff
+    FastLED.addLeds<NEOPIXEL, DATA_PIN_1>(ledStrip1.getPixelData(), NUM_LEDS); // GRB ordering is assumed
+    FastLED.addLeds<NEOPIXEL, DATA_PIN_2>(ledStrip2.getPixelData(), NUM_LEDS); // GRB ordering is assumed
+    FastLED.addLeds<NEOPIXEL, DATA_PIN_3>(ledStrip3.getPixelData(), NUM_LEDS); // GRB ordering is assumed
     FastLED.setBrightness(50);
+
+    // Show initial color
+    ledStrip1.fillColor(CRGB::Green);
+    ledStrip2.fillColor(CRGB::Green);
+    ledStrip3.fillColor(CRGB::Green);
+    FastLED.show();
     
     //re add test
     
     //**********LED screen setup**********
-    for (i = 0; i < NUM_LEDS; ++i)
+    /*for (i = 0; i < NUM_LEDS; ++i)
     {
       red[i]= CRGB::Red;
       orange[i] = CRGB::Orange;
@@ -171,11 +200,11 @@ void setup()
     for (i = 0; i < NUM_LEDS; ++i)
     {
         leds[i] = green[i];
-        //leds[NUM_LEDS+i] = green[i];
-        //leds[NUM_LEDS*2+i] = green[i];
+        leds[NUM_LEDS+i] = green[i];
+        leds[NUM_LEDS*2+i] = green[i];
     }
 
-    FastLED.show();
+    FastLED.show();*/
     
     //**********SPI setup**********
     // Initialize the SPI communications
@@ -203,6 +232,27 @@ void setup()
     if (debug && Serial.println("Motor set"))
     {
     }
+    
+    //**********imu initialization**********
+    if (!orientation.init())
+    {
+        if (debug && Serial.println("Failed to initialize IMU!"))
+        {
+        }
+
+        // halt program
+        while (true)
+        {
+        }
+    }
+
+    if (debug && Serial.println("IMU start"))
+    {
+    }
+
+    if (debug && Serial.println("Setup complete"))
+    {
+    }
 
     //**********controller setup**********
 
@@ -226,26 +276,6 @@ void setup()
     //set a deadzone for the joysticks
     controller.setJoyDeadzone(0.08);
 
-    //**********imu initialization**********
-    if (!orientation.init())
-    {
-        if (debug && Serial.println("Failed to initialize IMU!"))
-        {
-        }
-
-        // halt program
-        while (true)
-        {
-        }
-    }
-
-    if (debug && Serial.println("IMU start"))
-    {
-    }
-
-    if (debug && Serial.println("Setup complete"))
-    {
-    }
 }
 
 //**********main loop**********
@@ -275,6 +305,7 @@ void loop()
 
     //time recording var
     unsigned long time_at_controller_loss = 0;
+    bool controllerBeingLost = false;
 
     //Should the main code run?
     bool run_mode = false;
@@ -294,17 +325,13 @@ void loop()
       {
       }
 
-     FastLED.clear();
-
-      delay(10);
+      // TODO: do we need this?
+      //FastLED.clear();
+      //delay(10);
       
-      for (i = 0; i < NUM_LEDS; ++i)
-      {
-          leds[i] = purple[i];
-          //leds[NUM_LEDS+i] = purple[i];
-          //leds[NUM_LEDS*2+i] = purple[i];
-      }
-      
+      ledStrip1.fillColor(CRGB::Purple);
+      ledStrip2.fillColor(CRGB::Purple);
+      ledStrip3.fillColor(CRGB::Purple);
       FastLED.show();
     
       motor1.brake();
@@ -316,9 +343,8 @@ void loop()
     }
     
     //**********main loop**********
-    while (run_mode)
+    while (run_mode)  // Entier loop takes 2.5 to 3 ms
     {
-
         //**********imu get**********
 
         //update IMU estimation
@@ -328,6 +354,10 @@ void loop()
             {
                 Serial.println(orientation.Get_val());
             }
+            if (debug_orientation)
+              Serial.println(orientation.Get_val());
+
+            
         }
 
         //convert the integral to radians
@@ -347,6 +377,7 @@ void loop()
 
             //update time for tracking when the controller is lost
             time_at_controller_loss = millis();
+            controllerBeingLost = false;
         }
         else // set horizontal speed to zero if controller is not connected
         {
@@ -359,29 +390,30 @@ void loop()
             w[2] = rotationSpeed;
 
             //run_mode (update based on time delay)
-            if (millis() - time_at_controller_loss > 1000) //one second
+            if (millis() - time_at_controller_loss > 2000) //one second
             {
                 run_mode = false;
             }
+            controllerBeingLost = true;
         }
 
         //**********send out motor speeds**********
 
-        if(orientation.Get_upright())
-        {
-          motor1.setSpeed(w[0]);
-          motor2.setSpeed(w[1]);
-          motor3.setSpeed(w[2]);
-        }
-        else
-        {
+        //if(!orientation.Get_upright())
+        //{
+        //  motor1.setSpeed(w[0]);
+        //  motor2.setSpeed(w[1]);
+        //  motor3.setSpeed(w[2]);
+        //}
+        //else
+        //{
           motor1.setSpeed(-w[0]);
           motor2.setSpeed(-w[1]);
           motor3.setSpeed(-w[2]);
-        }
+        //}
 
         //debug
-        if (debug && debug_level < 3)
+        if ((debug && debug_level < 3) || debug_motor_speeds)
         {
             Serial.print(w[0]);
             Serial.print(',');
@@ -391,73 +423,25 @@ void loop()
         }
 
         //**********LED's**********
+        // This update takes about 1ms
         if (use_led)
         {
-            
-            //test if the leds need to be updated
-            if (theta - screen_step > screen_step * screen_point)
-            {
-                //calculate the position of the other leds
-                screen_before = screen_point - bot_resolution/3;
-                screen_after = screen_point + bot_resolution/3;
-
-                if (screen_before < 0)
-                {
-                  screen_before = screen_before + bot_resolution;
-                }
-
-                if (screen_after > bot_resolution)
-                {
-                  screen_after = screen_after - bot_resolution;
-                }
-                
-//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp
-
-                //set the temp array to red
-                temp[0] = red;
-                temp[1] = red;
-                temp[2] = red;
-
-                //if in a valid position, set the color of the leds
-                if ((screen_before * screen_step) < (2 * PI / 10))
-                {
-                    temp[0] = blue; //main_screen.get_columb(screen_point);
-                }
-                else if ((screen_after * screen_step) < (2 * PI / 10))
-                {
-                    temp[1] = blue; //main_screen.get_columb(screen_point);
-                }
-                else if ((screen_point * screen_step) < (2 * PI / 10))
-                {
-                    temp[2] = blue; //main_screen.get_columb(screen_point);
-                }
-
-//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp//temp
-
-                //update the led array to the saved array
-                for (i = 0; i < NUM_LEDS; ++i)
-                {
-                    leds[i] = (temp[0])[i];
-                    //leds[i+NUM_LEDS] = (temp[1])[i];
-                    //leds[i+NUM_LEDS*2] = (temp[2])[i];
-                }
-
-                screen_point++;
-                
-                FastLED.show();
+          for (int i = 0; i < 3; i++) {
+            if (stripAtAngle(stripAngles[i], theta, stripEpsilon)) {
+              stripColors[i] = CRGB::Blue;
+            } else if (controllerBeingLost) {
+              stripColors[i] = CRGB::Yellow;
+            } else {
+              stripColors[i] = CRGB::Red;
             }
-            else if (screen_step * screen_point > (theta + screen_step))
-            {
-                screen_point = 0;
-            }
-
-            if (debug && debug_level < 3 && Serial.print("Screen point:"))
-            {
-                Serial.println(screen_point);
-            }
+          }
+  
+          // Set the Colors
+          ledStrip1.fillColor(stripColors[0]);
+          ledStrip2.fillColor(stripColors[1]);
+          ledStrip3.fillColor(stripColors[2]);
+          FastLED.show();
         }
-
-        delay(1);
     }
     //set motor speed to zero as the bot is no longer in run mode
 
@@ -480,8 +464,6 @@ void calculate_motor_speed(float (&w)[3],float amp,float x,float y,float theta)
   w[0] = rotationSpeed*amp + mag * sin(relativeAngle - m1Offset + phase);
   w[1] = rotationSpeed*amp + mag * sin(relativeAngle - m2Offset + phase);
   w[2] = rotationSpeed*amp + mag * sin(relativeAngle - m3Offset + phase);
-            
-  return;
 }
 
 void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp)
@@ -506,11 +488,11 @@ void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp
               
   if (controller.buttonClick(PHASE_LAG))
   {
-    ++orientation.gyro_to_rad;
+    orientation.gyro_to_rad += 2;
   }
   else if (controller.buttonClick(PHASE_LEAD))
   {
-    --orientation.gyro_to_rad;
+    orientation.gyro_to_rad -= 2;
   }
   
   //adjust the rotation speed
@@ -559,4 +541,29 @@ void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp
   }
 
   return;
+}
+
+bool stripAtAngle(const float &stripAngle, const float &botAngle, const float &stripEpsilon) {
+  float diff = stripAngle + botAngle;  // Sum should be zero
+
+  // Normalize
+  while (diff < PI) {
+    diff += 2*PI;
+  }
+  while (diff > PI) {
+    diff -= 2*PI;
+  }
+
+  return fabs(diff) < stripEpsilon;
+}
+
+float normalizeAngle(float angle) {
+  while (angle < 0) {
+    angle += 2*PI;
+  }
+  while (angle > 2*PI) {
+    angle -= 2*PI;
+  }
+
+  return angle;
 }
