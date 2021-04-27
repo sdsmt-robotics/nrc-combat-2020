@@ -1,4 +1,4 @@
-19435221138695745
+19414632934746641
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -13,6 +13,13 @@ audio belton reverb
 0
 7
 7
+B3B-PH-SM4
+JST_B3B-PH-SM4-TB(LF)(SN)
+
+
+0
+5
+5
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -7829,6 +7836,13 @@ Connector_BarrelJack
 BarrelJack_CUI_PJ-102AH_Horizontal
 Thin-pin DC Barrel Jack, https://cdn-shop.adafruit.com/datasheets/21mmdcjackDatasheet.pdf
 Power Jack
+0
+3
+3
+Connector_BarrelJack
+BarrelJack_GCT_DCJ200-10-A_Horizontal
+Barrel jack connector (5.5 mm outer diameter, 2.05 inner diameter ), https://gct.co/files/drawings/dcj200-10.pdf
+connector barrel jack
 0
 3
 3
@@ -44919,6 +44933,13 @@ usb usb-c 2.0 pd
 20
 17
 Connector_USB
+USB_C_Receptacle_JAE_DX07S016JA1R1500
+USB TYPE C, USB 2.0, SMT, https://www.jae.com/en/connectors/series/detail/product/id=91780
+USB C Type-C Receptacle SMD USB 2.0
+0
+22
+17
+Connector_USB
 USB_C_Receptacle_JAE_DX07S024WJ1R350
 http://www.jae.com/z-en/pdf_download_exec.cfm?param=SJ117219.pdf
 USB C Type-C Receptacle SMD
@@ -59065,6 +59086,13 @@ Mounting 4.5mm 9774100982
 0
 8
 1
+NODEMCU_ESP32
+MODULE_NODEMCU_ESP32
+
+
+0
+38
+38
 NetTie
 NetTie-2_SMD_Pad0.5mm
 Net tie, 2 pin, 0.5mm square SMD pads
@@ -60101,6 +60129,13 @@ DIL DIP PDIP 2.54mm 7.62mm 300mil
 0
 4
 4
+P78E09-1000
+CONV_P78E09-1000
+
+
+0
+3
+3
 Package_BGA
 Analog_BGA-28_4.0x6.25mm_Layout4x7_P0.8mm_Ball0.45mm_Pad0.4
 Analog BGA-28 4.0mm x 6.25mm package, pitch 0.4mm pad, based on https://www.analog.com/media/en/technical-documentation/data-sheets/8063fa.pdf
@@ -74339,6 +74374,13 @@ Potentiometer vertical Vishay T73YP
 0
 3
 3
+R-78E5
+CONV_R-78E5.0-1.0
+
+
+0
+3
+3
 RF
 Skyworks_SKY13575_639LF
 http://www.skyworksinc.com/uploads/documents/SKY13575_639LF_203270D.pdf
@@ -77216,6 +77258,20 @@ rotary encoder
 0
 5
 4
+S6B-XH-SM4-TB
+S6B-XH-SM4-TBLFSN
+
+
+0
+8
+8
+SN74AHCT541DW
+SN74AHCT541DW
+
+
+0
+20
+20
 SN74AHCT541N
 SN74AHCT541N
 
@@ -84160,13 +84216,27 @@ DIP2200W51P200L3294H279Q20P
 0
 20
 20
+esp32-devkitc-32d
+MODULE_ESP32-DEVKITC-32D
+
+
+0
+38
+38
+icm-20649
+QFN40P300X300X95-24N
+
+
+0
+24
+24
 robologo-shenzen
 F.Mask_g1609
 
 
 0
-0
-0
+1
+1
 robologo-shenzen
 F.SilkS_g1611
 
