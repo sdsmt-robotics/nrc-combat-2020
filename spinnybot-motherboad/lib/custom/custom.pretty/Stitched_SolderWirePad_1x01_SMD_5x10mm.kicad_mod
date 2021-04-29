@@ -1,0 +1,101 @@
+(footprint "Stitched_SolderWirePad_1x01_SMD_5x10mm" (version 20210228) (generator pcbnew) (layer "F.Cu")
+  (tedit 6089052D)
+  (descr "Wire Pad, Square, SMD Pad,  5mm x 10mm,")
+  (tags "MesurementPoint Square SMDPad 5mmx10mm ")
+  (zone_connect 2)
+  (attr smd exclude_from_pos_files exclude_from_bom)
+  (fp_text reference "REF**" (at 0 -3.81) (layer "F.SilkS")
+    (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 00000000-0000-0000-0000-000000000000)
+  )
+  (fp_text value "Stitched_SolderWirePad_1x01_SMD_5x10mm" (at 0 6.35) (layer "F.Fab")
+    (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 00000000-0000-0000-0000-000000000000)
+  )
+  (fp_text user "${REFERENCE}" (at 0 0) (layer "F.Fab")
+    (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 00000000-0000-0000-0000-000000000000)
+  )
+  (fp_line (start 2.75 5.25) (end 2.75 -5.25) (layer "F.CrtYd") (width 0.05) (tstamp 00000000-0000-0000-0000-000000000000))
+  (fp_line (start -2.75 -5.25) (end -2.75 5.25) (layer "F.CrtYd") (width 0.05) (tstamp 00000000-0000-0000-0000-000000000000))
+  (fp_line (start 2.75 -5.25) (end -2.75 -5.25) (layer "F.CrtYd") (width 0.05) (tstamp 00000000-0000-0000-0000-000000000000))
+  (fp_line (start -2.75 5.25) (end 2.75 5.25) (layer "F.CrtYd") (width 0.05) (tstamp 00000000-0000-0000-0000-000000000000))
+  (pad "1" smd rect (at 0 0) (locked) (size 5 10) (layers "F.Cu" "F.Paste" "F.Mask")
+    (zone_connect 2) (tstamp 00000000-0000-0000-0000-000000000000))
+  (pad "1" thru_hole circle (at 0 1.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp 1dd08473-219d-4519-8f1a-2985f5978e9d))
+  (pad "1" thru_hole circle (at 2 4.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp 1f49e447-8017-4284-a665-b5c3cdf9c699))
+  (pad "1" thru_hole circle (at -1 2.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp 2cb0d81c-9ef2-4a22-b666-69608740c0a7))
+  (pad "1" thru_hole circle (at 2 2.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp 2fec7294-a9c7-447f-af5f-7c143f129f22))
+  (pad "1" thru_hole circle (at 1 4.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp 3097f8cb-b413-4e9e-9b8c-16c09951217a))
+  (pad "1" thru_hole circle (at -1 4.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp 8bfcf4e3-6b7e-47c9-a8bb-f8a7a25f07d0))
+  (pad "1" thru_hole circle (at 1 3.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp 8eb25595-87fb-4731-959a-0df5251e60d7))
+  (pad "1" thru_hole circle (at -2 1.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp 8f5c4ddc-2c8c-411a-9bac-09ef7f86ffd6))
+  (pad "1" thru_hole circle (at 2 3.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp 8fe36675-8df4-4dd8-accf-10b90603701c))
+  (pad "1" thru_hole circle (at -1 1.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp 9cbc4abb-fd6f-4e94-8bea-37f2944f991f))
+  (pad "1" thru_hole circle (at -2 3.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp a617f02b-185e-409b-aaee-6ad607ba2a66))
+  (pad "1" thru_hole circle (at 0 3.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp a7cce196-64e0-4559-8ed8-ff6b4cd1d5ab))
+  (pad "1" thru_hole circle (at -2 4.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp aadfebb5-9b8b-4ea9-af66-db25456835da))
+  (pad "1" thru_hole circle (at -1 3.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp b0dc0fba-f12c-4d64-96c7-7618c60f7b47))
+  (pad "1" thru_hole circle (at 2 1.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp c5677ca3-4edb-4652-8973-62dd87a830d6))
+  (pad "1" thru_hole circle (at 1 1.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp cc267292-dc03-4542-8837-0e050c41ef21))
+  (pad "1" thru_hole circle (at 0 4.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp d42ae2bb-1097-436a-bc70-6759eb8f236d))
+  (pad "1" thru_hole circle (at 0 2.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp f144aa2c-d552-4b20-8327-db4009969494))
+  (pad "1" thru_hole circle (at 1 2.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp fa7f26dd-dd28-4aa4-87ed-4f819d91b35e))
+  (pad "1" thru_hole circle (at -2 2.5) (size 0.8 0.8) (drill 0.4) (layers *.Cu *.Mask)
+    (zone_connect 2) (tstamp ff034eec-e436-4dd4-bfeb-53683fd11483))
+  (group "" (id 3fbb37e1-8cdb-4d4a-ba78-9fc6dedd6f92)
+    (members
+      1dd08473-219d-4519-8f1a-2985f5978e9d
+      8f5c4ddc-2c8c-411a-9bac-09ef7f86ffd6
+      9cbc4abb-fd6f-4e94-8bea-37f2944f991f
+      c5677ca3-4edb-4652-8973-62dd87a830d6
+      cc267292-dc03-4542-8837-0e050c41ef21
+ )
+  )
+  (group "" (id 42111c3c-b471-4605-9310-689aa9d37e7a)
+    (members
+      2cb0d81c-9ef2-4a22-b666-69608740c0a7
+      2fec7294-a9c7-447f-af5f-7c143f129f22
+      f144aa2c-d552-4b20-8327-db4009969494
+      fa7f26dd-dd28-4aa4-87ed-4f819d91b35e
+      ff034eec-e436-4dd4-bfeb-53683fd11483
+ )
+  )
+  (group "" (id e5d14565-a43b-43cd-9abd-0775cda4791a)
+    (members
+      1f49e447-8017-4284-a665-b5c3cdf9c699
+      3097f8cb-b413-4e9e-9b8c-16c09951217a
+      8bfcf4e3-6b7e-47c9-a8bb-f8a7a25f07d0
+      aadfebb5-9b8b-4ea9-af66-db25456835da
+      d42ae2bb-1097-436a-bc70-6759eb8f236d
+ )
+  )
+  (group "" (id fbf0f74d-547c-4527-83d1-74d0ef01d2d8)
+    (members
+      8eb25595-87fb-4731-959a-0df5251e60d7
+      8fe36675-8df4-4dd8-accf-10b90603701c
+      a617f02b-185e-409b-aaee-6ad607ba2a66
+      a7cce196-64e0-4559-8ed8-ff6b4cd1d5ab
+      b0dc0fba-f12c-4d64-96c7-7618c60f7b47
+ )
+  )
+)

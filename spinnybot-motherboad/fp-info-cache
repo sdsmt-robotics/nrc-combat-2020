@@ -1,4 +1,4 @@
-19414632934746641
+19417875542420806
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -84216,6 +84216,20 @@ DIP2200W51P200L3294H279Q20P
 0
 20
 20
+custom
+MountingHole_3.3mm
+Mounting Hole 3.5mm, no annular
+mounting hole 3.5mm no annular
+0
+0
+0
+custom
+Stitched_SolderWirePad_1x01_SMD_5x10mm
+Wire Pad, Square, SMD Pad,  5mm x 10mm,
+MesurementPoint Square SMDPad 5mmx10mm 
+0
+21
+1
 esp32-devkitc-32d
 MODULE_ESP32-DEVKITC-32D
 
