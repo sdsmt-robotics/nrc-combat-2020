@@ -140,13 +140,13 @@ bool bb_imu::Get_raw()
         IMU.readAcceleration(GYRO_vals[accelerometer_x], 
             GYRO_vals[accelerometer_y], GYRO_vals[accelerometer_z]);
 
-        for (i = 0; i < 6; ++i)
+        for (i = 0; i < num_input; ++i)
         {
             GYRO_vals[i] = GYRO_vals[i] - AVG_gyro_vals[i];
         }
 
         //fileter gyroscope z value
-        GYRO_vals[gyroscope_z] = gyro_z.rf.filter(GYRO_vals[gyroscope_z]*100000) /100000.00;
+        GYRO_vals[gyroscope_z] = gyro_z.rf.filter(GYRO_vals[gyroscope_z]);
 
         //imu was ready
         return true;
