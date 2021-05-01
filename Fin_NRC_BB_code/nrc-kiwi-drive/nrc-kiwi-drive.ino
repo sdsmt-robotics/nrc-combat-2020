@@ -17,7 +17,7 @@
 #include "Nidec24hController.h" //?
 #include "Controller.h"                                      //?
 #include "POV_Display.h"                             //?
-#include "BB_IMU.h"                                  //?                            //?
+#include "Imu.h"                                  //?                            //?
 #include "LedStrip.h" 
 
 /*********************Pin labels***********************
@@ -46,7 +46,7 @@
  ***************************************************/
 
 //**********constants for the motors**********
-const float rotation = 400; // Chassis rotation speed in RPM
+const float rotation = 200; // Chassis rotation speed in RPM
 const float translation = 1.5; // Driving feet per sec
 const float chassisRad = 5.25; // Chassis radius in inches
 const float wheelRad = 1.18; // Wheel radius in inches
@@ -56,9 +56,16 @@ const float rotationSpeed = rotation * chassisRad / wheelRad;
 //**********motor objects**********
 
 // Pin for motor slaves
-#define MOTOR_PIN_1 SS
-#define MOTOR_PIN_2 A6
-#define MOTOR_PIN_3 A7
+#define MOTOR_PIN_1 5
+#define MOTOR_PIN_2 4
+#define MOTOR_PIN_3 0
+
+// Pins for data to led strip
+#define DATA_PIN_1 25
+#define DATA_PIN_2 26
+#define DATA_PIN_3 27
+
+#define IMU_PIN  21
 
 // Motor Controller class (check that i am using this right
 Nidec24hController motor1(SPI, MOTOR_PIN_1);
@@ -68,7 +75,7 @@ Nidec24hController motor3(SPI, MOTOR_PIN_3);
 //**********Controller object and key binding**********
 
 //Create the communications object. Use Serial for the communications.
-Controller controller(Serial1);
+Controller controller(Serial2);
 
 #define START_BUTTON UP //button
 #define STOP_BUTTON DOWN //button
@@ -87,10 +94,6 @@ const int bot_resolution = 50;
 // How many leds in your strip?
 #define NUM_LEDS 8
 
-// Pins for data to led strip
-#define DATA_PIN_1 5
-#define DATA_PIN_2 6
-#define DATA_PIN_3 7
 
 // Define LED Strip angles
 const float stripOffset = 0.0;  // Offset for the #1 LED Strip
@@ -129,13 +132,13 @@ CRGB purple[NUM_LEDS];*/
 
 //**********Other global vars and consts**********
 
-const bool debug = true;
+const bool debug = false;
 const bool debug_orientation = false;
 const bool debug_motor_speeds = false;
 const int debug_level = 1; //0 to 4
 const bool use_led = true;
 
-bb_imu orientation;
+Imu orientation(IMU_PIN);
 
 //**********setup**********
 /** ***************************************************************************
@@ -150,6 +153,8 @@ void setup()
     //generic counter var
     int i = 0;
     int j = 0;
+
+    delay(5000);
 
     // start serial if debug is true
     if (debug)
@@ -352,16 +357,16 @@ void loop()
         {
             if (debug && debug_level < 4 && Serial.print("Orientation: "))
             {
-                Serial.println(orientation.Get_val());
+                Serial.println(orientation.getAngle());
             }
             if (debug_orientation)
-              Serial.println(orientation.Get_val());
+              Serial.println(orientation.getAngle());
 
             
         }
 
         //convert the integral to radians
-        theta = orientation.Get_val();
+        theta = orientation.getAngle();
 
         //check if controller is connected
         if (controller.connected())
@@ -488,11 +493,11 @@ void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp
               
   if (controller.buttonClick(PHASE_LAG))
   {
-    orientation.gyro_to_rad += 2;
+    orientation.adjustGyroConversion(1.0/360);
   }
   else if (controller.buttonClick(PHASE_LEAD))
   {
-    orientation.gyro_to_rad -= 2;
+    orientation.adjustGyroConversion(-1.0/360);
   }
   
   //adjust the rotation speed
@@ -515,17 +520,8 @@ void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp
   if (abs(controller.joystick(TURN_JOYSTICK, X)) > 0.2)
   {
     offset = offset+(controller.joystick(TURN_JOYSTICK, X)/-120);
-              
-    //make sure that the offset is from 0 to 2PI
-    if(offset < 0)
-    {
-      offset = offset + 2*PI;
-    }
-    else if(offset > 2*PI)
-    {
-      offset = offset - 2*PI;
-    }
-    orientation.Set_offset(offset);
+
+    orientation.setOffset(offset);
   }
   
   if (debug && (debug_level < 2))

@@ -24,7 +24,7 @@ Filter::Filter(unsigned size)
   this->bufferSize = size; //"this" unnecessary
 
   //allocate our array
-  buffer = new int[size];
+  buffer = new double[size];
 
   //reset the values in the buffer
   reset();

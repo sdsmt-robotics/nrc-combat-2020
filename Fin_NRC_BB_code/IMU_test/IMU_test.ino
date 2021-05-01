@@ -1,4 +1,4 @@
-#include "/home/joseph/Desktop/Robot/NRC/nrc-combat-2020/Fin_NRC_BB_code/BB_IMU.cpp" //?
+#include "BB_IMU.h" //?
 
 bb_imu IMU_test;
 

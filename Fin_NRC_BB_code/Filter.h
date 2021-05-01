@@ -18,7 +18,7 @@ public:
 
 private:
     unsigned bufferSize;  //size of the input buffer
-    int* buffer;          //buffer of input values
+    double* buffer;          //buffer of input values
     unsigned curIndex = 0;     //index in the input values buffer
     double filteredVal = 0;  //filtered result
     double total = 0;       //running total of the values
