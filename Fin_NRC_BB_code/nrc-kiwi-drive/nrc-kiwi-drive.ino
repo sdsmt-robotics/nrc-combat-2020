@@ -42,6 +42,46 @@
  * A5/19 
  * A6/20
  * A7/21
+ * 
+ * GPIO 1
+ * GPIO 2
+ * GPIO 3
+ * GPIO 4
+ * GPIO 5
+ * GPIO 6
+ * GPIO 7
+ * GPIO 8
+ * GPIO 9
+ * GPIO 10
+ * GPIO 11
+ * GPIO 12
+ * GPIO 13
+ * GPIO 14
+ * GPIO 15
+ * GPIO 16
+ * GPIO 17
+ * GPIO 18
+ * GPIO 19
+ * GPIO 20
+ * GPIO 21
+ * GPIO 22
+ * GPIO 23
+ * GPIO 24
+ * GPIO 25
+ * GPIO 26
+ * GPIO 27
+ * GPIO 28
+ * GPIO 29
+ * GPIO 30
+ * GPIO 31
+ * GPIO 32
+ * GPIO 33
+ * GPIO 34
+ * GPIO 35
+ * GPIO 36
+ * GPIO 37
+ * GPIO 38
+ * GPIO 39
  ***************************************************/
 
 //**********constants for the motors**********
@@ -59,7 +99,7 @@ const float rotationSpeed = rotation * chassisRad / wheelRad;
 #define MOTOR_PIN_2 2
 #define MOTOR_PIN_3 3
 
-// Motor Controller class (check that i am using this right
+// Motor Controller class
 Nidec24hController motor1(SPI, MOTOR_PIN_1);
 Nidec24hController motor2(SPI, MOTOR_PIN_2);
 Nidec24hController motor3(SPI, MOTOR_PIN_3);
@@ -242,7 +282,7 @@ void setup()
     if (debug && Serial.println("IMU start"))
     {
     }
-
+    
     if (debug && Serial.println("Setup complete"))
     {
     }
@@ -294,7 +334,7 @@ void loop()
       {
       }
 
-     FastLED.clear();
+      FastLED.clear();
 
       delay(10);
       
