@@ -3,12 +3,8 @@
 *@brief The main code to load onto the NRC 2021 battle bot
 *
 *TO DO
-* - move led stuff into its own class
-* - figure out what is wrong with the last two includes
-* - test on hardware
-* - clean up code more
-* - figure out how to store and load the images for the leds
-* - debug
+* impliment 12v sense and satus led
+* debug
 ***************************************************************************/
 
 #include <math.h>
@@ -20,34 +16,12 @@
 #include "/home/joseph/Desktop/Robot/NRC/nrc-combat-2020/Fin_NRC_BB_code/BB_IMU.cpp"                                  //?
 
 /*********************Pin labels***********************
- * 0 for serial to the xBee REQ
- * 1 for serial to the xBee REQ
- * 2 SS for the slave motor 2
- * 3 SS for the slave motor 3
- * 4 for the led strips 2
- * 5 for the led strips 3
- * 6
- * 7 SS for the slave motor
- * 8
- * 9
- * 10 SS for the slave motor 1
- * 11 for SPI to the motor boards REQ
- * 12 for SPI to the motor boards REQ
- * 13 for SPI to the motor boards REQ
- * A0/14
- * A1/15
- * A2/16
- * A3/17 for the led strips 1
- * A4/18
- * A5/19 
- * A6/20
- * A7/21
- * 
- * GPIO 1
- * GPIO 2
- * GPIO 3
- * GPIO 4
- * GPIO 5
+ * GPIO 0 SS for the slave motor 3
+ * GPIO 1 
+ * GPIO 2 12V sense (ADD)
+ * GPIO 3 
+ * GPIO 4 SS for the slave motor 2
+ * GPIO 5 SS for the slave motor 1
  * GPIO 6
  * GPIO 7
  * GPIO 8
@@ -58,27 +32,27 @@
  * GPIO 13
  * GPIO 14
  * GPIO 15
- * GPIO 16
- * GPIO 17
- * GPIO 18
- * GPIO 19
+ * GPIO 16 Tx0 for serial to the xBee REQ
+ * GPIO 17 Rx0 for serial to the xBee REQ
+ * GPIO 18 SCK SPI to the motor boards REQ
+ * GPIO 19 MISO SPI to the motor boards REQ
  * GPIO 20
  * GPIO 21
  * GPIO 22
- * GPIO 23
+ * GPIO 23 MOSI SPI to the motor boards REQ
  * GPIO 24
- * GPIO 25
- * GPIO 26
- * GPIO 27
+ * GPIO 25 for the led strips 3
+ * GPIO 26 for the led strips 1
+ * GPIO 27 for the led strips 2
  * GPIO 28
  * GPIO 29
  * GPIO 30
  * GPIO 31
  * GPIO 32
- * GPIO 33
+ * GPIO 33 status LED (ADD)
  * GPIO 34
  * GPIO 35
- * GPIO 36
+ * GPIO 36 
  * GPIO 37
  * GPIO 38
  * GPIO 39
@@ -96,8 +70,8 @@ const float rotationSpeed = rotation * chassisRad / wheelRad;
 
 // Pin for motor slaves
 #define MOTOR_PIN_1 SS
-#define MOTOR_PIN_2 2
-#define MOTOR_PIN_3 3
+#define MOTOR_PIN_2 4
+#define MOTOR_PIN_3 0
 
 // Motor Controller class
 Nidec24hController motor1(SPI, MOTOR_PIN_1);
@@ -127,9 +101,9 @@ const int bot_resolution = 50;
 #define NUM_LEDS 8
 
 // Pin for data to led strip
-#define DATA_PIN_1 17
-#define DATA_PIN_2 4
-#define DATA_PIN_3 5
+#define DATA_PIN_1 26
+#define DATA_PIN_2 27
+#define DATA_PIN_3 25
 
 //the number of addressable radial led's per horizontal stripe
 CRGB leds[NUM_LEDS*3];
