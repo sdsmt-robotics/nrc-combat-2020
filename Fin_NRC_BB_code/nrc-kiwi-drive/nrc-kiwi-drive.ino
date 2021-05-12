@@ -46,12 +46,13 @@
  ***************************************************/
 
 //**********constants for the motors**********
-const float rotation = 200; // Chassis rotation speed in RPM
-const float translation = 1.5; // Driving feet per sec
+const float rotation = 400; // Chassis rotation speed in RPM
+const float translation = 2.5; // Driving feet per sec 
 const float chassisRad = 5.25; // Chassis radius in inches
 const float wheelRad = 1.18; // Wheel radius in inches
 const float translateSpeed = translation / wheelRad * (12 * 60 / 2 / PI);
 const float rotationSpeed = rotation * chassisRad / wheelRad;
+const float fullPower = 1000; // Power to run at when going full speed
 
 //**********motor objects**********
 
@@ -65,12 +66,17 @@ const float rotationSpeed = rotation * chassisRad / wheelRad;
 #define DATA_PIN_2 26
 #define DATA_PIN_3 27
 
-#define IMU_PIN  21
+#define IMU_PIN  22
 
 // Motor Controller class (check that i am using this right
 Nidec24hController motor1(SPI, MOTOR_PIN_1);
 Nidec24hController motor2(SPI, MOTOR_PIN_2);
 Nidec24hController motor3(SPI, MOTOR_PIN_3);
+
+
+//**********IMU*************************
+const float IMU_OFFSET = PI/3; // Angle IMU is facing relative to front of robot
+Imu orientation(IMU_PIN);
 
 //**********Controller object and key binding**********
 
@@ -81,10 +87,11 @@ Controller controller(Serial2);
 #define STOP_BUTTON DOWN //button
 #define DRIVE_JOYSTICK LEFT //joystick
 #define TURN_JOYSTICK RIGHT //joystick
-#define PHASE_LEAD RIGHT //button
-#define PHASE_LAG LEFT //button
-#define SPEED_UP RIGHT //trigger
-#define SPEED_DOWN LEFT //trigger
+#define PHASE_LEAD  RIGHT //button
+#define PHASE_LAG   LEFT //button
+#define SPEED_UP    RIGHT //trigger
+#define SPEED_DOWN  LEFT //trigger
+#define FULL_SEND   RIGHT //trigger
 
 //**********constants for the LEDs**********
 
@@ -98,8 +105,8 @@ const int bot_resolution = 50;
 // Define LED Strip angles
 const float stripOffset = 0.0;  // Offset for the #1 LED Strip
 float stripAngles[] = {0.0 + stripOffset,
-                       4*PI/3.0 + stripOffset,
-                       2*PI/3.0 + stripOffset};
+                       2*PI/3.0 + stripOffset,
+                       4*PI/3.0 + stripOffset};
 
 // Led strips setting managers
 LedStrip ledStrip1;
@@ -135,10 +142,12 @@ CRGB purple[NUM_LEDS];*/
 const bool debug = false;
 const bool debug_orientation = false;
 const bool debug_motor_speeds = false;
-const int debug_level = 1; //0 to 4
+const int debug_level = 4; //0 to 4
 const bool use_led = true;
 
-Imu orientation(IMU_PIN);
+bool fullSend = false;  // Toggle to full power mode
+bool flipped = false;
+
 
 //**********setup**********
 /** ***************************************************************************
@@ -171,7 +180,7 @@ void setup()
         Serial.println("Serial start");
     }
 
-    //**********Testing classes and LED's**********
+    //**********LED screen setup**********
     // Offset angles for spinning
     for (int i = 0; i < 3; i++) {
       stripAngles[i] = normalizeAngle(stripAngles[i]);
@@ -184,32 +193,13 @@ void setup()
     FastLED.setBrightness(50);
 
     // Show initial color
-    ledStrip1.fillColor(CRGB::Green);
-    ledStrip2.fillColor(CRGB::Green);
-    ledStrip3.fillColor(CRGB::Green);
+    ledStrip1.fillColor(CRGB::Yellow);
+    ledStrip2.fillColor(CRGB::Yellow);
+    ledStrip3.fillColor(CRGB::Yellow);
     FastLED.show();
     
     //re add test
     
-    //**********LED screen setup**********
-    /*for (i = 0; i < NUM_LEDS; ++i)
-    {
-      red[i]= CRGB::Red;
-      orange[i] = CRGB::Orange;
-      yellow[i] = CRGB::Yellow;
-      green[i] = CRGB::Green;
-      blue[i] = CRGB::Blue;
-      purple[i] = CRGB::Purple;
-    }
-
-    for (i = 0; i < NUM_LEDS; ++i)
-    {
-        leds[i] = green[i];
-        leds[NUM_LEDS+i] = green[i];
-        leds[NUM_LEDS*2+i] = green[i];
-    }
-
-    FastLED.show();*/
     
     //**********SPI setup**********
     // Initialize the SPI communications
@@ -221,46 +211,36 @@ void setup()
     }
 
     //**********motor setup**********
+    if (debug && Serial.println("Motor init...")) { }
     // Initialize the motor control
     motor1.init();
     motor2.init();
     motor3.init();
 
-    if (debug && Serial.println("Motor init"))
-    {
-    }
-
     motor1.brake();
     motor2.brake();
     motor3.brake();
 
-    if (debug && Serial.println("Motor set"))
-    {
-    }
+    if (debug && Serial.println("Motor init done.")) { }
     
     //**********imu initialization**********
-    if (!orientation.init())
+    if (debug && Serial.println("Initializing IMU...")) { }
+    while (!orientation.init())
     {
-        if (debug && Serial.println("Failed to initialize IMU!"))
-        {
-        }
-
-        // halt program
-        while (true)
-        {
-        }
+        if (debug && Serial.println("Failed to initialize IMU!")) { }
+        delay(1000);
     }
+    orientation.setOffset(IMU_OFFSET);
 
-    if (debug && Serial.println("IMU start"))
-    {
-    }
+    if (debug && Serial.println("IMU init complete.")) { }
 
-    if (debug && Serial.println("Setup complete"))
-    {
-    }
+    ledStrip1.fillColor(CRGB::Green);
+    ledStrip2.fillColor(CRGB::Green);
+    ledStrip3.fillColor(CRGB::Green);
+    FastLED.show();
 
     //**********controller setup**********
-
+    if (debug && Serial.println("Initializing controller...")) { }
     //initialize the controller class
     controller.init();
 
@@ -271,19 +251,22 @@ void setup()
     //wait for initial controller connection
     while (!controller.connected())
     {
+        FastLED.show();
         delay(10);
     }
 
-    if (debug && Serial.println("Connected..."))
-    {
-    }
+    if (debug && Serial.println("Connected.")) { }
     
     //set a deadzone for the joysticks
     controller.setJoyDeadzone(0.08);
 
+    if (debug && Serial.println("Controller init complete.")) { }
+    
+    if (debug && Serial.println("Setup complete!")) { }
+
 }
 
-//**********main loop**********
+
 /** ***************************************************************************
 * @par Main loop:
 * The main loop for the arduino code,
@@ -300,13 +283,6 @@ void loop()
     float theta = 0; //the angle of the bot
 
     int i = 0; //generic counter var
-
-    //row of the screen being displayed
-    int screen_point = 0;
-    int screen_before = 0;
-    int screen_after = 0;
-
-    CRGB * temp[3];
 
     //time recording var
     unsigned long time_at_controller_loss = 0;
@@ -325,9 +301,18 @@ void loop()
       {
           run_mode = true;
       }
-      
-      if (debug && Serial.println("Break out"))
+      orientation.update();
+      if (debug && Serial.println(orientation.getAngle(), 2))
       {
+      }
+      if (controller.connected())
+      {
+        //**********controller get**********
+        driveBasic();    
+      } else {
+        motor1.brake();
+        motor2.brake();
+        motor3.brake();
       }
 
       // TODO: do we need this?
@@ -339,11 +324,8 @@ void loop()
       ledStrip3.fillColor(CRGB::Purple);
       FastLED.show();
     
-      motor1.brake();
-      motor2.brake();
-      motor3.brake();
   
-      delay(10);
+      delay(3);
     
     }
     
@@ -351,19 +333,17 @@ void loop()
     while (run_mode)  // Entier loop takes 2.5 to 3 ms
     {
         //**********imu get**********
-
         //update IMU estimation
-        if (orientation.update())
-        {
-            if (debug && debug_level < 4 && Serial.print("Orientation: "))
-            {
-                Serial.println(orientation.getAngle());
-            }
-            if (debug_orientation)
-              Serial.println(orientation.getAngle());
-
-            
+        if (!fullSend) {
+          if (orientation.update())
+          {
+              if ((debug && debug_level < 4) || debug_orientation)
+              {
+                  Serial.println(orientation.getAngle());
+              }
+          }
         }
+        
 
         //convert the integral to radians
         theta = orientation.getAngle();
@@ -404,18 +384,16 @@ void loop()
 
         //**********send out motor speeds**********
 
-        //if(!orientation.Get_upright())
-        //{
-        //  motor1.setSpeed(w[0]);
-        //  motor2.setSpeed(w[1]);
-        //  motor3.setSpeed(w[2]);
-        //}
-        //else
-        //{
-          motor1.setSpeed(-w[0]);
-          motor2.setSpeed(-w[1]);
-          motor3.setSpeed(-w[2]);
-        //}
+        if(fullSend)
+        {
+          motor1.setPower(w[0]);
+          motor2.setPower(w[1]);
+          motor3.setPower(w[2]);
+        } else {
+          motor1.setSpeed(w[0]);
+          motor2.setSpeed(w[1]);
+          motor3.setSpeed(w[2]);
+        }
 
         //debug
         if ((debug && debug_level < 3) || debug_motor_speeds)
@@ -432,7 +410,7 @@ void loop()
         if (use_led)
         {
           for (int i = 0; i < 3; i++) {
-            if (stripAtAngle(stripAngles[i], theta, stripEpsilon)) {
+            if (!fullSend && stripAtAngle(stripAngles[i], theta, stripEpsilon)) {
               stripColors[i] = CRGB::Blue;
             } else if (controllerBeingLost) {
               stripColors[i] = CRGB::Yellow;
@@ -455,25 +433,56 @@ void loop()
 void calculate_motor_speed(float (&w)[3],float amp,float x,float y,float theta)
 {
   //radian offsets used for the first and second motors
-  const float m1Offset = (-(2 * PI) / 3);
-  const float m2Offset = 0;
-  const float m3Offset = ((2 * PI) / 3);
-
-  float phase = -PI/2; // the phase offset necessitated by the motor speed
+  const float m1Offset = 0;
+  const float m2Offset = 2*PI/3;
+  const float m3Offset = -2*PI/3;
+  float phase = 0.0; // the phase offset necessitated by the motor speed
   //may want the phase to be a function of the current rotation speed
 
-  //set the target velocity of the motors
-  float mag = translateSpeed * sqrt(y * y + x * x);
-  float relativeAngle = atan2(y, -x) - theta;
+  if (!fullSend) { // Not full send mode
+    //set the target velocity of the motors
+    float mag = translateSpeed * sqrt(y * y + x * x);
+    float relativeAngle = atan2(y, -x) - theta;
+    
+    w[0] = rotationSpeed*amp - mag * sin(relativeAngle - m1Offset + phase);
+    w[1] = rotationSpeed*amp - mag * sin(relativeAngle - m2Offset + phase);
+    w[2] = rotationSpeed*amp - mag * sin(relativeAngle - m3Offset + phase);
+  } else {
+    // Power control mode
+    w[0] = fullPower;
+    w[1] = fullPower;
+    w[2] = fullPower;
+  }
+
+  // Invert if upside down
+  if(flipped) {
+    w[0]  = -w[0];
+    w[1]  = -w[1];
+    w[2]  = -w[2];
+  }
+}
+
+void driveBasic() {
+  const float TRANS_SPEED = 300;
+  const float ROT_SPEED = 80;
+  float x = controller.joystick(DRIVE_JOYSTICK, X);
+  float y = -controller.joystick(DRIVE_JOYSTICK, Y);
+  float r = controller.joystick(RIGHT, X);
+
+  r = (abs(r) > 0.4 ? r : 0.0);
+
+  float inv = (flipped ? -1.0 : 1.0);
+
+  motor1.setSpeed(TRANS_SPEED*x * inv + ROT_SPEED * r);
+  motor2.setSpeed(TRANS_SPEED*(-1/2.0 * x * inv - sqrt(3.0)/2.0 * y) + ROT_SPEED * r);
+  motor3.setSpeed(TRANS_SPEED*(-1/2.0 * x * inv + sqrt(3.0)/2.0 * y) + ROT_SPEED * r);
   
-  w[0] = rotationSpeed*amp + mag * sin(relativeAngle - m1Offset + phase);
-  w[1] = rotationSpeed*amp + mag * sin(relativeAngle - m2Offset + phase);
-  w[2] = rotationSpeed*amp + mag * sin(relativeAngle - m3Offset + phase);
 }
 
 void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp)
 {
   static float offset = 0;
+  bool fullSendCur = false;
 
   controller.receiveData();
   
@@ -491,18 +500,33 @@ void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp
   
   //adjust the drift trim
               
-  if (controller.buttonClick(PHASE_LAG))
+  if (controller.dpadClick(PHASE_LAG))
   {
     orientation.adjustGyroConversion(1.0/360);
+    Serial.println("LAG");
   }
-  else if (controller.buttonClick(PHASE_LEAD))
+  else if (controller.dpadClick(PHASE_LEAD))
   {
     orientation.adjustGyroConversion(-1.0/360);
+    Serial.println("LEAD");
+  }
+
+  if (controller.buttonClick(LEFT))
+  {
+    flipped = !flipped;
+    Serial.println("FLIP");
   }
   
   //adjust the rotation speed
-  
-  if (controller.trigger(SPEED_DOWN) > 0.2) //if the trigger is sufficiently engaged.
+
+
+  fullSendCur = controller.trigger(FULL_SEND) > 0.2;
+  if (!fullSendCur && fullSend) {
+    // Do a reset when done going full speed
+    orientation.reset();
+  }
+  fullSend = fullSendCur;
+  /*if (controller.trigger(SPEED_DOWN) > 0.2) //if the trigger is sufficiently engaged.
   {
     amp = 1 - (controller.trigger(SPEED_DOWN)/2.0); //adjust the amplification variable
   }
@@ -513,7 +537,7 @@ void retrieve_controller_inputs(float &xp, float &yp, bool &run_mode, float &amp
   else
   {
     amp = 1;
-  }
+  }*/
   
   //update the offset for turning
               
