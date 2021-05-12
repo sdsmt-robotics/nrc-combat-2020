@@ -4,7 +4,7 @@ Robot code for the NRC Combat competition bot. Information about this bot can be
 # Hardware Info
 This code is meant to run on an ESP32. It uses an ICM20649 Wide-Range 6-DoF IMU for orientation sensing. It also controls three NeoPixel 8x5050 RGB LED Sticks. For motor control, it interfaces with three Nidec24h motors controlled by our custom motor controller boards. For remote control, the bot receives commands from our custom remote controls over an xBee. The full system diagram is shown below.  
 
-![Control system diagram](http://robotics.sdsmt.edu/images/b/7/e/9/c/b7e9ccda867099f6f04a5f51d13265e70089f007-main-electrical-diagram.png)  
+<p align="center"><img align="center" width="700px" src="http://drive.google.com/uc?export=view&id=1TOty5193V0pFtSCZzTFv9qXN879PyEic"/></p>  
 
 The main components of the control system (ESP32, xBee, voltage regulators, level shifters, etc) are held on a custom main board. The Kicad files for this are in the [spinnybot-motherboard](https://github.com/sdsmt-robotics/nrc-combat-2020/tree/master/spinnybot-motherboad) folder.  
 
