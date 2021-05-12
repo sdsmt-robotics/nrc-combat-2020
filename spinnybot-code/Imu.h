@@ -27,7 +27,9 @@ private:
    Filter angleRateFilter = Filter(3); //set up a averaging low pass filter
    float gyroVals[3] = {0, 0, 0};  // Rolling array of gyro values
    int valsMidIdx = 0;  // Index of the middle of the rolling array
-   float gyroToRad = 0.8582;   // Convert gyro value to rad/s
+   float gyroToRad = 0.852;   // Convert gyro value to rad/s
+   
+   Filter accelZFilter = Filter(3); // Filter for z-axis accelerometer
    
    unsigned long lastUpdateTime = micros(); //loop start time
 

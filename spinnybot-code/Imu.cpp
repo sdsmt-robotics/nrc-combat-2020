@@ -25,9 +25,6 @@
 Imu::Imu(unsigned csPin, float imuOffset) {
     this->csPin = csPin;
     this->imuOffset = imuOffset;
-    
-    // Do a reset (initialize) of values
-    reset();
 }
 
 /** ***************************************************************************
@@ -38,11 +35,15 @@ Imu::Imu(unsigned csPin, float imuOffset) {
 * @returns true if successful and false otherwise.
 *****************************************************************************/
 bool Imu::init() {
+  
     //test if the imu has started successfully
     if (!IMU.begin_SPI(csPin))
         return false;
 
     IMU.setGyroRange(ICM20649_GYRO_RANGE_4000_DPS);
+    
+    // Do a reset (initialize) of values
+    reset();
     
     // Calibrate for gyro drift
     calibrate();
@@ -84,6 +85,7 @@ bool Imu::readImu() {
     if (readSuccess) {
         // Add the new value
         angleRateFilter.filter((gyro.gyro.z - gyroDrift) * gyroToRad);
+        accelZFilter.filter(accel.acceleration.z);
     }
 
     //imu was ready
@@ -124,6 +126,7 @@ float Imu::integrateGyro(float deltaT)
 *****************************************************************************/
 void Imu::reset() {
     angleRateFilter.reset();
+    accelZFilter.reset(-1); // Assume upright
     angle = 0.0;
     for (int i = 0; i < 3; i++)
         gyroVals[i] = 0;
@@ -141,8 +144,8 @@ bool Imu::update()
     unsigned long curTime;
 
     //get new raw values from the IMU
-    bool receivedVals = readImu();
     curTime = micros();
+    bool receivedVals = readImu();
 
     //if there are new raw values then recalculate the speed
     if (receivedVals)
@@ -162,13 +165,12 @@ bool Imu::update()
 }
 
 /** ***************************************************************************
- * @brief Adjust the value used to convert from gyro values to rad/s. Adjustment
- * is a fraction in the range [-1.0, 1.0].
+ * @brief Adjust the value used to convert from gyro values to rad/s.
  * 
  * @param adjustment - Amount by which to change the conversion value.
 *****************************************************************************/
 void Imu::adjustGyroConversion(float adjustment) {
-    gyroToRad += gyroToRad*adjustment;
+    gyroToRad += adjustment;
 }
 
 /** ***************************************************************************
@@ -181,9 +183,10 @@ float Imu::getGyroConversion() {
 }
 
 /** ***************************************************************************
- * @brief Convert an angle to the normalized range.
+ * @brief Convert an angle to the normalized range [0, 2PI] (or [-2PI, 2PI]).
  * 
  * @param angle - Angle in radians
+ * @param incNeg - Use the expanded range [-2PI, 2PI].
  * @return Angle normalized to the range [0, 2PI]
 *****************************************************************************/
 float Imu::normalizeAngle(float angle, bool incNeg) {
@@ -208,7 +211,7 @@ float Imu::normalizeAngle(float angle, bool incNeg) {
 * @returns float of the estimated bb angle.
 *****************************************************************************/
 float Imu::getAngle() {
-    return angle;
+    return normalizeAngle(angle - imuOffset);
 }
 
 /** ***************************************************************************
@@ -238,5 +241,5 @@ void Imu::setOffset(float offset)
 * @returns true if the bot is upright or false if the bot is upside down
 *****************************************************************************/
 bool Imu::isUpright() {
-    return accelZ > 0.0;
+    return accelZFilter.getFilteredVal() > 0.0;
 }
