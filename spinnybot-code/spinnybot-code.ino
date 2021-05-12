@@ -10,10 +10,9 @@
 #include <math.h>
 #include <FastLED.h>
 #include <SPI.h>
-#include "Nidec24hController.h" //?
-#include "Controller.h"                                      //?
-#include "POV_Display.h"                             //?
-#include "Imu.h"                                  //?                            //?
+#include "Nidec24hController.h" // https://github.com/sdsmt-robotics/MotorSpeedController/tree/master/Software/controllerInterfaceLib
+#include "Controller.h"         // https://github.com/sdsmt-robotics/Controller/tree/master/Code/receive
+#include "Imu.h"
 #include "LedStrip.h" 
 
 /*********************Pin labels***********************
