@@ -12,4 +12,6 @@
   (lib (name "NODEMCU_ESP32")(type "KiCad")(uri "${KIPRJMOD}/lib/esp32_nodemcu/NODEMCU_ESP32.pretty")(options "")(descr ""))
   (lib (name "custom")(type "KiCad")(uri "${KIPRJMOD}/lib/custom/custom.pretty")(options "")(descr ""))
   (lib (name "robologo-shenzen-25mm")(type "KiCad")(uri "${KIPRJMOD}/art6/robologo-shenzen-25mm.pretty/.svg2shenzhen-cache/robologo-shenzen.pretty")(options "")(descr ""))
+  (lib (name "2N3904-npn")(type "KiCad")(uri "${KIPRJMOD}/lib/2N3904-npn/2N3904-npn.pretty")(options "")(descr ""))
+  (lib (name "2N3906-pnp")(type "KiCad")(uri "${KIPRJMOD}/lib/2N3906-pnp/2N3906-pnp.pretty")(options "")(descr ""))
 )

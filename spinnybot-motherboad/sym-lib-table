@@ -7,4 +7,5 @@
   (lib (name "P78E09-1000")(type "KiCad")(uri "${KIPRJMOD}/lib/dc_buck_P78E09/P78E09-1000.kicad_sym")(options "")(descr ""))
   (lib (name "R-78E5.0-1.0")(type "KiCad")(uri "${KIPRJMOD}/lib/dc_buck_r78e5/R-78E5.0-1.0.kicad_sym")(options "")(descr ""))
   (lib (name "ICM-20649")(type "KiCad")(uri "${KIPRJMOD}/lib/icm-20649/ICM-20649.kicad_sym")(options "")(descr ""))
+  (lib (name "2N3904")(type "Legacy")(uri "${KIPRJMOD}/lib/2N3904-npn/2N3904.lib")(options "")(descr ""))
 )
