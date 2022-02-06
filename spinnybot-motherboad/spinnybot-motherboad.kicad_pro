@@ -456,6 +456,14 @@
     [
       "dd1316dc-7e5b-4c97-959e-6f6a1eeeb379",
       "MCU and Buffers"
+    ],
+    [
+      "a01fd824-f54b-4196-9957-3a30a77eb56a",
+      "Power"
+    ],
+    [
+      "ce9f0f17-1862-4671-a57d-feb3cf47b091",
+      "Connectors"
     ]
   ],
   "text_variables": {}
