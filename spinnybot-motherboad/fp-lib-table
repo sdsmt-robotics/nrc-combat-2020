@@ -16,4 +16,8 @@
   (lib (name "2N3906-pnp")(type "KiCad")(uri "${KIPRJMOD}/lib/2N3906-pnp/2N3906-pnp.pretty")(options "")(descr ""))
   (lib (name "XBP9-DMWTB002-XBEE-PRO-900HP")(type "KiCad")(uri "${KIPRJMOD}/lib/XBP9-DMWTB002-XBEE-PRO-900HP/XBP9-DMWTB002-XBEE-PRO-900HP.pretty")(options "")(descr ""))
   (lib (name "esc_4in1")(type "KiCad")(uri "${KIPRJMOD}/lib/esc_4in1/esc_4in1.pretty")(options "")(descr ""))
+  (lib (name "ADS122U04IPWR")(type "KiCad")(uri "${KIPRJMOD}/lib/ADS122U04IPWR-adc/ADS122U04IPWR.pretty")(options "")(descr "adc"))
+  (lib (name "MMA3221KEG")(type "KiCad")(uri "${KIPRJMOD}/lib/MMA3221KEG-accelerometer/MMA3221KEG.pretty")(options "")(descr ""))
+  (lib (name "SN74LVC1G18DBVR")(type "KiCad")(uri "${KIPRJMOD}/lib/SN74LVC1G18DBVR-demux/SN74LVC1G18DBVR.pretty")(options "")(descr "demux"))
+  (lib (name "74LVC1G157GV,125")(type "KiCad")(uri "${KIPRJMOD}/lib/74LVC1G157GV,125-mux/74LVC1G157GV,125.pretty")(options "")(descr "mux"))
 )
