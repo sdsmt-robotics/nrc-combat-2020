@@ -15,4 +15,5 @@
   (lib (name "2N3904-npn")(type "KiCad")(uri "${KIPRJMOD}/lib/2N3904-npn/2N3904-npn.pretty")(options "")(descr ""))
   (lib (name "2N3906-pnp")(type "KiCad")(uri "${KIPRJMOD}/lib/2N3906-pnp/2N3906-pnp.pretty")(options "")(descr ""))
   (lib (name "XBP9-DMWTB002-XBEE-PRO-900HP")(type "KiCad")(uri "${KIPRJMOD}/lib/XBP9-DMWTB002-XBEE-PRO-900HP/XBP9-DMWTB002-XBEE-PRO-900HP.pretty")(options "")(descr ""))
+  (lib (name "esc_4in1")(type "KiCad")(uri "${KIPRJMOD}/lib/esc_4in1/esc_4in1.pretty")(options "")(descr ""))
 )
