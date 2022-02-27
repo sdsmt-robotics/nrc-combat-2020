@@ -464,6 +464,10 @@
     [
       "ce9f0f17-1862-4671-a57d-feb3cf47b091",
       "Connectors"
+    ],
+    [
+      "21ec218a-c3e6-455b-aabf-2344360cc627",
+      "IMU and Accelerometers"
     ]
   ],
   "text_variables": {}

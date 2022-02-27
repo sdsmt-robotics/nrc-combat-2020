@@ -9,4 +9,8 @@
   (lib (name "ICM-20649")(type "KiCad")(uri "${KIPRJMOD}/lib/icm-20649/ICM-20649.kicad_sym")(options "")(descr ""))
   (lib (name "2N3904")(type "Legacy")(uri "${KIPRJMOD}/lib/2N3904-npn/2N3904.lib")(options "")(descr ""))
   (lib (name "XBP9B-DMWTB002")(type "KiCad")(uri "${KIPRJMOD}/lib/XBP9-DMWTB002-XBEE-PRO-900HP/XBP9B-DMWTB002.kicad_sym")(options "")(descr ""))
+  (lib (name "ADS122U04IPWR")(type "KiCad")(uri "${KIPRJMOD}/lib/ADS122U04IPWR-adc/ADS122U04IPWR.kicad_sym")(options "")(descr "adc"))
+  (lib (name "MMA3221KEG")(type "KiCad")(uri "${KIPRJMOD}/lib/MMA3221KEG-accelerometer/MMA3221KEG.kicad_sym")(options "")(descr ""))
+  (lib (name "SN74LVC1G18DBVR")(type "KiCad")(uri "${KIPRJMOD}/lib/SN74LVC1G18DBVR-demux/SN74LVC1G18DBVR.kicad_sym")(options "")(descr "mux"))
+  (lib (name "74LVC1G157GV,125")(type "KiCad")(uri "${KIPRJMOD}/lib/74LVC1G157GV,125-mux/74LVC1G157GV,125.kicad_sym")(options "")(descr "mux"))
 )
