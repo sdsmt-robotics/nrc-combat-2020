@@ -14,4 +14,5 @@
   (lib (name "MMA3221KEG")(type "KiCad")(uri "${KIPRJMOD}/lib/MMA3221KEG-accelerometer/MMA3221KEG.kicad_sym")(options "")(descr ""))
   (lib (name "SN74LVC1G18DBVR")(type "KiCad")(uri "${KIPRJMOD}/lib/SN74LVC1G18DBVR-demux/SN74LVC1G18DBVR.kicad_sym")(options "")(descr "mux"))
   (lib (name "74LVC1G157GV,125")(type "KiCad")(uri "${KIPRJMOD}/lib/74LVC1G157GV,125-mux/74LVC1G157GV,125.kicad_sym")(options "")(descr "mux"))
+  (lib (name "MC14504BDR2G")(type "KiCad")(uri "${KIPRJMOD}/lib/MC14504BDR2G_logic_level_shifter/MC14504BDR2G.kicad_sym")(options "")(descr ""))
 )
