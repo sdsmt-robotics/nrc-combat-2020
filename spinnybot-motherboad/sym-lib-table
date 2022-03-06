@@ -16,4 +16,5 @@
   (lib (name "74LVC1G157GV,125")(type "KiCad")(uri "${KIPRJMOD}/lib/74LVC1G157GV,125-mux/74LVC1G157GV,125.kicad_sym")(options "")(descr "mux"))
   (lib (name "MC14504BDR2G")(type "KiCad")(uri "${KIPRJMOD}/lib/MC14504BDR2G_logic_level_shifter/MC14504BDR2G.kicad_sym")(options "")(descr ""))
   (lib (name "B4B-PH-SM4-TB")(type "Legacy")(uri "${KIPRJMOD}/lib/JST-PH-THT/B4B-PH-SM4-TB.lib")(options "")(descr ""))
+  (lib (name "S4B-PH-SM4-TB")(type "Legacy")(uri "${KIPRJMOD}/lib/JST-PH-THT/S4B-PH-SM4-TB.lib")(options "")(descr ""))
 )
