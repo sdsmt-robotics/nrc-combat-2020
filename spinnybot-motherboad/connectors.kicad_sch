@@ -1265,7 +1265,7 @@
     (property "Value" "SM10B-SRSS-TB" (id 1) (at 151.13 63.5 0)
       (effects (font (size 1.524 1.524)))
     )
-    (property "Footprint" "CONN_SM10B-SRSS-TB_JST" (id 2) (at 149.86 79.756 0)
+    (property "Footprint" "esc_4in1:SM10B-SRSS-TB" (id 2) (at 149.86 79.756 0)
       (effects (font (size 1.524 1.524)) hide)
     )
     (property "Datasheet" "" (id 3) (at 160.02 91.44 0)

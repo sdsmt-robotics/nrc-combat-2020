@@ -883,7 +883,7 @@
       (reference "J6") (unit 1) (value "ENCODER 3") (footprint "S4B-PH-SM4-TB:S4B-PH-SM4-TBLFSN")
     )
     (path "/ce9f0f17-1862-4671-a57d-feb3cf47b091/02f5d14a-464e-480d-9178-607fbb038006"
-      (reference "J7") (unit 1) (value "SM10B-SRSS-TB") (footprint "CONN_SM10B-SRSS-TB_JST")
+      (reference "J7") (unit 1) (value "SM10B-SRSS-TB") (footprint "esc_4in1:SM10B-SRSS-TB")
     )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/a923e568-7e66-4b54-9b31-57960a65fa25"
       (reference "J9") (unit 1) (value "POWER SW1") (footprint "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal")
@@ -976,7 +976,7 @@
       (reference "U2") (unit 1) (value "XBP9B-DMWTB002") (footprint "XBP9-DMWTB002-XBEE-PRO-900HP:DIP2200W51P200L3294H279Q20P")
     )
     (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/12b3928f-877f-4516-8a19-e909c31cf0de"
-      (reference "U3") (unit 1) (value "MC14504BDR2G") (footprint "SOIC-16_ONS")
+      (reference "U3") (unit 1) (value "MC14504BDR2G") (footprint "MC14504BDR2G:MC14504BDR2G")
     )
     (path "/21ec218a-c3e6-455b-aabf-2344360cc627/8929b07c-f2f9-4fc8-a77f-faf3a00d7a58"
       (reference "U4") (unit 1) (value "ICM-20649") (footprint "icm-20649:QFN40P300X300X95-24N")

@@ -23,4 +23,5 @@
   (lib (name "MC14504BDR2G")(type "KiCad")(uri "${KIPRJMOD}/lib/MC14504BDR2G_logic_level_shifter/MC14504BDR2G.pretty")(options "")(descr ""))
   (lib (name "B4B-PH-SM4-TB")(type "KiCad")(uri "${KIPRJMOD}/lib/JST-PH-THT/B4B-PH-SM4-TB.pretty")(options "")(descr ""))
   (lib (name "S4B-PH-SM4-TB")(type "KiCad")(uri "${KIPRJMOD}/lib/JST-PH-THT/S4B-PH-SM4-TB.pretty")(options "")(descr ""))
+  (lib (name "SM10B-SRSS-TB")(type "KiCad")(uri "${KIPRJMOD}/lib/esc_4in1/SM10B-SRSS-TB.pretty")(options "")(descr ""))
 )
