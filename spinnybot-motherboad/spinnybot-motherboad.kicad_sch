@@ -125,10 +125,6 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 8e7bc7d6-80d1-4dae-be6a-9e82cedc4fc1)
   )
-  (label "ESC_GND" (at 34.29 33.02 180)
-    (effects (font (size 1.27 1.27)) (justify right bottom))
-    (uuid 8f564e2d-8d64-4487-a962-2a2a42a97fd6)
-  )
   (label "ENC_2B_5V" (at 92.71 41.91 180)
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 8f7119f6-5f16-46ad-8d0b-28e9f2bf92a8)
@@ -255,6 +251,23 @@
     )
   )
 
+  (symbol (lib_id "Mechanical:MountingHole") (at 75.565 159.385 90) (unit 1)
+    (in_bom yes) (on_board yes)
+    (uuid 44671e4b-c3f2-40ce-9f5f-ae56c7ceee2e)
+    (property "Reference" "H5" (id 0) (at 79.375 158.7499 90)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Value" "STRAINHOLE2" (id 1) (at 79.375 161.2899 90)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Footprint" "custom:MountingHole_3.3mm" (id 2) (at 75.565 159.385 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "~" (id 3) (at 75.565 159.385 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+  )
+
   (symbol (lib_id "Mechanical:MountingHole") (at 49.53 163.83 90) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 46524ba4-2ecc-479c-af36-cb42a7e87bc8)
@@ -285,6 +298,40 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 49.53 158.75 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+  )
+
+  (symbol (lib_id "Mechanical:MountingHole") (at 75.565 153.67 90) (unit 1)
+    (in_bom yes) (on_board yes)
+    (uuid 90a0860f-dc0f-486d-8126-ac86f257452e)
+    (property "Reference" "H2" (id 0) (at 79.375 153.0349 90)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Value" "STRAINHOLE1" (id 1) (at 79.375 155.5749 90)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Footprint" "custom:MountingHole_3.3mm" (id 2) (at 75.565 153.67 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "~" (id 3) (at 75.565 153.67 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+  )
+
+  (symbol (lib_id "Mechanical:MountingHole") (at 75.565 164.465 90) (unit 1)
+    (in_bom yes) (on_board yes)
+    (uuid b2df31ea-f8d8-459e-bfc0-eb9493f3925c)
+    (property "Reference" "H6" (id 0) (at 79.375 163.8299 90)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Value" "STRAINHOLE3" (id 1) (at 79.375 166.3699 90)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Footprint" "custom:MountingHole_3.3mm" (id 2) (at 75.565 164.465 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "~" (id 3) (at 75.565 164.465 0)
       (effects (font (size 1.27 1.27)) hide)
     )
   )
@@ -366,10 +413,6 @@
     (pin "POWER_ON" output (at 67.31 33.02 0)
       (effects (font (size 1.27 1.27)) (justify right))
       (uuid 197059af-f947-4f73-b4ea-efde532fbdd9)
-    )
-    (pin "ESC_GND" input (at 34.29 33.02 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 55976f97-b054-4f5e-ba4b-d6e21bbbd708)
     )
   )
 
@@ -795,6 +838,9 @@
     (path "/21ec218a-c3e6-455b-aabf-2344360cc627/db6cb007-3530-4955-a415-58a98e1dba9a"
       (reference "#PWR0157") (unit 1) (value "GND") (footprint "")
     )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/1fb341b7-0ae8-49b7-8f4d-fa9dfaf3f00f"
+      (reference "#PWR0158") (unit 1) (value "GND") (footprint "")
+    )
     (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/b5ccd461-2bb6-4e55-889d-c413ead53e97"
       (reference "C1") (unit 1) (value "10u") (footprint "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder")
     )
@@ -858,11 +904,20 @@
     (path "/25c1e513-beba-4338-8887-6cc51a2fa209"
       (reference "H1") (unit 1) (value "MOUNTINGHOLE1") (footprint "custom:MountingHole_3.3mm")
     )
+    (path "/90a0860f-dc0f-486d-8126-ac86f257452e"
+      (reference "H2") (unit 1) (value "STRAINHOLE1") (footprint "custom:MountingHole_3.3mm")
+    )
     (path "/4daec26f-7303-4f29-a6dc-74eca012aa20"
       (reference "H3") (unit 1) (value "MOUNTINGHOLE2") (footprint "custom:MountingHole_3.3mm")
     )
     (path "/46524ba4-2ecc-479c-af36-cb42a7e87bc8"
       (reference "H4") (unit 1) (value "MOUNTINGHOLE3") (footprint "custom:MountingHole_3.3mm")
+    )
+    (path "/44671e4b-c3f2-40ce-9f5f-ae56c7ceee2e"
+      (reference "H5") (unit 1) (value "STRAINHOLE2") (footprint "custom:MountingHole_3.3mm")
+    )
+    (path "/b2df31ea-f8d8-459e-bfc0-eb9493f3925c"
+      (reference "H6") (unit 1) (value "STRAINHOLE3") (footprint "custom:MountingHole_3.3mm")
     )
     (path "/ce9f0f17-1862-4671-a57d-feb3cf47b091/205531ef-2109-472f-bb9a-44bf26b6d265"
       (reference "J1") (unit 1) (value "ENCODER 1") (footprint "S4B-PH-SM4-TB:S4B-PH-SM4-TBLFSN")
@@ -885,8 +940,14 @@
     (path "/ce9f0f17-1862-4671-a57d-feb3cf47b091/02f5d14a-464e-480d-9178-607fbb038006"
       (reference "J7") (unit 1) (value "SM10B-SRSS-TB") (footprint "esc_4in1:SM10B-SRSS-TB")
     )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/41e14b01-c483-4e24-95ec-8abc5377731f"
+      (reference "J8") (unit 1) (value "BAT_POS") (footprint "Connector_Wire:SolderWirePad_1x01_SMD_5x10mm")
+    )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/a923e568-7e66-4b54-9b31-57960a65fa25"
       (reference "J9") (unit 1) (value "POWER SW1") (footprint "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal")
+    )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/21a22a9e-8cdd-4970-8092-31ac5119bd77"
+      (reference "J10") (unit 1) (value "ESC_POS") (footprint "custom:Stitched_SolderWirePad_1x01_SMD_5x10mm")
     )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/914db2dc-fdb3-4d66-9e7f-79c06cd2d446"
       (reference "J11") (unit 1) (value "POWER SW2") (footprint "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal")
@@ -899,6 +960,12 @@
     )
     (path "/ce9f0f17-1862-4671-a57d-feb3cf47b091/7cdf698d-c893-417e-bc8a-b1bc64c116a4"
       (reference "J14") (unit 1) (value "LEDSTRIP3") (footprint "B3B-PH-SM4:JST_B3B-PH-SM4-TB(LF)(SN)")
+    )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/293e9033-d210-43c3-a3d4-7d01a9d750c0"
+      (reference "J15") (unit 1) (value "BAT_GND") (footprint "custom:Stitched_SolderWirePad_1x01_SMD_5x10mm")
+    )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/b6e3a65a-850d-4c23-a22a-c94323487d53"
+      (reference "J16") (unit 1) (value "ESC_GND") (footprint "Connector_Wire:SolderWirePad_1x01_SMD_5x10mm")
     )
     (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/cd41de04-53db-49dd-9870-c7e12fdc7cf9"
       (reference "JP1") (unit 1) (value "SolderJumper_2_Bridged") (footprint "Jumper:SolderJumper-2_P1.3mm_Bridged_Pad1.0x1.5mm")
