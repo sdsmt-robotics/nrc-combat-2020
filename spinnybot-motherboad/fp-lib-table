@@ -24,4 +24,5 @@
   (lib (name "B4B-PH-SM4-TB")(type "KiCad")(uri "${KIPRJMOD}/lib/JST-PH-THT/B4B-PH-SM4-TB.pretty")(options "")(descr ""))
   (lib (name "S4B-PH-SM4-TB")(type "KiCad")(uri "${KIPRJMOD}/lib/JST-PH-THT/S4B-PH-SM4-TB.pretty")(options "")(descr ""))
   (lib (name "SM10B-SRSS-TB")(type "KiCad")(uri "${KIPRJMOD}/lib/esc_4in1/SM10B-SRSS-TB.pretty")(options "")(descr ""))
+  (lib (name "B2B-PH-SM4-TB(LF)(SN)")(type "KiCad")(uri "${KIPRJMOD}/lib/JST-PH-THT/B2B-PH-SM4-TB(LF)(SN).pretty")(options "")(descr ""))
 )

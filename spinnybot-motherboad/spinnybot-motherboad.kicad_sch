@@ -841,6 +841,9 @@
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/1fb341b7-0ae8-49b7-8f4d-fa9dfaf3f00f"
       (reference "#PWR0158") (unit 1) (value "GND") (footprint "")
     )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/a1997d00-0973-4d95-9ad2-3287fdb6a7f3"
+      (reference "#PWR0159") (unit 1) (value "+12V") (footprint "")
+    )
     (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/b5ccd461-2bb6-4e55-889d-c413ead53e97"
       (reference "C1") (unit 1) (value "10u") (footprint "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder")
     )
@@ -944,13 +947,13 @@
       (reference "J8") (unit 1) (value "BAT_POS") (footprint "Connector_Wire:SolderWirePad_1x01_SMD_5x10mm")
     )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/a923e568-7e66-4b54-9b31-57960a65fa25"
-      (reference "J9") (unit 1) (value "POWER SW1") (footprint "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal")
+      (reference "J9") (unit 1) (value "POWER SW1") (footprint "B2B-PH-SM4-TB(LF)(SN):B2B-PH-SM4-TBLFSN")
     )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/21a22a9e-8cdd-4970-8092-31ac5119bd77"
       (reference "J10") (unit 1) (value "ESC_POS") (footprint "custom:Stitched_SolderWirePad_1x01_SMD_5x10mm")
     )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/914db2dc-fdb3-4d66-9e7f-79c06cd2d446"
-      (reference "J11") (unit 1) (value "POWER SW2") (footprint "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal")
+      (reference "J11") (unit 1) (value "POWER SW2") (footprint "B2B-PH-SM4-TB(LF)(SN):B2B-PH-SM4-TBLFSN")
     )
     (path "/ce9f0f17-1862-4671-a57d-feb3cf47b091/ecf6560b-605e-4fad-afc3-1d7b63192ec3"
       (reference "J12") (unit 1) (value "LEDSTRIP3") (footprint "B3B-PH-SM4:JST_B3B-PH-SM4-TB(LF)(SN)")
