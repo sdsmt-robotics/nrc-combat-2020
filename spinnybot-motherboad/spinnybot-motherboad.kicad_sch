@@ -57,7 +57,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 1a944fdc-545f-4431-ac6d-079a580d57cb)
   )
-  (label "LEDSTRIP_GROUND" (at 34.29 30.48 180)
+  (label "LEDSTRIP_GND" (at 34.29 30.48 180)
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 1cdc13d0-0562-43fe-9f83-196c608fed60)
   )
