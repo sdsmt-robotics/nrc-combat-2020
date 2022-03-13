@@ -905,6 +905,12 @@
     (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/b6338eda-846c-4d61-9775-8bb6d52342a5"
       (reference "#PWR0167") (unit 1) (value "GND") (footprint "")
     )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/71a5c200-18da-49d9-ada9-3d449eff9934"
+      (reference "#PWR0168") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/6d809136-4cf3-4f1a-adab-cd2cf7d878eb"
+      (reference "#PWR0169") (unit 1) (value "GND") (footprint "")
+    )
     (path "/4b51d6df-63b9-43fa-a920-8afa01c20793"
       (reference "A1") (unit 1) (value "ESC_Hobbywing_X-Rotor_Micro_60A_4in1") (footprint "esc_4in1:ESC_Hobbywing_X-Rotor_Micro_60A_4in1")
     )
@@ -1117,6 +1123,12 @@
     )
     (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/fe11b968-1ccf-4d6b-b889-44b64557a96c"
       (reference "R17") (unit 1) (value "10K") (footprint "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder")
+    )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/c6aed8f5-127c-4dbe-9beb-fb437f75a13a"
+      (reference "TP1") (unit 1) (value "TestPoint") (footprint "TestPoint:TestPoint_Pad_D2.0mm")
+    )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/6e534177-5c0e-4d3a-82d6-89e8735f21c6"
+      (reference "TP2") (unit 1) (value "TestPoint") (footprint "TestPoint:TestPoint_Pad_D2.0mm")
     )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/724e3572-db61-40ef-9c44-e11441fa064f"
       (reference "U1") (unit 1) (value "LM1117-3.3") (footprint "Package_TO_SOT_SMD:SOT-223-3_TabPin2")
