@@ -280,7 +280,7 @@
     (property "Value" "STRAINHOLE2" (id 1) (at 79.375 161.2899 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Footprint" "custom:MountingHole_3.3mm" (id 2) (at 75.565 159.385 0)
+    (property "Footprint" "custom:StrainHole_3.3mm" (id 2) (at 75.565 159.385 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 75.565 159.385 0)
@@ -348,7 +348,7 @@
     (property "Value" "STRAINHOLE1" (id 1) (at 79.375 155.5749 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Footprint" "custom:MountingHole_3.3mm" (id 2) (at 75.565 153.67 0)
+    (property "Footprint" "custom:StrainHole_3.3mm" (id 2) (at 75.565 153.67 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 75.565 153.67 0)
@@ -365,7 +365,7 @@
     (property "Value" "STRAINHOLE3" (id 1) (at 79.375 166.3699 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Footprint" "custom:MountingHole_3.3mm" (id 2) (at 75.565 164.465 0)
+    (property "Footprint" "custom:StrainHole_3.3mm" (id 2) (at 75.565 164.465 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 75.565 164.465 0)
@@ -993,7 +993,7 @@
       (reference "H1") (unit 1) (value "MOUNTINGHOLE1") (footprint "custom:MountingHole_3.3mm")
     )
     (path "/90a0860f-dc0f-486d-8126-ac86f257452e"
-      (reference "H2") (unit 1) (value "STRAINHOLE1") (footprint "custom:MountingHole_3.3mm")
+      (reference "H2") (unit 1) (value "STRAINHOLE1") (footprint "custom:StrainHole_3.3mm")
     )
     (path "/4daec26f-7303-4f29-a6dc-74eca012aa20"
       (reference "H3") (unit 1) (value "MOUNTINGHOLE2") (footprint "custom:MountingHole_3.3mm")
@@ -1002,10 +1002,10 @@
       (reference "H4") (unit 1) (value "MOUNTINGHOLE3") (footprint "custom:MountingHole_3.3mm")
     )
     (path "/44671e4b-c3f2-40ce-9f5f-ae56c7ceee2e"
-      (reference "H5") (unit 1) (value "STRAINHOLE2") (footprint "custom:MountingHole_3.3mm")
+      (reference "H5") (unit 1) (value "STRAINHOLE2") (footprint "custom:StrainHole_3.3mm")
     )
     (path "/b2df31ea-f8d8-459e-bfc0-eb9493f3925c"
-      (reference "H6") (unit 1) (value "STRAINHOLE3") (footprint "custom:MountingHole_3.3mm")
+      (reference "H6") (unit 1) (value "STRAINHOLE3") (footprint "custom:StrainHole_3.3mm")
     )
     (path "/ce9f0f17-1862-4671-a57d-feb3cf47b091/205531ef-2109-472f-bb9a-44bf26b6d265"
       (reference "J1") (unit 1) (value "ENCODER 1") (footprint "S4B-PH-SM4-TB:S4B-PH-SM4-TBLFSN")
