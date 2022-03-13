@@ -1,6 +1,6 @@
 (footprint "74LVC1G157GV_125" (version 20211014) (generator pcbnew)
   (layer "F.Cu")
-  (tedit 622D1BF8)
+  (tedit 622E68A9)
   (attr smd)
   (fp_text reference "REF**" (at 0 0) (layer "F.SilkS")
     (effects (font (size 1 1) (thickness 0.15)))
@@ -145,4 +145,9 @@
   (pad "4" smd rect (at 1.35255 0.950001) (size 1.0033 0.4572) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 2a1e0baf-e38e-461e-824a-434046f09960))
   (pad "5" smd rect (at 1.35255 0) (size 1.0033 0.4572) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp fc91807e-4912-4b87-b6ce-0e923a017b67))
   (pad "6" smd rect (at 1.35255 -0.950001) (size 1.0033 0.4572) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 7a1c9b1c-880f-4c35-b974-a969c02fa8d3))
+  (model "${KIPRJMOD}/lib/74LVC1G157GV,125-mux/TSOP6_SOT457_NEX.step"
+    (offset (xyz 0 0 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 0))
+  )
 )

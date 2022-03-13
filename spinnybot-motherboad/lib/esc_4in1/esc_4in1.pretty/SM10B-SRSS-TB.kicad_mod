@@ -1,6 +1,6 @@
 (footprint "SM10B-SRSS-TB" (version 20211014) (generator pcbnew)
   (layer "F.Cu")
-  (tedit 622D1C5D)
+  (tedit 622E6F3F)
   (attr smd)
   (fp_text reference "REF**" (at 0 2.0985) (layer "F.SilkS")
     (effects (font (size 1 1) (thickness 0.15)))
@@ -114,4 +114,9 @@
   (pad "10" smd rect (at -4.500001 2.0985) (size 0.6604 1.5494) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp db59233b-91af-47fe-b2c0-efbaacd04ff0))
   (pad "11" smd rect (at -5.800001 -1.776501 90) (size 1.905 1.2954) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 9771932a-c4bc-4fac-bb85-d93b00e09759))
   (pad "12" smd rect (at 5.800001 -1.776501 90) (size 1.905 1.2954) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp e0654adc-c9f4-4158-a126-5adba2274dc3))
+  (model "${KIPRJMOD}/lib/esc_4in1/SM10B-SRSS-TB.STEP"
+    (offset (xyz 0 -1.5 -0.5))
+    (scale (xyz 1 1 1))
+    (rotate (xyz -90 0 180))
+  )
 )
