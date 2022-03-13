@@ -1135,6 +1135,10 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 5ff63c05-b93a-4184-a2ea-8b28f6431368)
   )
+  (label "POWER_SW_IN" (at 201.93 46.99 180)
+    (effects (font (size 1.27 1.27)) (justify right bottom))
+    (uuid e3b762a1-7224-4f12-b5d7-01dba40a1557)
+  )
 
   (hierarchical_label "LEDSTRIP_GND" (shape input) (at 190.5 81.28 180)
     (effects (font (size 1.27 1.27)) (justify right))
