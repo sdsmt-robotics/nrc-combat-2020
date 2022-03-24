@@ -1,11 +1,4 @@
 #include "motor.h"
-#include <Arduino.h>
-#include <assert.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-
-#include "driver/rmt.h"
 
 /*
  * DSHOT600 protocol

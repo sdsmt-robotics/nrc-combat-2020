@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <math.h>
 
+#include "accelerometer.h"
 #include "controller.h"
 #include "encoder.h"
 #include "imu.h"
@@ -40,6 +41,9 @@ Encoder e1(ENC_1A, ENC_1B, 360);
 Encoder e2(ENC_2A, ENC_2B, 360);
 Encoder e3(ENC_3A, ENC_3B, 360);
 
+ADS122U04 acc1(&Serial1);
+ADS122U04 acc2(&Serial1);
+
 // ---- LED STUFF ----
 
 LedStrip strip1;
@@ -77,6 +81,35 @@ float y = 0;
 float spin = 0;
 
 bool flip = false;
+
+// ---- SENSOR FUNCTIONS ----
+
+void initAccelerometers() {
+  pinMode(ADC_SELECT, OUTPUT);
+  digitalWrite(ADC_SELECT, LOW);
+  acc1.init();
+  digitalWrite(ADC_SELECT, HIGH);
+  acc2.init();
+}
+
+void initEncoders() {
+  e1.init();
+  e2.init();
+  e3.init();
+}
+
+void initIMU() { imu.init(); }
+
+void initSensors() { initAccelerometers(); }
+
+float readAccelerometers() {
+  float data[2] = {0};
+  digitalWrite(ADC_SELECT, LOW);
+  data[0] = acc1.read();
+  digitalWrite(ADC_SELECT, HIGH);
+  data[1] = acc2.read();
+  return data[1];
+}
 
 // ---- MOTOR FUNCTIONS ----
 
@@ -202,6 +235,8 @@ void setup() {
 
   controller.init();
 
+  initSensors();
+
   initMotors();
 
   armMotors();
@@ -273,7 +308,8 @@ void loop() {
       digitalWrite(STATUS_LED_PIN, LOW);
 
       run = false;
-      Serial.println("no remote");
+      // Serial.println("no remote");
+      Serial.println(readAccelerometers());
     }
 
     imu.update();
