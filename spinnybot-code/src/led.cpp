@@ -19,8 +19,8 @@ void LedStrip::fillColor(uint32_t color) {
   }
 }
 
-void LedStrip::setBrightness(int b) { strip.setBrightness(b); }
+void LedStrip::setBrightness(uint8_t b) { strip.setBrightness(b); }
 
-uint32_t LedStrip::color(uint8_t r, uint8_t g, uint8_t b) {
+uint32_t LedStrip::makeColor(uint8_t r, uint8_t g, uint8_t b) {
   return strip.Color(r, g, b);
 }

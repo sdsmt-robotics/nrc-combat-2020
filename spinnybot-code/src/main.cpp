@@ -11,6 +11,7 @@
 // ---- PINS ----
 
 #define STATUS_LED_PIN 5
+#define ESP_STATUS_LED_PIN 2
 
 #define LED_STRIP_1 26
 #define LED_STRIP_2 27
@@ -211,21 +212,37 @@ void updateDrive(float spin, float x, float y, float angle) {
 
 // ---- LED FUNCTIONS ----
 
+void setStatusLED(bool on) {
+  if (on) {
+    digitalWrite(STATUS_LED_PIN, HIGH);
+    digitalWrite(ESP_STATUS_LED_PIN, HIGH);
+  } else {
+    digitalWrite(STATUS_LED_PIN, LOW);
+    digitalWrite(ESP_STATUS_LED_PIN, LOW);
+  }
+}
+
+void initLEDStrips() {
+  strip1.init();
+  strip2.init();
+  strip3.init();
+  strip1.fillColor(strip1.WHITE);
+  strip2.fillColor(strip2.WHITE);
+  strip3.fillColor(strip3.WHITE);
+  strip1.show();
+  strip2.show();
+  strip3.show();
+}
 /**
  * @brief Sets up and initializes LED strips and status LED
  */
 void initLEDs() {
   pinMode(STATUS_LED_PIN, OUTPUT);
-  digitalWrite(STATUS_LED_PIN, LOW);
+  pinMode(ESP_STATUS_LED_PIN, OUTPUT);
 
-  strip1.fillColor(strip1.color(255, 255, 0));
-  strip2.fillColor(strip2.color(255, 255, 0));
-  strip3.fillColor(strip3.color(255, 255, 0));
-  strip1.show();
-  strip2.show();
-  strip3.show();
+  setStatusLED(false);
 
-  digitalWrite(STATUS_LED_PIN, HIGH);
+  initLEDStrips();
 }
 
 void showLEDs() {
@@ -235,9 +252,9 @@ void showLEDs() {
 }
 
 void fillLEDs(uint8_t r, uint8_t g, uint8_t b) {
-  strip1.fillColor(strip1.color(r, g, b));
-  strip1.fillColor(strip1.color(r, g, b));
-  strip1.fillColor(strip1.color(r, g, b));
+  strip1.fillColor(strip1.makeColor(r, g, b));
+  strip1.fillColor(strip1.makeColor(r, g, b));
+  strip1.fillColor(strip1.makeColor(r, g, b));
 }
 
 // ---- MAIN FUNCTIONS ----
