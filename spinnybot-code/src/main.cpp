@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <Wire.h>
 #include <math.h>
 
 #include "accelerometer.h"
@@ -15,7 +14,7 @@
 
 #define LED_STRIP_1 26
 #define LED_STRIP_2 27
-#define LED_STRIP_3 21
+#define LED_STRIP_3 25
 
 #define ENC_1A 14
 #define ENC_1B 12
@@ -41,14 +40,16 @@ Encoder e1(ENC_1A, ENC_1B, 360);
 Encoder e2(ENC_2A, ENC_2B, 360);
 Encoder e3(ENC_3A, ENC_3B, 360);
 
-ADS122U04 acc1(&Serial1);
-ADS122U04 acc2(&Serial1);
+ADC acc1(Serial1);
+ADC acc2(Serial1);
+
+// Accelerometers accel(Serial2, ADC_SELECT);
 
 // ---- LED STUFF ----
 
-LedStrip strip1;
-LedStrip strip2;
-LedStrip strip3;
+LedStrip strip1(LED_STRIP_1);
+LedStrip strip2(LED_STRIP_2);
+LedStrip strip3(LED_STRIP_3);
 
 // ---- MOTOR STUFF ----
 
@@ -100,14 +101,17 @@ void initEncoders() {
 
 void initIMU() { imu.init(); }
 
-void initSensors() { initAccelerometers(); }
+void initSensors() {
+  // initAccelerometers();
+  initIMU();
+}
 
 float readAccelerometers() {
   float data[2] = {0};
   digitalWrite(ADC_SELECT, LOW);
-  data[0] = acc1.read();
+  data[0] = acc1.readData();
   digitalWrite(ADC_SELECT, HIGH);
-  data[1] = acc2.read();
+  data[1] = acc2.readData();
   return data[1];
 }
 
@@ -214,30 +218,41 @@ void initLEDs() {
   pinMode(STATUS_LED_PIN, OUTPUT);
   digitalWrite(STATUS_LED_PIN, LOW);
 
-  FastLED.addLeds<NEOPIXEL, LED_STRIP_1>(strip1.getPixelData(), NUM_LEDS);
-  FastLED.addLeds<NEOPIXEL, LED_STRIP_2>(strip2.getPixelData(), NUM_LEDS);
-  FastLED.addLeds<NEOPIXEL, LED_STRIP_3>(strip3.getPixelData(), NUM_LEDS);
+  strip1.fillColor(strip1.color(255, 255, 0));
+  strip2.fillColor(strip2.color(255, 255, 0));
+  strip3.fillColor(strip3.color(255, 255, 0));
+  strip1.show();
+  strip2.show();
+  strip3.show();
 
-  FastLED.setBrightness(50);
+  digitalWrite(STATUS_LED_PIN, HIGH);
+}
 
-  strip1.fillColor(CRGB::Yellow);
-  strip2.fillColor(CRGB::Yellow);
-  strip3.fillColor(CRGB::Yellow);
-  FastLED.show();
+void showLEDs() {
+  strip1.show();
+  strip2.show();
+  strip3.show();
+}
+
+void fillLEDs(uint8_t r, uint8_t g, uint8_t b) {
+  strip1.fillColor(strip1.color(r, g, b));
+  strip1.fillColor(strip1.color(r, g, b));
+  strip1.fillColor(strip1.color(r, g, b));
 }
 
 // ---- MAIN FUNCTIONS ----
 
 void setup() {
 
-  Wire.begin();
   Serial.begin(115200);
 
   controller.init();
 
-  initSensors();
+  initLEDs();
 
   initMotors();
+
+  initSensors();
 
   armMotors();
 }
@@ -308,7 +323,7 @@ void loop() {
       digitalWrite(STATUS_LED_PIN, LOW);
 
       run = false;
-      // Serial.println("no remote");
+      Serial.println("no remote");
       Serial.println(readAccelerometers());
     }
 

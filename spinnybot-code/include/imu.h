@@ -16,6 +16,7 @@ public:
   void update();
   void calibrate(int num_readings = 1000);
   float getAngle();
+  float getVelocity();
   void reset();
 
 private:

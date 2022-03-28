@@ -71,6 +71,8 @@ float IMU::integrate(float deltaT) {
 
 float IMU::getAngle() { return angle; }
 
+float IMU::getVelocity() { return filter.getFilteredVal(); }
+
 void IMU::calibrate(int num_readings) {
   drift = 0;
   for (int i = 0; i < num_readings; i++) {
