@@ -1,18 +1,20 @@
 #include "accelerometer.h"
 #include "driver\uart.h"
 
-Accelerometers::Accelerometers(HardwareSerial &serial, int mux_pin)
+Accelerometers::Accelerometers(HardwareSerial &serial, int mux_pin, int rx,
+                               int tx)
     : adc1(serial), adc2(serial), velocity_filter(3) {
   _mux_pin = mux_pin;
+  _rx_pin = rx;
+  _tx_pin = tx;
 }
 
-bool Accelerometers::init() {
+void Accelerometers::init() {
   pinMode(_mux_pin, OUTPUT);
   digitalWrite(_mux_pin, LOW);
-  adc1.init();
+  adc1.init(115200, _rx_pin, _tx_pin);
   digitalWrite(_mux_pin, HIGH);
-  adc2.init();
-  return false;
+  adc2.init(115200, _rx_pin, _tx_pin);
 }
 
 float Accelerometers::update() {
@@ -80,9 +82,6 @@ float Accelerometers::normalizeAngle(float angle) {
 
 ADC::ADC(HardwareSerial &serial) : adc(&serial) {}
 
-bool ADC::init() {
-  adc.begin(115200, 35, 34);
-  return true;
-}
+void ADC::init(int baud, int rx, int tx) { adc.begin(baud, rx, tx); }
 
 uint32_t ADC::readData() { return adc.readADC(); }

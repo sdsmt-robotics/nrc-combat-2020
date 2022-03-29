@@ -12,7 +12,7 @@
 class ADC {
 public:
   ADC(HardwareSerial &serial);
-  bool init();
+  void init(int baud, int rx, int tx);
   uint32_t readData();
 
 private:
@@ -21,8 +21,8 @@ private:
 
 class Accelerometers {
 public:
-  Accelerometers(HardwareSerial &serial, int mux_pin);
-  bool init();
+  Accelerometers(HardwareSerial &serial, int mux_pin, int rx, int tx);
+  void init();
   float update();
   float getAngle();
   float getVelocity();
@@ -39,6 +39,8 @@ private:
   Filter velocity_filter;
 
   int _mux_pin = 0;
+  int _rx_pin = 0;
+  int _tx_pin = 0;
 
   float angle = 0;
 
