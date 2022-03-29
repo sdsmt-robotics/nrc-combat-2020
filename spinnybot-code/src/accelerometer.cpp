@@ -1,4 +1,5 @@
 #include "accelerometer.h"
+#include "driver\uart.h"
 
 Accelerometers::Accelerometers(HardwareSerial &serial, int mux_pin)
     : adc1(serial), adc2(serial), velocity_filter(3) {
@@ -32,6 +33,8 @@ float Accelerometers::update() {
 
   // Put into range [-PI, PI]
   angle = normalizeAngle(angle);
+
+  return angle;
 }
 
 float Accelerometers::getVelocity() { return velocity_filter.getFilteredVal(); }
@@ -78,7 +81,7 @@ float Accelerometers::normalizeAngle(float angle) {
 ADC::ADC(HardwareSerial &serial) : adc(&serial) {}
 
 bool ADC::init() {
-  adc.begin(115200);
+  adc.begin(115200, 35, 34);
   return true;
 }
 

@@ -294,7 +294,7 @@ public:
   ADS122U04(HardwareSerial *serial);
 
   // By default use the default I2C address, and use Wire port
-  bool begin(int baud); // Returns true if module is detected
+  bool begin(int baud, int rx, int tx); // Returns true if module is detected
 
   // float readPT100Centigrade(void); // Read the PT100 temperature in
   // Centigrade float readPT100Fahrenheit(void); // Read the PT100 temperature

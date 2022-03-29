@@ -15,7 +15,7 @@
 
 #define LED_STRIP_1 26
 #define LED_STRIP_2 27
-#define LED_STRIP_3 25
+#define LED_STRIP_3 21
 
 #define ENC_1A 14
 #define ENC_1B 12
@@ -27,11 +27,15 @@
 #define ADC_SELECT 13
 
 #define MOTOR_1 32
-#define MOTOR_1_RMT_CHANNEL 0
+#define MOTOR_1_RMT_CHANNEL 3
 #define MOTOR_2 33
-#define MOTOR_2_RMT_CHANNEL 1
+#define MOTOR_2_RMT_CHANNEL 4
 #define MOTOR_3 25
-#define MOTOR_3_RMT_CHANNEL 2
+#define MOTOR_3_RMT_CHANNEL 5
+
+// ---- MISC ----
+
+#define ADAFRUIT_RMT_CHANNEL_MAX 3 // LED strips can use 3 RMT channels 0 - 2
 
 // ---- SENSOR STUFF ----
 
@@ -103,16 +107,23 @@ void initEncoders() {
 void initIMU() { imu.init(); }
 
 void initSensors() {
-  // initAccelerometers();
+  initAccelerometers();
   initIMU();
 }
 
 float readAccelerometers() {
-  float data[2] = {0};
+  float data[2] = {0, 0};
   digitalWrite(ADC_SELECT, LOW);
   data[0] = acc1.readData();
   digitalWrite(ADC_SELECT, HIGH);
   data[1] = acc2.readData();
+
+  Serial.print("\t");
+  Serial.print(data[0]);
+  Serial.print("\t");
+  Serial.print(data[1]);
+  Serial.println();
+
   return data[1];
 }
 
@@ -279,7 +290,8 @@ void loop() {
     last_loop = micros();
     if (controller.connected()) {
 
-      digitalWrite(STATUS_LED_PIN, HIGH);
+      setStatusLED(true);
+      fillLEDs(255, 0, 0);
 
       if (controller.buttonClick(RIGHT)) {
         run = true;
@@ -313,13 +325,13 @@ void loop() {
       if (controller.dpadClick(DOWN) && run) {
         if (flip) {
           spin += 0.1;
-          if (spin > 0.0) {
-            spin = 0.0;
+          if (spin > -0.1) {
+            spin = -0.1;
           }
         } else {
           spin -= 0.1;
-          if (spin < 0.0) {
-            spin = -1.0;
+          if (spin < 0.1) {
+            spin = 0.1;
           }
         }
         Serial.println("spin down");
@@ -337,11 +349,12 @@ void loop() {
 
     } else {
 
-      digitalWrite(STATUS_LED_PIN, LOW);
+      setStatusLED(false);
+      fillLEDs(255, 255, 0);
 
       run = false;
       Serial.println("no remote");
-      Serial.println(readAccelerometers());
+      // Serial.println(imu.getAngle());
     }
 
     imu.update();
@@ -353,5 +366,6 @@ void loop() {
     } else {
       sendAllMotorPower(0);
     }
+    showLEDs();
   }
 }

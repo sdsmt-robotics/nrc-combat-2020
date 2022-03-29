@@ -49,8 +49,8 @@ ADS122U04::ADS122U04(HardwareSerial *serial) {
 
 // Attempt communication with the device and initialise it
 // Return true if successful
-bool ADS122U04::begin(int baud) {
-  _serial->begin(baud);
+bool ADS122U04::begin(int baud, int rx, int tx) {
+  _serial->begin(baud, SERIAL_8N1, rx, tx);
   _wireMode = ADS122U04_RAW_MODE; // Default to using 'safe' settings (disable
                                   // the IDAC current sources)
 

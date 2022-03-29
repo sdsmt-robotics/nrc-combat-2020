@@ -3,7 +3,8 @@
 IMU::IMU() : filter(3) {}
 
 bool IMU::init() {
-  if (!imu.begin_I2C())
+  if (!imu.begin_SPI(22))
+    // if (!imu.begin_I2C())
     return false;
   imu.setGyroRange(ICM20649_GYRO_RANGE_4000_DPS);
   calibrate();

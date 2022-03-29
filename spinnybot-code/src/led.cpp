@@ -4,7 +4,7 @@ LedStrip::LedStrip(int pin) : strip(NUM_LEDS, pin, NEO_GRB + NEO_KHZ800) {}
 
 void LedStrip::init() {
   strip.begin();
-  strip.setBrightness(50);
+  strip.setBrightness(128);
 }
 
 void LedStrip::show() { strip.show(); }
