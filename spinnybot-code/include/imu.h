@@ -12,6 +12,8 @@
 class IMU {
 public:
   IMU();
+  IMU(int cs, int sck, int miso, int mosi);
+  IMU(int cs);
   bool init();
   void update();
   void calibrate(int num_readings = 1000);
@@ -41,6 +43,11 @@ private:
 
   float gyroVals[3] = {0, 0, 0};
   int valsMidIdx = 0;
+
+  int _cs_pin = 0;
+  int _sck_pin = 0;
+  int _miso_pin = 0;
+  int _mosi_pin = 0;
 };
 
 #endif

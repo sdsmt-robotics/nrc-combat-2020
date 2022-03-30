@@ -1,11 +1,42 @@
 #include "imu.h"
 
-IMU::IMU() : filter(3) {}
+IMU ::IMU() : filter(3) {
+  _cs_pin = -1;
+  _sck_pin = -1;
+  _miso_pin = -1;
+  _mosi_pin = -1;
+}
+
+IMU::IMU(int cs) : filter(3) {
+  _cs_pin = cs;
+  _sck_pin = -1;
+  _miso_pin = -1;
+  _mosi_pin = -1;
+}
+
+IMU::IMU(int cs, int sck, int miso, int mosi) : filter(3) {
+  _cs_pin = cs;
+  _sck_pin = sck;
+  _miso_pin = miso;
+  _mosi_pin = mosi;
+}
 
 bool IMU::init() {
-  if (!imu.begin_SPI(22))
-    // if (!imu.begin_I2C())
-    return false;
+  if (_cs_pin == -1) {
+    if (!imu.begin_I2C()) {
+      return false;
+    }
+  } else {
+    if (_sck_pin == -1 && _miso_pin == -1 && _mosi_pin == -1) {
+      if (!imu.begin_SPI(_cs_pin)) {
+        return false;
+      }
+    } else {
+      if (!imu.begin_SPI(_cs_pin, _sck_pin, _miso_pin, _mosi_pin)) {
+        return false;
+      }
+    }
+  }
   imu.setGyroRange(ICM20649_GYRO_RANGE_4000_DPS);
   calibrate();
   reset();
@@ -86,13 +117,11 @@ void IMU::calibrate(int num_readings) {
 
 float IMU::normalizeAngle(float angle) {
   if (angle > PI) {
-    do {
+    while (angle > PI)
       angle -= PI_2;
-    } while (angle > PI);
   } else {
-    do {
+    while (angle < -PI)
       angle += PI_2;
-    } while (angle < -PI);
   }
   return angle;
 }

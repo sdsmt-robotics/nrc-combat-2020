@@ -15,18 +15,18 @@
 
 #define LED_STRIP_1 26
 #define LED_STRIP_2 27
-#define LED_STRIP_3 21
+#define LED_STRIP_3 14
 
-#define ENC_1A 14
-#define ENC_1B 12
-#define ENC_2A 4
-#define ENC_2B 0
-#define ENC_3A 2
-#define ENC_3B 15
+#define ENC_1A 36
+#define ENC_1B 39
+#define ENC_2A 34
+#define ENC_2B 35
+#define ENC_3A 12
+#define ENC_3B 13
 
-#define ADC_SELECT 13
-#define ADC_RX 35
-#define ADC_TX 34
+#define ADC_SELECT 23
+#define ADC_RX 19
+#define ADC_TX 18
 
 #define MOTOR_1 32
 #define MOTOR_1_RMT_CHANNEL 3
@@ -74,7 +74,7 @@ long last_motor_update = micros();
 
 bool run = false;
 
-const long LOOP_INTERVAL = 10; // microsec
+const long LOOP_INTERVAL = 1000; // microsec
 long last_loop = micros();
 
 // ---- CONTROLLER STUFF ----
@@ -97,7 +97,11 @@ void initEncoders() {
   // e3.init();
 }
 
-void initIMU() { imu.init(); }
+void initIMU() {
+  if (!imu.init()) {
+    Serial.println("\nimu fail init");
+  }
+}
 
 void initSensors() {
   initAccelerometers();
@@ -241,8 +245,8 @@ void showLEDStrips() {
 
 void fillLEDs(uint8_t r, uint8_t g, uint8_t b) {
   strip1.fillColor(strip1.makeColor(r, g, b));
-  strip1.fillColor(strip1.makeColor(r, g, b));
-  strip1.fillColor(strip1.makeColor(r, g, b));
+  strip2.fillColor(strip2.makeColor(r, g, b));
+  strip3.fillColor(strip3.makeColor(r, g, b));
 }
 
 // ---- MAIN FUNCTIONS ----
@@ -274,6 +278,7 @@ void loop() {
     if (controller.connected()) {
 
       setStatusLED(true);
+      fillLEDs(0, 255, 0);
 
       if (controller.buttonClick(RIGHT)) {
         run = true;
@@ -332,13 +337,14 @@ void loop() {
     } else {
 
       setStatusLED(false);
+      fillLEDs(255, 0, 0);
 
       run = false;
-      // Serial.println("no remote");
-      Serial.println(imu.getAngle());
+      Serial.println("no remote");
+      Serial.println((imu.getAngle() * RAD_2_DEG) + 180);
     }
 
-    imu.update();
+    updateSensors();
   }
   if (micros() - last_motor_update > MOTOR_UPDATE_INTERVAL) {
     last_motor_update = micros();
@@ -347,7 +353,6 @@ void loop() {
       fillLEDs(255, 0, 255);
     } else {
       sendAllMotorPower(0);
-      fillLEDs(0, 255, 0);
     }
     showLEDStrips();
   }
