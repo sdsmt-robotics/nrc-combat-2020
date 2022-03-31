@@ -25,7 +25,7 @@ float Accelerometers::update() {
   readADC(raw[0], raw[1]);
 
   // calculate velocity
-  float v = (sqrtf(R * raw[0]) + sqrtf(R * raw[1])) / (2.0 * R);
+  float v = (sqrtf(RADIUS * raw[0]) + sqrtf(RADIUS * raw[1])) / (2.0 * RADIUS);
   velocity_filter.filter(v);
 
   float deltaT = float(curTime - last_update) / 1000000;

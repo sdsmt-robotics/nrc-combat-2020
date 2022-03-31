@@ -44,7 +44,8 @@ private:
 
   float angle = 0;
 
-  const float R = 1;
+  // radius
+  const float RADIUS = 1.0;
 
   long last_update = 0;
 

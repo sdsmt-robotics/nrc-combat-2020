@@ -89,7 +89,6 @@ void Motor::init_rmt() {
 }
 
 void Motor::send_pulses(uint16_t pulses_int) {
-  noInterrupts(); // disable interrupts
 
   uint16_t cmdbits = pulses_int;
   // Build 16-bit (32 pulses) of data
@@ -112,8 +111,6 @@ void Motor::send_pulses(uint16_t pulses_int) {
   // Write and wait.
   esp_err_t err = rmt_write_items(_rmt_channel, pulses, 16, true);
   ESP_ERROR_CHECK(err);
-
-  interrupts(); // enable interupts
 }
 
 void Motor::transmit_command(uint16_t top_12_bits) {
