@@ -47,7 +47,8 @@ IMU imu;
 // Encoder e2(ENC_2A, ENC_2B, 360);
 // Encoder e3(ENC_3A, ENC_3B, 360);
 
-Accelerometers accel(Serial1, ADC_SELECT, ADC_RX, ADC_TX);
+Accelerometers accel(Serial1, ADC_SELECT, ADC_TX,
+                     ADC_RX); // note: tx and rx are fliped
 
 // ---- LED STUFF ----
 
@@ -156,7 +157,6 @@ void armMotors() {
 
 /**
    @brief Updates drive motor powers with control and angle inputs.
-
    @param spin Spin speed modifier. -1.0 to 1.0
    @param x X direction movement modifier. -1.0 to 1.0
    @param y Y direction movement modifier. -1.0 to 1.0
@@ -187,7 +187,7 @@ void updateDrive(float spin, float x, float y, float angle) {
 
   if (spin > 0) {
 
-    spin_power = (SPIN_MAX_POWER * spin) + SPIN_MIN_POWER;
+    spin_power = SPIN_MIN_POWER + (SPIN_MAX_POWER * spin);
 
     power[0] = (spin_power + (trans_power * sinf(comp_angle + m1_offset)));
     power[1] = (spin_power + (trans_power * sinf(comp_angle + m2_offset)));
@@ -195,12 +195,24 @@ void updateDrive(float spin, float x, float y, float angle) {
 
   } else if (spin < 0) {
 
-    spin_power = (SPIN_MAX_POWER * spin) - SPIN_MIN_POWER;
+    spin_power = -SPIN_MIN_POWER + (SPIN_MAX_POWER * spin);
 
     power[0] = (spin_power - (trans_power * sinf(comp_angle + m1_offset)));
     power[1] = (spin_power - (trans_power * sinf(comp_angle + m2_offset)));
     power[2] = (spin_power - (trans_power * sinf(comp_angle + m3_offset)));
   }
+
+  // // debug
+  // if (!controller.button(DOWN)) {
+  //   Serial.print(power[0]);
+  //   Serial.print("\t");
+  //   Serial.print(power[1]);
+  //   Serial.print("\t");
+  //   Serial.print(power[2]);
+  //   Serial.print("\t");
+  //   Serial.println();
+  // }
+  // // end debug
 
   m1.set_speed_signed(power[0]);
   m2.set_speed_signed(power[1]);
@@ -282,7 +294,9 @@ void loop() {
 
       if (controller.buttonClick(RIGHT)) {
         run = true;
-        spin = 0.0;
+        spin = 0.1;
+        if (flip)
+          spin = -0.1;
         Serial.println("run");
       }
       if (controller.buttonClick(LEFT)) {
@@ -307,6 +321,7 @@ void loop() {
           }
         }
         Serial.println("spin up");
+        Serial.println(spin);
       }
 
       if (controller.dpadClick(DOWN) && run) {
@@ -322,6 +337,7 @@ void loop() {
           }
         }
         Serial.println("spin down");
+        Serial.println(spin);
       }
 
       if (controller.dpadClick(LEFT) && !run) {
@@ -334,6 +350,16 @@ void loop() {
         Serial.println("spin reverse");
       }
 
+      if (controller.button(DOWN)) {
+        Serial.println((imu.getAngle() * RAD_2_DEG));
+        Serial.println();
+      }
+
+      if (controller.button(UP)) {
+        Serial.println(accel.getVelocity());
+        Serial.println();
+      }
+
     } else {
 
       setStatusLED(false);
@@ -341,7 +367,6 @@ void loop() {
 
       run = false;
       Serial.println("no remote");
-      Serial.println((imu.getAngle() * RAD_2_DEG) + 180);
     }
 
     updateSensors();

@@ -21,7 +21,7 @@ float Accelerometers::update() {
   unsigned long curTime;
   curTime = micros();
 
-  uint32_t raw[2] = {0};
+  uint32_t raw[2] = {0, 0};
   readADC(raw[0], raw[1]);
 
   // calculate velocity

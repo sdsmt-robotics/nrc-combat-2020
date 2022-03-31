@@ -6,8 +6,6 @@
 #include "filter.h"
 
 #define PI_2 2.0 * PI
-#define DEG_2_RAD PI / 180
-#define RAD_2_DEG 180 / PI
 
 class IMU {
 public:
