@@ -40,26 +40,23 @@ uint8_t registerRead(uint8_t address)
   uint8_t regValue = 0;
   Serial1.write(SYNC_BYTE);
   Serial1.write(CMD_RREG | (address << 1));
+  while (!Serial1.available()) {}
   regValue = Serial1.read();
+  Serial1.flush();
   return regValue;
 }
 
-void write_ADC(bool adc_num,uint8_t register_addr,uint8_t data)
+void write_ADC(uint8_t register_addr,uint8_t data)
 {
-  digitalWrite(ADC_SELECT, adc_num);
-  Serial.print("Writing to ADC ");
-  Serial.println(adc_num+1);
-  delay(1);
   registerWrite(register_addr,data);
-
-
 }
 
 uint8_t read_ADC(bool adc_num,uint8_t register_addr)
 {
   digitalWrite(ADC_SELECT, adc_num);
-  delay(1);
-  return registerRead(0x04);
+  uint8_t data = registerRead(register_addr);
+  return data;
+  
   
 }
 void setup()
@@ -103,24 +100,23 @@ void loop()
 
   // delay(100);
 
-  write_ADC(ADC1,0x04,0xAA);
-  delay(1);
-  write_ADC(ADC2,0x04,0x55);
+write_ADC(0x01,(1<<1)); // Set external reference as voltage source
+uint8_t data1 = read_ADC(ADC2,0x01);
+write_ADC(0x01, (1<<2));
+uint8_t data2 = read_ADC(ADC1,0x01);
+Serial.print(data1);
+Serial.print("\t");
+Serial.println(data2,HEX);
 
+delay(100);
 
+// write_ADC(0x01,(1<<2));
+// delay(100);
+// uint8_t data2 = read_ADC(ADC1,0x01);
+// Serial.print("\t");
+// Serial.println(data2,HEX);
 
-  delay(1);
-  uint8_t data1 = read_ADC(ADC2,0x04);
-  delay(1);
-  uint8_t data2 = read_ADC(ADC1,0x04);
-
-  Serial.print("ADC1: ");
-  Serial.print(data1,HEX);
-  Serial.print("\tADC2: ");
-  Serial.println(data2,HEX);
-
-  
-  delay(1000);
+// delay(100);
 
   // digitalWrite(ADC_SELECT,LOW);
 
