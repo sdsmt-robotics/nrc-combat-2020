@@ -434,12 +434,14 @@ void loop() {
       // disable robot
       robot_enabled = false;
       // Serial.println("no remote");
-      Serial.print(e1.getSpeed());
-      Serial.print("\t");
-      Serial.print(e2.getSpeed());
-      Serial.print("\t");
-      Serial.print(e3.getSpeed());
-      Serial.println();
+      // Serial.print(e1.getSpeed());
+      // Serial.print("\t");
+      // Serial.print(e2.getSpeed());
+      // Serial.print("\t");
+      // Serial.print(e3.getSpeed());
+      // Serial.print("\t");
+      // Serial.print(imu.getAngle());
+      // Serial.println();
     }
 
     updateSensors();
