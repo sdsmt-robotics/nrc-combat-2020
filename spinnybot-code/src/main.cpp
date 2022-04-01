@@ -17,12 +17,9 @@
 #define LED_STRIP_2 27
 #define LED_STRIP_3 14
 
-#define ENC_1A 36
-#define ENC_1B 39
-#define ENC_2A 34
-#define ENC_2B 35
-#define ENC_3A 12
-#define ENC_3B 13
+#define ENC_1 36
+#define ENC_2 39
+#define ENC_3 34
 
 #define ADC_SELECT 23
 #define ADC_RX 19
@@ -43,9 +40,9 @@
 
 IMU imu;
 
-// Encoder e1(ENC_1A, ENC_1B, 360);
-// Encoder e2(ENC_2A, ENC_2B, 360);
-// Encoder e3(ENC_3A, ENC_3B, 360);
+Encoder e1(ENC_1, 360);
+Encoder e2(ENC_2, 360);
+Encoder e3(ENC_3, 360);
 
 Accelerometers accel(Serial1, ADC_SELECT, ADC_TX,
                      ADC_RX); // note: tx and rx are fliped
@@ -112,9 +109,9 @@ void initSensors() {
   accel.init();
 
   // init encoders
-  //  e1.init();
-  //  e2.init();
-  //  e3.init();
+  e1.init();
+  e2.init();
+  e3.init();
 }
 
 /**
@@ -126,6 +123,11 @@ void updateSensors() {
 
   // update accelerometers
   accel.update();
+
+  // update encoders
+  e1.update();
+  e2.update();
+  e3.update();
 }
 
 // ---- MOTOR FUNCTIONS ----
@@ -431,7 +433,13 @@ void loop() {
 
       // disable robot
       robot_enabled = false;
-      Serial.println("no remote");
+      // Serial.println("no remote");
+      Serial.print(e1.getSpeed());
+      Serial.print("\t");
+      Serial.print(e2.getSpeed());
+      Serial.print("\t");
+      Serial.print(e3.getSpeed());
+      Serial.println();
     }
 
     updateSensors();

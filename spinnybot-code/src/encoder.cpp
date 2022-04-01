@@ -1,6 +1,8 @@
 #include "encoder.h"
 
-Encoder *Encoder::instance;
+unsigned Encoder::instance_count = 0;
+Encoder **Encoder::instances = nullptr;
+
 /**
    @brief Constructor for the class.
 
@@ -8,9 +10,9 @@ Encoder *Encoder::instance;
    @param bPin - second encoder pin.
    @param ticksPerRotation - Number of encoder ticks per rotation.
 */
-Encoder::Encoder(int aPin, int bPin, int ticksPerRotation)
-    : aPin(aPin), bPin(bPin), ticksPerRotation(ticksPerRotation),
-      speedFilter(100, 100, 0.08) { // speedFilter(300, 300, 0.025)
+Encoder::Encoder(int pin, int ticksPerRotation) : filter(100, 100, 0.08) {
+  _pin = pin;
+  _ticksPerRotation = ticksPerRotation;
 }
 
 /**
@@ -18,59 +20,51 @@ Encoder::Encoder(int aPin, int bPin, int ticksPerRotation)
 */
 void Encoder::init() {
   // Setup control pins
-  pinMode(aPin, INPUT_PULLUP);
-  pinMode(bPin, INPUT_PULLUP);
+  pinMode(_pin, INPUT_PULLUP);
 
   // Set up the encoder interrupt pin
-  int intNumA = digitalPinToInterrupt(aPin);
-  int intNumB = digitalPinToInterrupt(bPin);
-  instance = this;
-  attachInterrupt(intNumA, Encoder::isrA, CHANGE);
-  attachInterrupt(intNumB, Encoder::isrB, CHANGE);
-
-  // Get the register and bit for the pins to make the ISR a bit faster
-  aPinRegister = portInputRegister(digitalPinToPort(aPin));
-  aPinBit = digitalPinToBitMask(aPin);
-  bPinRegister = portInputRegister(digitalPinToPort(bPin));
-  bPinBit = digitalPinToBitMask(bPin);
+  instance_count++;
+  instances =
+      (Encoder **)realloc(instances, instance_count * sizeof(Encoder *));
+  instances[instance_count - 1] = this;
+  void (*isr)();
+  switch (instance_count) {
+  case 1:
+    isr = []() { Encoder::isr(0); };
+    break;
+  case 2:
+    isr = []() { Encoder::isr(1); };
+    break;
+  case 3:
+    isr = []() { Encoder::isr(2); };
+    break;
+  default:
+    isr = []() {};
+    break;
+  }
+  attachInterrupt(digitalPinToInterrupt(_pin), isr, CHANGE);
 
   // initialize the timer
   lastTickTime = micros();
-  lastEstTime = lastTickTime;
+  lastUpdateTime = lastTickTime;
 }
-
-/**
-   @brief set whether the encodeer's readings should be inverted.
-
-   @param invertDir - true if should be inverted, false otherwise
-*/
-void Encoder::invertDirection(bool invertDir) { this->invertDir = invertDir; }
 
 /**
    Update the current speed estimate and return the filtered value.
 */
-int Encoder::estimateSpeed() {
+void Encoder::update() {
   // Calculate the speed if we got a tick. Otherwise assume 0.
-  if (lastTickTime != lastEstTime) {
-    speed = ticks * (tickConversion / (lastTickTime - lastEstTime));
+  if (lastTickTime != lastUpdateTime) {
+    speed = tick_count * (tickConversion / (lastTickTime - lastUpdateTime));
   } else {
     speed = 0;
   }
 
   // Reset things
-  lastEstTime = lastTickTime;
-  ticks = 0;
+  lastUpdateTime = lastTickTime;
+  tick_count = 0;
 
-  // Invert if needed
-  if (invertDir) {
-    speed = -speed;
-  }
-
-  // Filter
-  filteredSpeed = speedFilter.updateEstimate(speed);
-
-  // Return the speed
-  return filteredSpeed;
+  filtered_speed = filter.updateEstimate(speed);
 }
 
 /**
@@ -78,41 +72,16 @@ int Encoder::estimateSpeed() {
 
    @return the current speed of the motor.
 */
-int Encoder::getSpeed() { return speed; }
+int Encoder::getSpeed() { return filtered_speed; }
 
-/**
-   @brief Get the filtered current speed the motor is running at in RPMs.
-
-   @return the filtered current speed of the motor.
-*/
-int Encoder::getFilteredSpeed() { return filteredSpeed; }
-
-/**
-   Count a tick and set the last tick time.
-
-   NOTE: This ISR takes about 8 microseconds.
-
-   @param trigA - interrupt triggered by channel A or no.
-*/
-void Encoder::tick(bool trigA) {
-  lastTickTime = micros();
-
-  // Get current pin values
-  bool aLevel = (*aPinRegister) & aPinBit;
-  bool bLevel = (*bPinRegister) & bPinBit;
-
-  // Increase or decrease depending on combination and which pin triggered the
-  // interrupt
-  if (trigA != (aLevel == bLevel)) {
-    ++ticks;
-  } else {
-    --ticks;
-  }
-}
+int Encoder::getUnfilteredSpeed() { return speed; }
 
 /**
    @brief Handle interrupt. Forward it to stored instance.
 */
-void Encoder::isrA() { instance->tick(true); }
+void Encoder::isr(unsigned instance_num) { instances[instance_num]->tick(); }
 
-void Encoder::isrB() { instance->tick(false); }
+void Encoder::tick() {
+  lastTickTime = micros();
+  tick_count++;
+}
