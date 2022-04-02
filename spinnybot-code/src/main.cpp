@@ -86,6 +86,9 @@ Controller controller(Serial2);
 float x = 0;
 float y = 0;
 
+//Offset for facing direction, FIXME need values for offset
+float imuOffset = 0;
+
 // spin speed
 //  range -1 to 1, negative is reverse
 float spin = 0;
@@ -364,6 +367,10 @@ void loop() {
       x = controller.joystick(RIGHT, X);
       y = controller.joystick(RIGHT, Y);
 
+      //adjust angle/facing direction?   -FIXME, adjust to find proper offset
+      imuOffset += (controller.joystick(LEFT, X));
+
+
       if (controller.dpadClick(UP) && robot_enabled) {
         if (flip) {
           spin -= 0.1;
@@ -455,7 +462,7 @@ void loop() {
 
       // run motors
       if (!full_send) {
-        updateDrive(spin, x, y, imu.getAngle());
+        updateDrive(spin, x, y, imu.getAngle() + imuOffset);
 
         // set led strips to purple
         fillLEDs(255, 0, 255);
