@@ -29,6 +29,8 @@
 #define MOTOR_3 25
 #define MOTOR_3_RMT_CHANNEL 5
 
+#define CONTROLLER_SERIAL Serial2
+
 // ---- MISC ----
 
 #define ADAFRUIT_RMT_CHANNEL_MAX 3 // LED strips can use 3 RMT channels 0 - 2
