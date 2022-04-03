@@ -15,12 +15,12 @@ public:
 
   uint32_t makeColor(uint8_t r, uint8_t g, uint8_t b);
 
-  const uint32_t YELLOW = Adafruit_NeoPixel::Color(255, 255, 0);
-  const uint32_t RED = Adafruit_NeoPixel::Color(255, 0, 0);
-  const uint32_t GREEN = Adafruit_NeoPixel::Color(0, 255, 0);
-  const uint32_t BLUE = Adafruit_NeoPixel::Color(0, 0, 255);
-  const uint32_t PURPLE = Adafruit_NeoPixel::Color(255, 0, 255);
-  const uint32_t WHITE = Adafruit_NeoPixel::Color(255, 255, 255);
+  static const uint32_t YELLOW;
+  static const uint32_t RED;
+  static const uint32_t GREEN;
+  static const uint32_t BLUE;
+  static const uint32_t PURPLE;
+  static const uint32_t WHITE;
 
 private:
   uint32_t data[NUM_LEDS];
