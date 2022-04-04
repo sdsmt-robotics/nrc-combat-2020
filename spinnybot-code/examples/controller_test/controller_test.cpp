@@ -136,7 +136,7 @@ void setup() {
     while (!controller.connected()) {
         delay(10);
     }
-    Serial.println("Connected...");
+    Serial.println("Connected!");
 
     // set a deadzone for the joysticks
     controller.setJoyDeadzone(0.08);

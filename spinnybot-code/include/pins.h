@@ -22,7 +22,7 @@
 #define ADC_RX 19
 #define ADC_TX 18
 
-#define MOTOR_1 32
+#define MOTOR_1 15
 #define MOTOR_1_RMT_CHANNEL 3
 #define MOTOR_2 33
 #define MOTOR_2_RMT_CHANNEL 4
