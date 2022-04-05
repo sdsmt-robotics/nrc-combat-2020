@@ -1,40 +1,14 @@
 #include <Arduino.h>
 #include <math.h>
 
-#include "accelerometer.h"
+// #include "accelerometer.h"
 #include "controller.h"
 #include "encoder.h"
 #include "imu.h"
 #include "led.h"
 #include "motor.h"
 
-// ---- PINS ----
-
-#define STATUS_LED_PIN 5
-#define ESP_STATUS_LED_PIN 2 // internal led on esp32 (its the blue one)
-
-#define LED_STRIP_1 26
-#define LED_STRIP_2 27
-#define LED_STRIP_3 14
-
-#define ENC_1 36
-#define ENC_2 39
-#define ENC_3 34
-
-#define ADC_SELECT 23
-#define ADC_RX 19
-#define ADC_TX 18
-
-#define MOTOR_1 32
-#define MOTOR_1_RMT_CHANNEL 3
-#define MOTOR_2 33
-#define MOTOR_2_RMT_CHANNEL 4
-#define MOTOR_3 25
-#define MOTOR_3_RMT_CHANNEL 5
-
-// ---- MISC ----
-
-#define ADAFRUIT_RMT_CHANNEL_MAX 3 // LED strips can use 3 RMT channels 0 - 2
+#include "pins.h"
 
 // ---- SENSOR STUFF ----
 
@@ -44,8 +18,9 @@ Encoder e1(ENC_1, 360);
 Encoder e2(ENC_2, 360);
 Encoder e3(ENC_3, 360);
 
-Accelerometers accel(Serial1, ADC_SELECT, ADC_TX,
+/* Accelerometers accel(Serial1, ADC_SELECT, ADC_TX,
                      ADC_RX); // note: tx and rx are fliped
+                     */
 
 // ---- LED STUFF ----
 
@@ -86,7 +61,7 @@ Controller controller(Serial2);
 float x = 0;
 float y = 0;
 
-//Offset for facing direction, FIXME need values for offset
+// Offset for facing direction, FIXME need values for offset
 float imuOffset = 0;
 
 // spin speed
@@ -109,7 +84,7 @@ void initSensors() {
   }
 
   // init accelerometers
-  accel.init();
+  // accel.init();
 
   // init encoders
   e1.init();
@@ -125,7 +100,7 @@ void updateSensors() {
   imu.update();
 
   // update accelerometers
-  accel.update();
+  // accel.update();
 
   // update encoders
   e1.update();
@@ -194,11 +169,11 @@ void updateDrive(float spin, float x, float y, float angle) {
   // define variables and constants for calculation
   int power[3] = {0, 0, 0};
 
-  const float PI2_OVER_3 = 2 * PI / 3;
+  const static float PI2_OVER_3 = 2 * PI / 3;
 
-  const float m1_offset = 0.0;
-  const float m2_offset = PI2_OVER_3;
-  const float m3_offset = -PI2_OVER_3;
+  const static float m1_offset = 0.0;
+  const static float m2_offset = PI2_OVER_3;
+  const static float m3_offset = -PI2_OVER_3;
 
   float phase = PI2_OVER_3;
 
@@ -310,6 +285,35 @@ void fillLEDs(uint8_t red, uint8_t green, uint8_t blue) {
   strip3.fillColor(strip3.makeColor(red, green, blue));
 }
 
+void updateStrips(uint32_t color, float angle) {
+
+  const static float s1_offset = PI / 3;
+  const static float s2_offset = PI;
+  const static float s3_offset = -PI / 3;
+
+  const static float angle_range = PI / 12;
+
+  strip1.fillColor(color);
+  strip2.fillColor(color);
+  strip3.fillColor(color);
+
+  if (fabs(angle - s1_offset) < angle_range) {
+    strip1.setBrightness(255);
+  } else {
+    strip1.setBrightness(0);
+  }
+  if (fabs(angle - s2_offset) < angle_range) {
+    strip2.setBrightness(255);
+  } else {
+    strip2.setBrightness(0);
+  }
+  if (fabs(angle - s3_offset) < angle_range) {
+    strip3.setBrightness(255);
+  } else {
+    strip3.setBrightness(0);
+  }
+}
+
 // ---- MAIN FUNCTIONS ----
 
 void setup() {
@@ -367,9 +371,8 @@ void loop() {
       x = controller.joystick(RIGHT, X);
       y = controller.joystick(RIGHT, Y);
 
-      //adjust angle/facing direction?   -FIXME, adjust to find proper offset
+      // adjust angle/facing direction?   -FIXME, adjust to find proper offset
       imuOffset += (controller.joystick(LEFT, X));
-
 
       if (controller.dpadClick(UP) && robot_enabled) {
         if (flip) {
@@ -419,7 +422,7 @@ void loop() {
       }
 
       if (controller.button(UP)) {
-        Serial.println(accel.getVelocity());
+        // Serial.println(accel.getVelocity());
         Serial.println();
       }
 
@@ -465,7 +468,7 @@ void loop() {
         updateDrive(spin, x, y, imu.getAngle() + imuOffset);
 
         // set led strips to purple
-        fillLEDs(255, 0, 255);
+        updateStrips(strip1.PURPLE, imu.getAngle());
 
       } else {
         // full send mode

@@ -16,6 +16,7 @@ public:
   uint32_t readData();
 
 private:
+  float normalizeAngle(float angle);
   ADS122U04 adc;
 };
 

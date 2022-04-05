@@ -1,5 +1,4 @@
 #include "accelerometer.h"
-#include "driver\uart.h"
 
 Accelerometers::Accelerometers(HardwareSerial &serial, int mux_pin, int rx,
                                int tx)
@@ -12,8 +11,10 @@ Accelerometers::Accelerometers(HardwareSerial &serial, int mux_pin, int rx,
 void Accelerometers::init() {
   pinMode(_mux_pin, OUTPUT);
   digitalWrite(_mux_pin, LOW);
+  delay(12);
   adc1.init(115200, _rx_pin, _tx_pin);
   digitalWrite(_mux_pin, HIGH);
+  delay(12);
   adc2.init(115200, _rx_pin, _tx_pin);
 }
 
@@ -61,16 +62,16 @@ float Accelerometers::integrate(float deltaT) {
 void Accelerometers::readADC(uint32_t &v1, uint32_t &v2) {
   digitalWrite(_mux_pin, LOW);
   v1 = adc1.readData();
-  digitalWrite(_mux_pin, HIGH);
+  // digitalWrite(_mux_pin, HIGH);
   v2 = adc2.readData();
 }
 
 float Accelerometers::normalizeAngle(float angle) {
-  if (angle > PI) {
+  if (angle > PI_2) {
     do {
       angle -= PI_2;
     } while (angle > PI);
-  } else {
+  } else if (angle < PI_2) {
     do {
       angle += PI_2;
     } while (angle < -PI);

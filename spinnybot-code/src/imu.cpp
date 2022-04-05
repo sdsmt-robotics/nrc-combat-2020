@@ -72,7 +72,7 @@ bool IMU::readIMU() {
 
   if (readSuccess) {
     // Add the new value
-    filter.filter((gyro.gyro.z - drift) * DEG_TO_RAD);
+    filter.filter((gyro.gyro.z - drift));
   }
 
   // imu was ready
@@ -116,11 +116,11 @@ void IMU::calibrate(int num_readings) {
 }
 
 float IMU::normalizeAngle(float angle) {
-  if (angle > PI) {
+  if (angle > PI_2) {
     do {
       angle -= PI_2;
     } while (angle > PI);
-  } else {
+  } else if (angle < PI_2) {
     do {
       angle += PI_2;
     } while (angle < -PI);
