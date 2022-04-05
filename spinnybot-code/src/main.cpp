@@ -7,34 +7,10 @@
 #include "imu.h"
 #include "led.h"
 #include "motor.h"
+#include "pins.h"
 
-// ---- PINS ----
-
-#define STATUS_LED_PIN 5
-#define ESP_STATUS_LED_PIN 2 // internal led on esp32 (its the blue one)
-
-#define LED_STRIP_1 26
-#define LED_STRIP_2 27
-#define LED_STRIP_3 14
-
-#define ENC_1 36
-#define ENC_2 39
-#define ENC_3 34
-
-#define ADC_SELECT 23
-#define ADC_RX 19
-#define ADC_TX 18
-
-#define MOTOR_1 32
-#define MOTOR_1_RMT_CHANNEL 3
-#define MOTOR_2 33
-#define MOTOR_2_RMT_CHANNEL 4
-#define MOTOR_3 25
-#define MOTOR_3_RMT_CHANNEL 5
-
-// ---- MISC ----
-
-#define ADAFRUIT_RMT_CHANNEL_MAX 3 // LED strips can use 3 RMT channels 0 - 2
+#define DEBUG_PRINTLN(str) Serial.println(str)  // For testing
+//#define DEBUG_PRINTLN   // For release
 
 // ---- SENSOR STUFF ----
 
@@ -79,7 +55,7 @@ long last_loop = micros();
 
 // ---- CONTROLLER STUFF ----
 
-Controller controller(Serial2);
+Controller controller(CONTROLLER_SERIAL);
 
 // movement
 // range -1 to 1, negative is reverse
@@ -259,13 +235,8 @@ void updateDrive(float spin, float x, float y, float angle) {
    @param on true = on, false = off
 */
 void setStatusLED(bool on) {
-  if (on) {
-    digitalWrite(STATUS_LED_PIN, HIGH);
-    digitalWrite(ESP_STATUS_LED_PIN, HIGH);
-  } else {
-    digitalWrite(STATUS_LED_PIN, LOW);
-    digitalWrite(ESP_STATUS_LED_PIN, LOW);
-  }
+  digitalWrite(STATUS_LED_PIN, on);
+  digitalWrite(ESP_STATUS_LED_PIN, on);
 }
 
 /**
@@ -316,16 +287,25 @@ void setup() {
 
   Serial.begin(115200);
 
+  DEBUG_PRINTLN("Initializing LEDs...");
   initLEDs();
 
   // set LED strips to red
   fillLEDs(255, 0, 0);
   showLEDStrips();
 
+  DEBUG_PRINTLN("Initializing controller...");
   controller.init();
+  Serial.println("Waiting for connection...");
+  while (!controller.connected()) {
+      delay(10);
+  }
+  Serial.println("Connected!");
 
+  DEBUG_PRINTLN("Initializing Sensors...");
   initSensors();
 
+  DEBUG_PRINTLN("Initializing motors...");
   initMotors();
 
   // set LED strips to yellow
@@ -337,6 +317,8 @@ void setup() {
   // set LED strips to green
   fillLEDs(0, 255, 0);
   showLEDStrips();
+  
+  DEBUG_PRINTLN("Done! Beginning main loop.");
 }
 
 void loop() {
