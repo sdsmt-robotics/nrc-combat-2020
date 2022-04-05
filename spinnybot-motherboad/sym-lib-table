@@ -17,4 +17,6 @@
   (lib (name "MC14504BDR2G")(type "KiCad")(uri "${KIPRJMOD}/lib/MC14504BDR2G_logic_level_shifter/MC14504BDR2G.kicad_sym")(options "")(descr ""))
   (lib (name "B4B-PH-SM4-TB")(type "Legacy")(uri "${KIPRJMOD}/lib/JST-PH-THT/B4B-PH-SM4-TB.lib")(options "")(descr ""))
   (lib (name "S4B-PH-SM4-TB")(type "Legacy")(uri "${KIPRJMOD}/lib/JST-PH-THT/S4B-PH-SM4-TB.lib")(options "")(descr ""))
+  (lib (name "B2B-PH-SM4-TB(LF)(SN)")(type "Legacy")(uri "${KIPRJMOD}/lib/JST-PH-THT/B2B-PH-SM4-TB(LF)(SN).lib")(options "")(descr ""))
+  (lib (name "esc_4in1")(type "KiCad")(uri "${KIPRJMOD}/lib/esc_4in1/esc_4in1.kicad_sym")(options "")(descr ""))
 )
