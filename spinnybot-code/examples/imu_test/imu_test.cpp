@@ -6,21 +6,28 @@
 
 #include <Arduino.h>
 
-IMU imu;
+#define OLD_BOARD
+
+#ifdef OLD_BOARD
+#define IMU_PIN  22
+IMU imu(IMU_PIN);
+#else
+IMU imu();
+#endif
 
 const long LOOP_INTERVAL = 1000;  // microsec
-const long PRINT_INTERVAL = 500;  // millisec
+const long PRINT_INTERVAL = 50;  // millisec
 
 void setup() {
     Serial.begin(115200);
 
     // init IMU
-    Serial.println("Initializing IMU...");
+    //Serial.println("Initializing IMU...");
     if (!imu.init()) {
-        Serial.println("IMU fail init.");
+        //Serial.println("IMU fail init.");
         while (true) {delay(1);}
     } 
-    Serial.println("Done!");
+    //Serial.println("Done!");
 }
 
 void loop() {
@@ -33,11 +40,9 @@ void loop() {
         lastUpdate = millis();
     }
 
-    // Print at fixed interval
+    //Print at fixed interval
     if (millis() - lastPrint > PRINT_INTERVAL) {
-        Serial.print(imu.getVelocity() * RAD_TO_DEG, 1);
-        Serial.print("\t");
-        Serial.println(imu.getAngle() * RAD_TO_DEG, 1);
+        Serial.printf("r:%0.1f\tv:%0.1f\ta%0.1f\n", imu.getRawVelocity() * RAD_TO_DEG, imu.getVelocity() * RAD_TO_DEG, imu.getAngle()*RAD_TO_DEG);
         lastPrint = millis();
     }
 }
