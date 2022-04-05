@@ -1,20 +1,20 @@
 #include "imu.h"
 
-IMU ::IMU() : filter(3) {
+IMU ::IMU() : filter(1, 1, 0.08) {
   _cs_pin = -1;
   _sck_pin = -1;
   _miso_pin = -1;
   _mosi_pin = -1;
 }
 
-IMU::IMU(int cs) : filter(3) {
+IMU::IMU(int cs) : IMU() {
   _cs_pin = cs;
   _sck_pin = -1;
   _miso_pin = -1;
   _mosi_pin = -1;
 }
 
-IMU::IMU(int cs, int sck, int miso, int mosi) : filter(3) {
+IMU::IMU(int cs, int sck, int miso, int mosi) : IMU() {
   _cs_pin = cs;
   _sck_pin = sck;
   _miso_pin = miso;
@@ -72,7 +72,8 @@ bool IMU::readIMU() {
 
   if (readSuccess) {
     // Add the new value
-    filter.filter((gyro.gyro.z - drift));
+    last_value = gyro.gyro.z - drift;
+    last_filter_value = filter.updateEstimate(last_value);
   }
 
   // imu was ready
@@ -80,30 +81,16 @@ bool IMU::readIMU() {
 }
 
 float IMU::integrate(float deltaT) {
-  // based off of simpsons 1/3 to find the approximate integral
 
-  // Add the new value to the rolling array
-  gyroVals[valsMidIdx] =
-      filter.getFilteredVal(); // TODO: Using this filter seems a bit sus.
-  if (valsMidIdx >= 2) {
-    valsMidIdx = 0;
-  }
-
-  // compute simpsons 1/3 for the past three values
-  angle +=
-      ((gyroVals[0] + gyroVals[1] + gyroVals[2] + 3 * gyroVals[valsMidIdx]) /
-       3) *
-      deltaT;
-
-  // update the new mid of the array
-  ++valsMidIdx;
+  angle += (last_filter_value + last_value) / 2 * deltaT;
+  last_value = last_filter_value;
 
   return angle;
 }
 
 float IMU::getAngle() { return angle; }
 
-float IMU::getVelocity() { return filter.getFilteredVal(); }
+float IMU::getVelocity() { return last_filter_value; }
 
 void IMU::calibrate(int num_readings) {
   drift = 0;
@@ -116,21 +103,16 @@ void IMU::calibrate(int num_readings) {
 }
 
 float IMU::normalizeAngle(float angle) {
-  if (angle > PI_2) {
+  if (angle > PI) {
     do {
       angle -= PI_2;
     } while (angle > PI);
-  } else if (angle < PI_2) {
-    do {
+  } else {
+    while (angle < -PI) {
       angle += PI_2;
-    } while (angle < -PI);
+    }
   }
   return angle;
 }
 
-void IMU::reset() {
-  angle = 0.0;
-  for (int i = 0; i < 3; i++)
-    gyroVals[i] = 0;
-  last_update = micros();
-}
+void IMU::reset() { angle = 0.0; }

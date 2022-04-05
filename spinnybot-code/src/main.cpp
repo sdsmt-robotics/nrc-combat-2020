@@ -40,6 +40,8 @@ const int SPIN_MIN_POWER = 100; // min motor power when enabled
 // max movement power. this is the magnitude of max power when moving
 const int TRANS_MAX_POWER = 50;
 
+const int FULL_SEND_POWER = 800;
+
 const long MOTOR_INIT_TIME = 4000; // wait time for motor init in miliseconds
 
 const long MOTOR_UPDATE_INTERVAL = 10; // motor update loop time in microseconds
@@ -417,12 +419,14 @@ void loop() {
       }
 
       if (controller.button(DOWN)) {
-        Serial.println((imu.getAngle() * RAD_2_DEG));
+        Serial.print("angle: \t");
+        Serial.print((imu.getAngle() * RAD_2_DEG));
         Serial.println();
       }
 
       if (controller.button(UP)) {
-        // Serial.println(accel.getVelocity());
+        Serial.print("accel: \t");
+        Serial.print("");
         Serial.println();
       }
 
@@ -443,15 +447,6 @@ void loop() {
 
       // disable robot
       robot_enabled = false;
-      // Serial.println("no remote");
-      // Serial.print(e1.getSpeed());
-      // Serial.print("\t");
-      // Serial.print(e2.getSpeed());
-      // Serial.print("\t");
-      // Serial.print(e3.getSpeed());
-      // Serial.print("\t");
-      // Serial.print(imu.getAngle());
-      // Serial.println();
     }
 
     updateSensors();
@@ -473,9 +468,9 @@ void loop() {
       } else {
         // full send mode
         if (flip) {
-          sendAllMotorPower(-1000);
+          // sendAllMotorPower(-FULL_SEND_POWER);
         } else {
-          sendAllMotorPower(1000);
+          // sendAllMotorPower(FULL_SEND_POWER);
         }
         // set led strips to red
         fillLEDs(255, 0, 0);
