@@ -3,7 +3,7 @@
 
 #include <Adafruit_ICM20649.h>
 
-#include "filter.h"
+#include <SimpleKalmanFilter.h>
 
 #define PI_2 2.0 * PI
 #define DEG_2_RAD PI / 180
@@ -12,10 +12,13 @@
 class IMU {
 public:
   IMU();
+  IMU(int cs, int sck, int miso, int mosi);
+  IMU(int cs);
   bool init();
   void update();
   void calibrate(int num_readings = 1000);
   float getAngle();
+  float getVelocity();
   void reset();
 
 private:
@@ -25,7 +28,7 @@ private:
 
   Adafruit_ICM20649 imu;
 
-  Filter filter;
+  SimpleKalmanFilter filter;
 
   sensors_event_t gyro;
   sensors_event_t accel;
@@ -38,8 +41,13 @@ private:
 
   long last_update = 0;
 
-  float gyroVals[3] = {0, 0, 0};
-  int valsMidIdx = 0;
+  float last_value = 0;
+  float last_filter_value = 0;
+
+  int _cs_pin = 0;
+  int _sck_pin = 0;
+  int _miso_pin = 0;
+  int _mosi_pin = 0;
 };
 
 #endif
