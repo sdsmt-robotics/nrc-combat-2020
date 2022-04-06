@@ -7,6 +7,7 @@
 #include "imu.h"
 #include "led.h"
 #include "motor.h"
+#include "pins.h"
 
 #include "pins.h"
 
@@ -56,7 +57,7 @@ long last_loop = micros();
 
 // ---- CONTROLLER STUFF ----
 
-Controller controller(Serial2);
+Controller controller(CONTROLLER_SERIAL);
 
 // movement
 // range -1 to 1, negative is reverse
@@ -236,13 +237,8 @@ void updateDrive(float spin, float x, float y, float angle) {
    @param on true = on, false = off
 */
 void setStatusLED(bool on) {
-  if (on) {
-    digitalWrite(STATUS_LED_PIN, HIGH);
-    digitalWrite(ESP_STATUS_LED_PIN, HIGH);
-  } else {
-    digitalWrite(STATUS_LED_PIN, LOW);
-    digitalWrite(ESP_STATUS_LED_PIN, LOW);
-  }
+  digitalWrite(STATUS_LED_PIN, on);
+  digitalWrite(ESP_STATUS_LED_PIN, on);
 }
 
 /**
@@ -329,6 +325,11 @@ void setup() {
   showLEDStrips();
 
   controller.init();
+  Serial.println("Waiting for connection...");
+  while (!controller.connected()) {
+      delay(10);
+  }
+  Serial.println("Connected!");
 
   initSensors();
 
@@ -420,7 +421,7 @@ void loop() {
 
       if (controller.button(DOWN)) {
         Serial.print("angle: \t");
-        Serial.print((imu.getAngle() * RAD_2_DEG));
+        Serial.print((imu.getAngle() * RAD_TO_DEG));
         Serial.println();
       }
 
