@@ -79,7 +79,6 @@ int Encoder::getSpeed() { return filtered_speed; }
 
 int Encoder::getUnfilteredSpeed() { return speed; }
 
-
 /**
  * Get the total number of rotations moved by the motor.
  * 

@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <math.h>
 
-#include "accelerometer.h"
+// #include "accelerometer.h"
 #include "controller.h"
 #include "encoder.h"
 #include "imu.h"
@@ -9,8 +9,7 @@
 #include "motor.h"
 #include "pins.h"
 
-#define DEBUG_PRINTLN(str) Serial.println(str)  // For testing
-//#define DEBUG_PRINTLN   // For release
+#include "pins.h"
 
 // ---- SENSOR STUFF ----
 
@@ -20,8 +19,9 @@ Encoder e1(ENC_1, 360);
 Encoder e2(ENC_2, 360);
 Encoder e3(ENC_3, 360);
 
-Accelerometers accel(Serial1, ADC_SELECT, ADC_TX,
+/* Accelerometers accel(Serial1, ADC_SELECT, ADC_TX,
                      ADC_RX); // note: tx and rx are fliped
+                     */
 
 // ---- LED STUFF ----
 
@@ -40,6 +40,8 @@ const int SPIN_MIN_POWER = 100; // min motor power when enabled
 
 // max movement power. this is the magnitude of max power when moving
 const int TRANS_MAX_POWER = 50;
+
+const int FULL_SEND_POWER = 800;
 
 const long MOTOR_INIT_TIME = 4000; // wait time for motor init in miliseconds
 
@@ -62,7 +64,7 @@ Controller controller(CONTROLLER_SERIAL);
 float x = 0;
 float y = 0;
 
-//Offset for facing direction, FIXME need values for offset
+// Offset for facing direction, FIXME need values for offset
 float imuOffset = 0;
 
 // spin speed
@@ -85,7 +87,7 @@ void initSensors() {
   }
 
   // init accelerometers
-  accel.init();
+  // accel.init();
 
   // init encoders
   e1.init();
@@ -101,7 +103,7 @@ void updateSensors() {
   imu.update();
 
   // update accelerometers
-  accel.update();
+  // accel.update();
 
   // update encoders
   e1.update();
@@ -170,11 +172,11 @@ void updateDrive(float spin, float x, float y, float angle) {
   // define variables and constants for calculation
   int power[3] = {0, 0, 0};
 
-  const float PI2_OVER_3 = 2 * PI / 3;
+  const static float PI2_OVER_3 = 2 * PI / 3;
 
-  const float m1_offset = 0.0;
-  const float m2_offset = PI2_OVER_3;
-  const float m3_offset = -PI2_OVER_3;
+  const static float m1_offset = 0.0;
+  const static float m2_offset = PI2_OVER_3;
+  const static float m3_offset = -PI2_OVER_3;
 
   float phase = PI2_OVER_3;
 
@@ -281,20 +283,47 @@ void fillLEDs(uint8_t red, uint8_t green, uint8_t blue) {
   strip3.fillColor(strip3.makeColor(red, green, blue));
 }
 
+void updateStrips(uint32_t color, float angle) {
+
+  const static float s1_offset = PI / 3;
+  const static float s2_offset = PI;
+  const static float s3_offset = -PI / 3;
+
+  const static float angle_range = PI / 12;
+
+  strip1.fillColor(color);
+  strip2.fillColor(color);
+  strip3.fillColor(color);
+
+  if (fabs(angle - s1_offset) < angle_range) {
+    strip1.setBrightness(255);
+  } else {
+    strip1.setBrightness(0);
+  }
+  if (fabs(angle - s2_offset) < angle_range) {
+    strip2.setBrightness(255);
+  } else {
+    strip2.setBrightness(0);
+  }
+  if (fabs(angle - s3_offset) < angle_range) {
+    strip3.setBrightness(255);
+  } else {
+    strip3.setBrightness(0);
+  }
+}
+
 // ---- MAIN FUNCTIONS ----
 
 void setup() {
 
   Serial.begin(115200);
 
-  DEBUG_PRINTLN("Initializing LEDs...");
   initLEDs();
 
   // set LED strips to red
   fillLEDs(255, 0, 0);
   showLEDStrips();
 
-  DEBUG_PRINTLN("Initializing controller...");
   controller.init();
   Serial.println("Waiting for connection...");
   while (!controller.connected()) {
@@ -302,10 +331,8 @@ void setup() {
   }
   Serial.println("Connected!");
 
-  DEBUG_PRINTLN("Initializing Sensors...");
   initSensors();
 
-  DEBUG_PRINTLN("Initializing motors...");
   initMotors();
 
   // set LED strips to yellow
@@ -317,8 +344,6 @@ void setup() {
   // set LED strips to green
   fillLEDs(0, 255, 0);
   showLEDStrips();
-  
-  DEBUG_PRINTLN("Done! Beginning main loop.");
 }
 
 void loop() {
@@ -349,9 +374,8 @@ void loop() {
       x = controller.joystick(RIGHT, X);
       y = controller.joystick(RIGHT, Y);
 
-      //adjust angle/facing direction?   -FIXME, adjust to find proper offset
+      // adjust angle/facing direction?   -FIXME, adjust to find proper offset
       imuOffset += (controller.joystick(LEFT, X));
-
 
       if (controller.dpadClick(UP) && robot_enabled) {
         if (flip) {
@@ -396,12 +420,14 @@ void loop() {
       }
 
       if (controller.button(DOWN)) {
-        Serial.println((imu.getAngle() * RAD_2_DEG));
+        Serial.print("angle: \t");
+        Serial.print((imu.getAngle() * RAD_2_DEG));
         Serial.println();
       }
 
       if (controller.button(UP)) {
-        Serial.println(accel.getVelocity());
+        Serial.print("accel: \t");
+        Serial.print("");
         Serial.println();
       }
 
@@ -410,6 +436,20 @@ void loop() {
         Serial.println("FULL SEND!!!");
       } else {
         full_send = false;
+      }
+
+      // re-arm motors when power is reapplyed
+      if (controller.joyButtonClick(LEFT)) {
+        // set LED strips to yellow
+        fillLEDs(255, 255, 0);
+        showLEDStrips();
+
+        // arm sequence
+        armMotors();
+
+        // set LED strips to green
+        fillLEDs(0, 255, 0);
+        showLEDStrips();
       }
 
     } else {
@@ -422,15 +462,6 @@ void loop() {
 
       // disable robot
       robot_enabled = false;
-      // Serial.println("no remote");
-      // Serial.print(e1.getSpeed());
-      // Serial.print("\t");
-      // Serial.print(e2.getSpeed());
-      // Serial.print("\t");
-      // Serial.print(e3.getSpeed());
-      // Serial.print("\t");
-      // Serial.print(imu.getAngle());
-      // Serial.println();
     }
 
     updateSensors();
@@ -447,14 +478,14 @@ void loop() {
         updateDrive(spin, x, y, imu.getAngle() + imuOffset);
 
         // set led strips to purple
-        fillLEDs(255, 0, 255);
+        updateStrips(strip1.PURPLE, imu.getAngle());
 
       } else {
         // full send mode
         if (flip) {
-          sendAllMotorPower(-1000);
+          // sendAllMotorPower(-FULL_SEND_POWER);
         } else {
-          sendAllMotorPower(1000);
+          // sendAllMotorPower(FULL_SEND_POWER);
         }
         // set led strips to red
         fillLEDs(255, 0, 0);

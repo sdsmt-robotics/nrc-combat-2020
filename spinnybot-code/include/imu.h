@@ -4,7 +4,7 @@
 #include <Adafruit_ICM20649.h>
 #include <SimpleKalmanFilter.h>
 
-#include "filter.h"
+#include <SimpleKalmanFilter.h>
 
 #define PI_2 2.0 * PI
 
@@ -28,7 +28,6 @@ private:
 
   Adafruit_ICM20649 imu;
 
-  //Filter filter;
   SimpleKalmanFilter filter;
 
   sensors_event_t gyro;
