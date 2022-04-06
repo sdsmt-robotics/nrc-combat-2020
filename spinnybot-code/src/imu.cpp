@@ -116,3 +116,5 @@ float IMU::normalizeAngle(float angle) {
 }
 
 void IMU::reset() { angle = 0.0; }
+
+void IMU::modifyDrift(float a) { drift += a; }

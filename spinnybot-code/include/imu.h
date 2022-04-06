@@ -21,6 +21,8 @@ public:
   float getVelocity();
   void reset();
 
+  void modifyDrift(float a);
+
 private:
   float normalizeAngle(float angle);
   bool readIMU();

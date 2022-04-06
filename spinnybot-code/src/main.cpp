@@ -40,7 +40,7 @@ const int SPIN_MIN_POWER = 100; // min motor power when enabled
 // max movement power. this is the magnitude of max power when moving
 const int TRANS_MAX_POWER = 50;
 
-const int FULL_SEND_POWER = 800;
+const int FULL_SEND_POWER = 500;
 
 const long MOTOR_INIT_TIME = 4000; // wait time for motor init in miliseconds
 
@@ -64,7 +64,7 @@ float x = 0;
 float y = 0;
 
 // Offset for facing direction, FIXME need values for offset
-float imuOffset = 0;
+float imu_offset = 0;
 
 // spin speed
 //  range -1 to 1, negative is reverse
@@ -73,6 +73,10 @@ float spin = 0;
 bool flip = false;
 
 bool full_send = false;
+
+// variables
+
+float body_angle = 0;
 
 // ---- SENSOR FUNCTIONS ----
 
@@ -108,6 +112,8 @@ void updateSensors() {
   e1.update();
   e2.update();
   e3.update();
+
+  body_angle = imu.getAngle() + imu_offset;
 }
 
 // ---- MOTOR FUNCTIONS ----
@@ -166,25 +172,25 @@ void updateDrive(float spin, float x, float y, float angle) {
   // constrain inputs to prevent problems with math
   spin = constrain(spin, -1.0, 1.0);
   x = constrain(x, -1.0, 1.0);
-  y = constrain(y, -1.0, 1.0);
+  y = constrain(-y, -1.0, 1.0);
 
   // define variables and constants for calculation
   int power[3] = {0, 0, 0};
 
   const static float PI2_OVER_3 = 2 * PI / 3;
 
-  const static float m1_offset = 0.0;
-  const static float m2_offset = PI2_OVER_3;
+  const static float m1_offset = PI2_OVER_3;
+  const static float m2_offset = 0.0;
   const static float m3_offset = -PI2_OVER_3;
 
-  float phase = PI2_OVER_3;
+  float phase = 0;
 
   float spin_power = 0;
 
   float trans_power = TRANS_MAX_POWER * sqrtf((x * x) + (y * y));
   float trans_phase = atan2f(y, x);
 
-  float comp_angle = angle + trans_phase;
+  float comp_angle = trans_phase + angle;
 
   if (spin > 0) {
 
@@ -193,10 +199,15 @@ void updateDrive(float spin, float x, float y, float angle) {
     comp_angle += phase;
 
     spin_power = SPIN_MIN_POWER + ((SPIN_MAX_POWER - SPIN_MIN_POWER) * spin);
+    spin_power = 0;
 
-    power[0] = (spin_power + (trans_power * sinf(comp_angle + m1_offset)));
-    power[1] = (spin_power + (trans_power * sinf(comp_angle + m2_offset)));
-    power[2] = (spin_power + (trans_power * sinf(comp_angle + m3_offset)));
+    power[0] = (spin_power + (trans_power * sinf(m1_offset - comp_angle)));
+    power[1] = (spin_power + (trans_power * sinf(m2_offset - comp_angle)));
+    power[2] = (spin_power + (trans_power * sinf(m3_offset - comp_angle)));
+
+    // power[0] = (spin_power + (trans_power * sinf(comp_angle + m1_offset)));
+    // power[1] = (spin_power + (trans_power * sinf(comp_angle + m2_offset)));
+    // power[2] = (spin_power + (trans_power * sinf(comp_angle + m3_offset)));
 
   } else if (spin < 0) {
 
@@ -206,9 +217,13 @@ void updateDrive(float spin, float x, float y, float angle) {
 
     spin_power = -SPIN_MIN_POWER + ((SPIN_MAX_POWER - SPIN_MIN_POWER) * spin);
 
-    power[0] = (spin_power - (trans_power * sinf(comp_angle + m1_offset)));
-    power[1] = (spin_power - (trans_power * sinf(comp_angle + m2_offset)));
-    power[2] = (spin_power - (trans_power * sinf(comp_angle + m3_offset)));
+    power[0] = (spin_power - (trans_power * sinf(m1_offset - comp_angle)));
+    power[1] = (spin_power - (trans_power * sinf(m2_offset - comp_angle)));
+    power[2] = (spin_power - (trans_power * sinf(m3_offset - comp_angle)));
+
+    // power[0] = (spin_power - (trans_power * sinf(comp_angle + m1_offset)));
+    // power[1] = (spin_power - (trans_power * sinf(comp_angle + m2_offset)));
+    // power[2] = (spin_power - (trans_power * sinf(comp_angle + m3_offset)));
   }
 
   // // debug
@@ -276,6 +291,15 @@ void showLEDStrips() {
 }
 
 /**
+   @brief Updates all LED strip brightnesses.
+*/
+void setLEDStripBrightness(uint8_t b) {
+  strip1.setBrightness(b);
+  strip2.setBrightness(b);
+  strip3.setBrightness(b);
+}
+
+/**
    @brief Sets all LED strips to RGB color.
    @param red red 0 to 255
    @param green red 0 to 255
@@ -289,30 +313,26 @@ void fillLEDs(uint8_t red, uint8_t green, uint8_t blue) {
 
 void updateStrips(uint32_t color, float angle) {
 
-  const static float s1_offset = PI / 3;
-  const static float s2_offset = PI;
-  const static float s3_offset = -PI / 3;
+  const static float s1_offset = -PI / 3;
+  const static float s2_offset = PI / 3;
+  const static float s3_offset = PI;
 
   const static float angle_range = PI / 12;
 
-  strip1.fillColor(color);
-  strip2.fillColor(color);
-  strip3.fillColor(color);
-
   if (fabs(angle - s1_offset) < angle_range) {
-    strip1.setBrightness(255);
+    strip1.fillColor(color);
   } else {
-    strip1.setBrightness(0);
+    strip1.fillColor(strip1.makeColor(0, 0, 0));
   }
   if (fabs(angle - s2_offset) < angle_range) {
-    strip2.setBrightness(255);
+    strip2.fillColor(color);
   } else {
-    strip2.setBrightness(0);
+    strip2.fillColor(strip2.makeColor(0, 0, 0));
   }
   if (fabs(angle - s3_offset) < angle_range) {
-    strip3.setBrightness(255);
+    strip3.fillColor(color);
   } else {
-    strip3.setBrightness(0);
+    strip3.fillColor(strip3.makeColor(0, 0, 0));
   }
 }
 
@@ -329,6 +349,7 @@ void setup() {
   showLEDStrips();
 
   controller.init();
+  controller.setJoyDeadzone(0.1);
 
   initSensors();
 
@@ -374,7 +395,15 @@ void loop() {
       y = controller.joystick(RIGHT, Y);
 
       // adjust angle/facing direction?   -FIXME, adjust to find proper offset
-      imuOffset += (controller.joystick(LEFT, X));
+      imu_offset += (controller.joystick(LEFT, X) * 0.005);
+
+      // gyro drift comensation
+      if (controller.dpadClick(RIGHT) && robot_enabled) {
+        imu.modifyDrift(0.1);
+      }
+      if (controller.dpadClick(LEFT) && robot_enabled) {
+        imu.modifyDrift(-0.1);
+      }
 
       if (controller.dpadClick(UP) && robot_enabled) {
         if (flip) {
@@ -474,17 +503,17 @@ void loop() {
 
       // run motors
       if (!full_send) {
-        updateDrive(spin, x, y, imu.getAngle() + imuOffset);
+        updateDrive(spin, x, y, body_angle);
 
         // set led strips to purple
-        updateStrips(strip1.PURPLE, imu.getAngle());
+        updateStrips(strip1.PURPLE, body_angle);
 
       } else {
         // full send mode
         if (flip) {
-          // sendAllMotorPower(-FULL_SEND_POWER);
+          sendAllMotorPower(-FULL_SEND_POWER);
         } else {
-          // sendAllMotorPower(FULL_SEND_POWER);
+          sendAllMotorPower(FULL_SEND_POWER);
         }
         // set led strips to red
         fillLEDs(255, 0, 0);

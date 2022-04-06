@@ -12,6 +12,8 @@ public:
   void update();
   int getSpeed();
   int getUnfilteredSpeed();
+  float getPos();
+  void resetPos();
 
 private:
   void tick();
@@ -24,6 +26,7 @@ private:
   int _pin;
 
   volatile int tick_count = 0; // Number of ticks since last speed estimate
+  volatile long totTicks = 0;  // Current position
 
   volatile int speed; // current speed of the motor in rpm
   int filtered_speed;
@@ -37,6 +40,7 @@ private:
 
   // Conversion from (ticks / us) -> (rot / min)
   int _ticksPerRotation = 360;
+  float _rotationsPerTick = 1 / float(_ticksPerRotation);
   unsigned long tickConversion = 1000000ul * 60 / _ticksPerRotation;
 
   SimpleKalmanFilter filter;
