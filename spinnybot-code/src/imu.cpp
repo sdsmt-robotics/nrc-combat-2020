@@ -120,8 +120,6 @@ float IMU::getRawVelocity() {
     return lastVal;
 }
 
-float IMU::getVelocity() { return last_filter_value; }
-
 void IMU::calibrate(int num_readings) {
     drift = 0;
     for (int i = 0; i < num_readings; i++) {

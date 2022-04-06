@@ -421,7 +421,7 @@ void loop() {
 
       if (controller.button(DOWN)) {
         Serial.print("angle: \t");
-        Serial.print((imu.getAngle() * RAD_2_DEG));
+        Serial.print((imu.getAngle() * RAD_TO_DEG));
         Serial.println();
       }
 

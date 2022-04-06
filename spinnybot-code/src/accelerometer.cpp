@@ -1,5 +1,4 @@
 #include "accelerometer.h"
-#include "driver\uart.h"
 
 Accelerometers::Accelerometers(HardwareSerial &serial, int mux_pin, int rx,
                                int tx)
