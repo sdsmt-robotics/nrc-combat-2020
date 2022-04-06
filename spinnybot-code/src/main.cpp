@@ -437,6 +437,20 @@ void loop() {
         full_send = false;
       }
 
+      // re-arm motors when power is reapplyed
+      if (controller.joyButtonClick(LEFT)) {
+        // set LED strips to yellow
+        fillLEDs(255, 255, 0);
+        showLEDStrips();
+
+        // arm sequence
+        armMotors();
+
+        // set LED strips to green
+        fillLEDs(0, 255, 0);
+        showLEDStrips();
+      }
+
     } else {
 
       // controller disconnected
