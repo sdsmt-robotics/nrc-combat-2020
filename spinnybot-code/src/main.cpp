@@ -2,6 +2,7 @@
 #include <math.h>
 
 // #include "accelerometer.h"
+#include "constants.h"
 #include "controller.h"
 #include "driveFuncs.h"
 #include "encoder.h"
@@ -10,8 +11,9 @@
 #include "motor.h"
 #include "ota.h"
 #include "pins.h"
+#include "utility.h"
 
-#define AP_SSID "SPINNY"
+#define AP_SSID "SPINNY" // ssid for robot
 
 // ---- SENSOR STUFF ----
 
@@ -36,16 +38,6 @@ LedStrip strip3(LED_STRIP_3);
 Motor m1(MOTOR_1, MOTOR_1_RMT_CHANNEL);
 Motor m2(MOTOR_2, MOTOR_2_RMT_CHANNEL);
 Motor m3(MOTOR_3, MOTOR_3_RMT_CHANNEL);
-
-const int SPIN_MAX_POWER = 300; // max motor power when enabled
-const int SPIN_MIN_POWER = 100; // min motor power when enabled
-
-// max movement power. this is the magnitude of max power when moving
-const int TRANS_MAX_POWER = 50;
-
-const int FULL_SEND_POWER = 500;
-
-const long MOTOR_INIT_TIME = 2000; // wait time for motor init in miliseconds
 
 const long MOTOR_UPDATE_INTERVAL = 10; // motor update loop time in microseconds
 long last_motor_update = micros();
@@ -251,17 +243,19 @@ void updateStrips(uint32_t color, float angle) {
 
   const static float angle_range = PI / 12;
 
-  if (fabs(angle - s1_offset) < angle_range) {
+  float norm_angle = normalizeAngle(angle);
+
+  if (fabs(norm_angle - s1_offset) < angle_range) {
     strip1.fillColor(color);
   } else {
     strip1.fillColor(strip1.makeColor(0, 0, 0));
   }
-  if (fabs(angle - s2_offset) < angle_range) {
+  if (fabs(norm_angle - s2_offset) < angle_range) {
     strip2.fillColor(color);
   } else {
     strip2.fillColor(strip2.makeColor(0, 0, 0));
   }
-  if (fabs(angle - s3_offset) < angle_range) {
+  if (fabs(norm_angle - s3_offset) < angle_range) {
     strip3.fillColor(color);
   } else {
     strip3.fillColor(strip3.makeColor(0, 0, 0));

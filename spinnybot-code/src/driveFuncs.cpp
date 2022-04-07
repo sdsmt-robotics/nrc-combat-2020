@@ -1,12 +1,5 @@
 #include "driveFuncs.h"
-
-const float PI2_OVER_3 = 2 * PI / 3;
-
-const int SPIN_MAX_POWER = 300; // max motor power when enabled
-const int SPIN_MIN_POWER = 100; // min motor power when enabled
-
-// max movement power. this is the magnitude of max power when moving
-const int TRANS_MAX_POWER = 50;
+#include "constants.h"
 
 /**
    @brief Updates all sensors.
