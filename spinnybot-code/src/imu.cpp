@@ -151,7 +151,7 @@ float IMU::normalizeAngle(float angle) {
 
 void IMU::reset() {
     angle = 0.0;
-    for (int i = 0; i < 3; i++)
-        gyroVals[i] = 0;
     last_update = micros();
 }
+
+void IMU::modifyDrift(float a) { drift += a; }
