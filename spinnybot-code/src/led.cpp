@@ -1,5 +1,13 @@
 #include "led.h"
 
+// Define some colors
+const uint32_t LedStrip::YELLOW = Adafruit_NeoPixel::Color(255, 255, 0);
+const uint32_t LedStrip::RED = Adafruit_NeoPixel::Color(255, 0, 0);
+const uint32_t LedStrip::GREEN = Adafruit_NeoPixel::Color(0, 255, 0);
+const uint32_t LedStrip::BLUE = Adafruit_NeoPixel::Color(0, 0, 255);
+const uint32_t LedStrip::PURPLE = Adafruit_NeoPixel::Color(255, 0, 255);
+const uint32_t LedStrip::WHITE = Adafruit_NeoPixel::Color(255, 255, 255);
+
 LedStrip::LedStrip(int pin) : strip(NUM_LEDS, pin, NEO_GRB + NEO_KHZ800) {}
 
 void LedStrip::init() {

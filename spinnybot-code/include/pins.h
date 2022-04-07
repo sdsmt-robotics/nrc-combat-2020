@@ -31,6 +31,10 @@
 
 #define CONTROLLER_SERIAL Serial2
 
+#define ADC_SELECT 23
+#define ADC_RX 19
+#define ADC_TX 18
+
 // ---- MISC ----
 
 #define ADAFRUIT_RMT_CHANNEL_MAX 3 // LED strips can use 3 RMT channels 0 - 2

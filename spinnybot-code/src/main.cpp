@@ -7,8 +7,8 @@
 #include "imu.h"
 #include "led.h"
 #include "motor.h"
-
 #include "pins.h"
+#include "driveFuncs.h"
 
 // ---- SENSOR STUFF ----
 
@@ -56,7 +56,7 @@ long last_loop = micros();
 
 // ---- CONTROLLER STUFF ----
 
-Controller controller(Serial2);
+Controller controller(CONTROLLER_SERIAL);
 
 // movement
 // range -1 to 1, negative is reverse
@@ -168,75 +168,9 @@ void armMotors() {
    @param angle Current angle of robot in radians
 */
 void updateDrive(float spin, float x, float y, float angle) {
-
-  // constrain inputs to prevent problems with math
-  spin = constrain(spin, -1.0, 1.0);
-  x = constrain(x, -1.0, 1.0);
-  y = constrain(-y, -1.0, 1.0);
-
-  // define variables and constants for calculation
+  // Calculate the power
   int power[3] = {0, 0, 0};
-
-  const static float PI2_OVER_3 = 2 * PI / 3;
-
-  const static float m1_offset = PI2_OVER_3;
-  const static float m2_offset = 0.0;
-  const static float m3_offset = -PI2_OVER_3;
-
-  float phase = 0;
-
-  float spin_power = 0;
-
-  float trans_power = TRANS_MAX_POWER * sqrtf((x * x) + (y * y));
-  float trans_phase = atan2f(y, x);
-
-  float comp_angle = trans_phase + angle;
-
-  if (spin > 0) {
-
-    // robot upright
-
-    comp_angle += phase;
-
-    spin_power = SPIN_MIN_POWER + ((SPIN_MAX_POWER - SPIN_MIN_POWER) * spin);
-    spin_power = 0;
-
-    power[0] = (spin_power + (trans_power * sinf(m1_offset - comp_angle)));
-    power[1] = (spin_power + (trans_power * sinf(m2_offset - comp_angle)));
-    power[2] = (spin_power + (trans_power * sinf(m3_offset - comp_angle)));
-
-    // power[0] = (spin_power + (trans_power * sinf(comp_angle + m1_offset)));
-    // power[1] = (spin_power + (trans_power * sinf(comp_angle + m2_offset)));
-    // power[2] = (spin_power + (trans_power * sinf(comp_angle + m3_offset)));
-
-  } else if (spin < 0) {
-
-    // robot fliped over
-
-    comp_angle -= phase;
-
-    spin_power = -SPIN_MIN_POWER + ((SPIN_MAX_POWER - SPIN_MIN_POWER) * spin);
-
-    power[0] = (spin_power - (trans_power * sinf(m1_offset - comp_angle)));
-    power[1] = (spin_power - (trans_power * sinf(m2_offset - comp_angle)));
-    power[2] = (spin_power - (trans_power * sinf(m3_offset - comp_angle)));
-
-    // power[0] = (spin_power - (trans_power * sinf(comp_angle + m1_offset)));
-    // power[1] = (spin_power - (trans_power * sinf(comp_angle + m2_offset)));
-    // power[2] = (spin_power - (trans_power * sinf(comp_angle + m3_offset)));
-  }
-
-  // // debug
-  // if (!controller.button(DOWN)) {
-  //   Serial.print(power[0]);
-  //   Serial.print("\t");
-  //   Serial.print(power[1]);
-  //   Serial.print("\t");
-  //   Serial.print(power[2]);
-  //   Serial.print("\t");
-  //   Serial.println();
-  // }
-  // // end debug
+  calcDrivePower(power, spin, x, y, angle);
 
   // update motor power
   m1.set_speed_signed(power[0]);
@@ -251,13 +185,8 @@ void updateDrive(float spin, float x, float y, float angle) {
    @param on true = on, false = off
 */
 void setStatusLED(bool on) {
-  if (on) {
-    digitalWrite(STATUS_LED_PIN, HIGH);
-    digitalWrite(ESP_STATUS_LED_PIN, HIGH);
-  } else {
-    digitalWrite(STATUS_LED_PIN, LOW);
-    digitalWrite(ESP_STATUS_LED_PIN, LOW);
-  }
+  digitalWrite(STATUS_LED_PIN, on);
+  digitalWrite(ESP_STATUS_LED_PIN, on);
 }
 
 /**
@@ -352,7 +281,6 @@ void setup() {
   controller.setJoyDeadzone(0.1);
 
   initSensors();
-
   initMotors();
 
   // set LED strips to yellow
@@ -391,7 +319,7 @@ void loop() {
         Serial.println("stop");
       }
 
-      x = controller.joystick(RIGHT, X);
+      x = -controller.joystick(RIGHT, X);  // For some stupid reason, the x-axis is inverted.
       y = controller.joystick(RIGHT, Y);
 
       // adjust angle/facing direction?   -FIXME, adjust to find proper offset
@@ -449,7 +377,7 @@ void loop() {
 
       if (controller.button(DOWN)) {
         Serial.print("angle: \t");
-        Serial.print((imu.getAngle() * RAD_2_DEG));
+        Serial.print((imu.getAngle() * RAD_TO_DEG));
         Serial.println();
       }
 

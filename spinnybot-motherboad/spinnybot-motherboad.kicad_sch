@@ -34,6 +34,26 @@
         )
       )
     )
+    (symbol "esc_4in1:ESC_Hobbywing_X-Rotor_Micro_60A_4in1" (in_bom yes) (on_board yes)
+      (property "Reference" "A" (id 0) (at 0 5.08 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Value" "ESC_Hobbywing_X-Rotor_Micro_60A_4in1" (id 1) (at 2.54 -5.08 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Footprint" "" (id 2) (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "Datasheet" "" (id 3) (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (symbol "ESC_Hobbywing_X-Rotor_Micro_60A_4in1_0_1"
+        (rectangle (start -3.81 3.81) (end 3.81 -3.81)
+          (stroke (width 0.1524) (type default) (color 0 0 0 0))
+          (fill (type none))
+        )
+      )
+    )
   )
 
 
@@ -57,7 +77,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 1a944fdc-545f-4431-ac6d-079a580d57cb)
   )
-  (label "LEDSTRIP_GROUND" (at 34.29 30.48 180)
+  (label "LEDSTRIP_GND" (at 34.29 30.48 180)
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 1cdc13d0-0562-43fe-9f83-196c608fed60)
   )
@@ -234,6 +254,40 @@
     (uuid fda4afc3-081c-4f15-bb5b-45065ad853c7)
   )
 
+  (symbol (lib_id "Mechanical:MountingHole") (at 97.79 153.67 90) (unit 1)
+    (in_bom yes) (on_board yes)
+    (uuid 12290910-e1c4-4f12-a089-9b99be24c1fc)
+    (property "Reference" "H7" (id 0) (at 101.6 153.0349 90)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Value" "STRAINHOLE1" (id 1) (at 101.6 155.5749 90)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Footprint" "custom:StrainHole_3.3mm" (id 2) (at 97.79 153.67 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "~" (id 3) (at 97.79 153.67 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+  )
+
+  (symbol (lib_id "Mechanical:MountingHole") (at 97.79 158.75 90) (unit 1)
+    (in_bom yes) (on_board yes)
+    (uuid 149f0dc4-9b74-4a1a-a37b-7eb355956a7a)
+    (property "Reference" "H8" (id 0) (at 101.6 158.1149 90)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Value" "STRAINHOLE2" (id 1) (at 101.6 160.6549 90)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Footprint" "custom:StrainHole_3.3mm" (id 2) (at 97.79 158.75 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "~" (id 3) (at 97.79 158.75 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+  )
+
   (symbol (lib_id "Mechanical:MountingHole") (at 49.53 153.67 90) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 25c1e513-beba-4338-8887-6cc51a2fa209)
@@ -247,23 +301,6 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 49.53 153.67 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-  )
-
-  (symbol (lib_id "Mechanical:MountingHole") (at 75.565 159.385 90) (unit 1)
-    (in_bom yes) (on_board yes)
-    (uuid 44671e4b-c3f2-40ce-9f5f-ae56c7ceee2e)
-    (property "Reference" "H5" (id 0) (at 79.375 158.7499 90)
-      (effects (font (size 1.27 1.27)) (justify right))
-    )
-    (property "Value" "STRAINHOLE2" (id 1) (at 79.375 161.2899 90)
-      (effects (font (size 1.27 1.27)) (justify right))
-    )
-    (property "Footprint" "custom:MountingHole_3.3mm" (id 2) (at 75.565 159.385 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "~" (id 3) (at 75.565 159.385 0)
       (effects (font (size 1.27 1.27)) hide)
     )
   )
@@ -285,6 +322,23 @@
     )
   )
 
+  (symbol (lib_id "esc_4in1:ESC_Hobbywing_X-Rotor_Micro_60A_4in1") (at 50.8 134.62 0) (unit 1)
+    (in_bom yes) (on_board yes) (fields_autoplaced)
+    (uuid 4b51d6df-63b9-43fa-a920-8afa01c20793)
+    (property "Reference" "A1" (id 0) (at 55.88 133.3499 0)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Value" "ESC_Hobbywing_X-Rotor_Micro_60A_4in1" (id 1) (at 55.88 135.8899 0)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Footprint" "esc_4in1:ESC_Hobbywing_X-Rotor_Micro_60A_4in1" (id 2) (at 50.8 134.62 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (id 3) (at 50.8 134.62 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+  )
+
   (symbol (lib_id "Mechanical:MountingHole") (at 49.53 158.75 90) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 4daec26f-7303-4f29-a6dc-74eca012aa20)
@@ -302,36 +356,36 @@
     )
   )
 
-  (symbol (lib_id "Mechanical:MountingHole") (at 75.565 153.67 90) (unit 1)
+  (symbol (lib_id "Mechanical:MountingHole") (at 74.93 153.67 90) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 90a0860f-dc0f-486d-8126-ac86f257452e)
-    (property "Reference" "H2" (id 0) (at 79.375 153.0349 90)
+    (property "Reference" "H2" (id 0) (at 78.74 153.0349 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Value" "STRAINHOLE1" (id 1) (at 79.375 155.5749 90)
+    (property "Value" "STRAINHOLE1" (id 1) (at 78.74 155.5749 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Footprint" "custom:MountingHole_3.3mm" (id 2) (at 75.565 153.67 0)
+    (property "Footprint" "custom:StrainHole_3.3mm" (id 2) (at 74.93 153.67 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "~" (id 3) (at 75.565 153.67 0)
+    (property "Datasheet" "~" (id 3) (at 74.93 153.67 0)
       (effects (font (size 1.27 1.27)) hide)
     )
   )
 
-  (symbol (lib_id "Mechanical:MountingHole") (at 75.565 164.465 90) (unit 1)
+  (symbol (lib_id "Mechanical:MountingHole") (at 74.93 158.75 90) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid b2df31ea-f8d8-459e-bfc0-eb9493f3925c)
-    (property "Reference" "H6" (id 0) (at 79.375 163.8299 90)
+    (property "Reference" "H6" (id 0) (at 78.74 158.1149 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Value" "STRAINHOLE3" (id 1) (at 79.375 166.3699 90)
+    (property "Value" "STRAINHOLE3" (id 1) (at 78.74 160.6549 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Footprint" "custom:MountingHole_3.3mm" (id 2) (at 75.565 164.465 0)
+    (property "Footprint" "custom:StrainHole_3.3mm" (id 2) (at 74.93 158.75 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "~" (id 3) (at 75.565 164.465 0)
+    (property "Datasheet" "~" (id 3) (at 74.93 158.75 0)
       (effects (font (size 1.27 1.27)) hide)
     )
   )
@@ -841,6 +895,42 @@
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/1fb341b7-0ae8-49b7-8f4d-fa9dfaf3f00f"
       (reference "#PWR0158") (unit 1) (value "GND") (footprint "")
     )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/a1997d00-0973-4d95-9ad2-3287fdb6a7f3"
+      (reference "#PWR0159") (unit 1) (value "+12V") (footprint "")
+    )
+    (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/811a126f-af81-408b-b995-c71a53fb4dcf"
+      (reference "#PWR0160") (unit 1) (value "+5V") (footprint "")
+    )
+    (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/c0477393-31e8-40d5-b090-5fa2eaf7ba72"
+      (reference "#PWR0161") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/21ec218a-c3e6-455b-aabf-2344360cc627/a11a1092-e37f-4ec4-b7b8-bb97675efd3a"
+      (reference "#PWR0162") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/21ec218a-c3e6-455b-aabf-2344360cc627/4c0fe780-1ab0-4b5e-84ed-aa98c88947b8"
+      (reference "#PWR0163") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/21ec218a-c3e6-455b-aabf-2344360cc627/ecfe8de0-fd68-43f8-9e1d-43e5cb862b63"
+      (reference "#PWR0164") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/21ec218a-c3e6-455b-aabf-2344360cc627/8fcfd145-b0e1-4bf3-8237-f3d3a8642f27"
+      (reference "#PWR0165") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/63151d2c-c4e6-4f75-94c3-ad61a0505834"
+      (reference "#PWR0166") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/b6338eda-846c-4d61-9775-8bb6d52342a5"
+      (reference "#PWR0167") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/71a5c200-18da-49d9-ada9-3d449eff9934"
+      (reference "#PWR0168") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/6d809136-4cf3-4f1a-adab-cd2cf7d878eb"
+      (reference "#PWR0169") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/4b51d6df-63b9-43fa-a920-8afa01c20793"
+      (reference "A1") (unit 1) (value "ESC_Hobbywing_X-Rotor_Micro_60A_4in1") (footprint "esc_4in1:ESC_Hobbywing_X-Rotor_Micro_60A_4in1")
+    )
     (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/b5ccd461-2bb6-4e55-889d-c413ead53e97"
       (reference "C1") (unit 1) (value "10u") (footprint "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder")
     )
@@ -886,6 +976,21 @@
     (path "/21ec218a-c3e6-455b-aabf-2344360cc627/1452141b-10e2-474f-895e-0b99f87909f8"
       (reference "C15") (unit 1) (value "0.1u") (footprint "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder")
     )
+    (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/f2e08b75-fd87-4baa-ad55-1c9105e4b2b3"
+      (reference "C16") (unit 1) (value "0.1u") (footprint "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder")
+    )
+    (path "/21ec218a-c3e6-455b-aabf-2344360cc627/2ff3c808-3720-495b-94ed-93c1b50d07a3"
+      (reference "C17") (unit 1) (value "10nF") (footprint "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder")
+    )
+    (path "/21ec218a-c3e6-455b-aabf-2344360cc627/8a7a634b-ec2a-4ff4-a8a9-458b7a5db762"
+      (reference "C18") (unit 1) (value "10nF") (footprint "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder")
+    )
+    (path "/21ec218a-c3e6-455b-aabf-2344360cc627/26a5c2f1-46b1-43c9-a449-f73749b64b3e"
+      (reference "C19") (unit 1) (value "10nF") (footprint "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder")
+    )
+    (path "/21ec218a-c3e6-455b-aabf-2344360cc627/327fb736-17b4-47ae-81c8-b695fd893bf2"
+      (reference "C20") (unit 1) (value "10nF") (footprint "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder")
+    )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/3a70fd2b-a806-469d-9f0c-ee34936794ca"
       (reference "D1") (unit 1) (value "12V") (footprint "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder")
     )
@@ -905,7 +1010,7 @@
       (reference "H1") (unit 1) (value "MOUNTINGHOLE1") (footprint "custom:MountingHole_3.3mm")
     )
     (path "/90a0860f-dc0f-486d-8126-ac86f257452e"
-      (reference "H2") (unit 1) (value "STRAINHOLE1") (footprint "custom:MountingHole_3.3mm")
+      (reference "H2") (unit 1) (value "STRAINHOLE1") (footprint "custom:StrainHole_3.3mm")
     )
     (path "/4daec26f-7303-4f29-a6dc-74eca012aa20"
       (reference "H3") (unit 1) (value "MOUNTINGHOLE2") (footprint "custom:MountingHole_3.3mm")
@@ -913,11 +1018,14 @@
     (path "/46524ba4-2ecc-479c-af36-cb42a7e87bc8"
       (reference "H4") (unit 1) (value "MOUNTINGHOLE3") (footprint "custom:MountingHole_3.3mm")
     )
-    (path "/44671e4b-c3f2-40ce-9f5f-ae56c7ceee2e"
-      (reference "H5") (unit 1) (value "STRAINHOLE2") (footprint "custom:MountingHole_3.3mm")
-    )
     (path "/b2df31ea-f8d8-459e-bfc0-eb9493f3925c"
-      (reference "H6") (unit 1) (value "STRAINHOLE3") (footprint "custom:MountingHole_3.3mm")
+      (reference "H6") (unit 1) (value "STRAINHOLE3") (footprint "custom:StrainHole_3.3mm")
+    )
+    (path "/12290910-e1c4-4f12-a089-9b99be24c1fc"
+      (reference "H7") (unit 1) (value "STRAINHOLE1") (footprint "custom:StrainHole_3.3mm")
+    )
+    (path "/149f0dc4-9b74-4a1a-a37b-7eb355956a7a"
+      (reference "H8") (unit 1) (value "STRAINHOLE2") (footprint "custom:StrainHole_3.3mm")
     )
     (path "/ce9f0f17-1862-4671-a57d-feb3cf47b091/205531ef-2109-472f-bb9a-44bf26b6d265"
       (reference "J1") (unit 1) (value "ENCODER 1") (footprint "S4B-PH-SM4-TB:S4B-PH-SM4-TBLFSN")
@@ -944,13 +1052,13 @@
       (reference "J8") (unit 1) (value "BAT_POS") (footprint "Connector_Wire:SolderWirePad_1x01_SMD_5x10mm")
     )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/a923e568-7e66-4b54-9b31-57960a65fa25"
-      (reference "J9") (unit 1) (value "POWER SW1") (footprint "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal")
+      (reference "J9") (unit 1) (value "POWER SW1") (footprint "B2B-PH-SM4-TB(LF)(SN):B2B-PH-SM4-TBLFSN")
     )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/21a22a9e-8cdd-4970-8092-31ac5119bd77"
       (reference "J10") (unit 1) (value "ESC_POS") (footprint "custom:Stitched_SolderWirePad_1x01_SMD_5x10mm")
     )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/914db2dc-fdb3-4d66-9e7f-79c06cd2d446"
-      (reference "J11") (unit 1) (value "POWER SW2") (footprint "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal")
+      (reference "J11") (unit 1) (value "POWER SW2") (footprint "B2B-PH-SM4-TB(LF)(SN):B2B-PH-SM4-TBLFSN")
     )
     (path "/ce9f0f17-1862-4671-a57d-feb3cf47b091/ecf6560b-605e-4fad-afc3-1d7b63192ec3"
       (reference "J12") (unit 1) (value "LEDSTRIP3") (footprint "B3B-PH-SM4:JST_B3B-PH-SM4-TB(LF)(SN)")
@@ -1000,8 +1108,8 @@
     (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/d0970793-bd16-44cb-bb17-e9e1a84a98f6"
       (reference "Q3") (unit 1) (value "BC846") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
-    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/88fd15be-578b-4ca3-91ea-89015b1f1275"
-      (reference "Q4") (unit 1) (value "Q_NMOS_DGS") (footprint "Package_TO_SOT_SMD:SOT-23")
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/f0dbaadd-ba79-4a6d-9adc-6c69bd452189"
+      (reference "Q4") (unit 1) (value "BC846") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
     (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/e7abde3d-6220-41d5-9644-246078bc1b18"
       (reference "R1") (unit 1) (value "130") (footprint "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder")
@@ -1022,7 +1130,7 @@
       (reference "R6") (unit 1) (value "1k") (footprint "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder")
     )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/653d95be-c4a8-4fa8-97ef-ccb2d016bca4"
-      (reference "R7") (unit 1) (value "150k") (footprint "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder")
+      (reference "R7") (unit 1) (value "15k") (footprint "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder")
     )
     (path "/21ec218a-c3e6-455b-aabf-2344360cc627/77802b16-b9e2-4918-8827-c5da15b25eb0"
       (reference "R8") (unit 1) (value "10k") (footprint "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder")
@@ -1030,11 +1138,20 @@
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/4b28e19e-9e3a-435e-9626-8723f9e34f45"
       (reference "R9") (unit 1) (value "220") (footprint "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder")
     )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/05910dbc-688a-42b7-8378-20f0f50676af"
+      (reference "R10") (unit 1) (value "100K") (footprint "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder")
+    )
     (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/f0ed4d6a-35a6-4796-8d6d-f39129031ce4"
       (reference "R11") (unit 1) (value "1K") (footprint "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder")
     )
     (path "/dd1316dc-7e5b-4c97-959e-6f6a1eeeb379/fe11b968-1ccf-4d6b-b889-44b64557a96c"
-      (reference "R17") (unit 1) (value "10K") (footprint "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder")
+      (reference "R17") (unit 1) (value "100K") (footprint "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder")
+    )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/c6aed8f5-127c-4dbe-9beb-fb437f75a13a"
+      (reference "TP1") (unit 1) (value "TestPoint") (footprint "TestPoint:TestPoint_Pad_D2.0mm")
+    )
+    (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/6e534177-5c0e-4d3a-82d6-89e8735f21c6"
+      (reference "TP2") (unit 1) (value "TestPoint") (footprint "TestPoint:TestPoint_Pad_D2.0mm")
     )
     (path "/a01fd824-f54b-4196-9957-3a30a77eb56a/724e3572-db61-40ef-9c44-e11441fa064f"
       (reference "U1") (unit 1) (value "LM1117-3.3") (footprint "Package_TO_SOT_SMD:SOT-223-3_TabPin2")
