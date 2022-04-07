@@ -9,6 +9,9 @@
 #include "motor.h"
 #include "pins.h"
 #include "driveFuncs.h"
+#include "ota.h"
+
+#define AP_SSID "SPINNY"
 
 // ---- SENSOR STUFF ----
 
@@ -270,6 +273,16 @@ void updateStrips(uint32_t color, float angle) {
 void setup() {
 
   Serial.begin(115200);
+  
+  // Initialize the access point and OTA udpater
+  Serial.print("Initializing AP...");
+  bool success = initAp(AP_SSID);
+  Serial.println(success ? "done!" : "fail.");
+  if (success) {
+    Serial.print("Initializing OTA...");
+    initOta();
+    Serial.println("Ready!");
+  }
 
   initLEDs();
 
