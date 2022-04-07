@@ -3,13 +3,13 @@
 
 // #include "accelerometer.h"
 #include "controller.h"
+#include "driveFuncs.h"
 #include "encoder.h"
 #include "imu.h"
 #include "led.h"
 #include "motor.h"
-#include "pins.h"
-#include "driveFuncs.h"
 #include "ota.h"
+#include "pins.h"
 
 #define AP_SSID "SPINNY"
 
@@ -45,7 +45,7 @@ const int TRANS_MAX_POWER = 50;
 
 const int FULL_SEND_POWER = 500;
 
-const long MOTOR_INIT_TIME = 4000; // wait time for motor init in miliseconds
+const long MOTOR_INIT_TIME = 2000; // wait time for motor init in miliseconds
 
 const long MOTOR_UPDATE_INTERVAL = 10; // motor update loop time in microseconds
 long last_motor_update = micros();
@@ -273,7 +273,7 @@ void updateStrips(uint32_t color, float angle) {
 void setup() {
 
   Serial.begin(115200);
-  
+
   // Initialize the access point and OTA udpater
   Serial.print("Initializing AP...");
   bool success = initAp(AP_SSID);
@@ -332,7 +332,8 @@ void loop() {
         Serial.println("stop");
       }
 
-      x = -controller.joystick(RIGHT, X);  // For some stupid reason, the x-axis is inverted.
+      x = -controller.joystick(
+          RIGHT, X); // For some stupid reason, the x-axis is inverted.
       y = controller.joystick(RIGHT, Y);
 
       // adjust angle/facing direction?   -FIXME, adjust to find proper offset
