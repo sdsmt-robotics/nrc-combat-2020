@@ -1,8 +1,9 @@
 #include "accelerometer.h"
+#include "constants.h"
 
 Accelerometers::Accelerometers(HardwareSerial &serial, int mux_pin, int rx,
                                int tx)
-    : adc1(serial), adc2(serial), velocity_filter(3) {
+    : adc1(serial), adc2(serial) { //, velocity_filter(3) {
   _mux_pin = mux_pin;
   _rx_pin = rx;
   _tx_pin = tx;
@@ -27,7 +28,7 @@ float Accelerometers::update() {
 
   // calculate velocity
   float v = (sqrtf(RADIUS * raw[0]) + sqrtf(RADIUS * raw[1])) / (2.0 * RADIUS);
-  velocity_filter.filter(v);
+  // velocity_filter.filter(v);
 
   float deltaT = float(curTime - last_update) / 1000000;
   last_update = curTime;
@@ -40,14 +41,15 @@ float Accelerometers::update() {
   return angle;
 }
 
-float Accelerometers::getVelocity() { return velocity_filter.getFilteredVal(); }
+// float Accelerometers::getVelocity() { return
+// velocity_filter.getFilteredVal(); }
 
 float Accelerometers::getAngle() { return angle; }
 
 void Accelerometers::reset() { angle = 0; }
 
 float Accelerometers::integrate(float deltaT) {
-  velocityVals[valsMidIdx] = velocity_filter.getFilteredVal();
+  // velocityVals[valsMidIdx] = velocity_filter.getFilteredVal();
   if (valsMidIdx >= 2) {
     valsMidIdx = 0;
   }
@@ -67,13 +69,13 @@ void Accelerometers::readADC(uint32_t &v1, uint32_t &v2) {
 }
 
 float Accelerometers::normalizeAngle(float angle) {
-  if (angle > PI_2) {
+  if (angle > TWO_PI) {
     do {
-      angle -= PI_2;
+      angle -= TWO_PI;
     } while (angle > PI);
-  } else if (angle < PI_2) {
+  } else if (angle < TWO_PI) {
     do {
-      angle += PI_2;
+      angle += TWO_PI;
     } while (angle < -PI);
   }
   return angle;

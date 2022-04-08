@@ -2,12 +2,7 @@
 #define ACCELEROMETER_H
 
 #include "adc.h"
-#include "filter.h"
 #include <Arduino.h>
-
-#define PI_2 2.0 * PI
-#define DEG_2_RAD PI / 180
-#define RAD_2_DEG 180 / PI
 
 class ADC {
 public:
@@ -37,7 +32,7 @@ private:
   ADC adc1;
   ADC adc2;
 
-  Filter velocity_filter;
+  // Filter velocity_filter;
 
   int _mux_pin = 0;
   int _rx_pin = 0;
