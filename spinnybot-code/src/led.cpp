@@ -30,5 +30,5 @@ void LedStrip::fillColor(uint32_t color) {
 void LedStrip::setBrightness(uint8_t b) { strip.setBrightness(b); }
 
 uint32_t LedStrip::makeColor(uint8_t r, uint8_t g, uint8_t b) {
-  return strip.Color(r, g, b);
+  return Adafruit_NeoPixel::Color(r, g, b);
 }

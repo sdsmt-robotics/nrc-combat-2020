@@ -139,11 +139,11 @@ void IMU::calibrate(int num_readings) {
 float IMU::normalizeAngle(float angle) {
     if (angle > PI) {
         do {
-            angle -= PI_2;
+            angle -= TWO_PI;
         } while (angle > PI);
     } else {
         while (angle < -PI) {
-            angle += PI_2;
+            angle += TWO_PI;
         }
     }
     return angle;

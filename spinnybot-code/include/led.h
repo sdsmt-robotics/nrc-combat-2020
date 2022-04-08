@@ -13,7 +13,7 @@ public:
   void fillColor(uint32_t color);
   void setBrightness(uint8_t b);
 
-  uint32_t makeColor(uint8_t r, uint8_t g, uint8_t b);
+  static uint32_t makeColor(uint8_t r, uint8_t g, uint8_t b);
 
   static const uint32_t YELLOW;
   static const uint32_t RED;

@@ -1,12 +1,11 @@
+/**
+ * Some common functions used across the program.
+ */
 #ifndef UTILITY_H
 #define UTILITY_H
 
-/**
- * Normalize an angle to the range [-PI, PI].
- *
- * @param angle - The angle to normalize.
- * @return the normalized angle
- */
 float normalizeAngle(float angle);
+bool isZero(float val, float epsilon=0.0001);
+float angleTo(float from, float to, bool positive);
 
 #endif

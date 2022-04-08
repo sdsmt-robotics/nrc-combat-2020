@@ -32,6 +32,7 @@ Encoder e3(ENC_3, 360);
 LedStrip strip1(LED_STRIP_1);
 LedStrip strip2(LED_STRIP_2);
 LedStrip strip3(LED_STRIP_3);
+LedStrip* strips[] = {&strip1, &strip2, &strip3};
 
 // ---- MOTOR STUFF ----
 
@@ -73,6 +74,8 @@ bool full_send = false;
 
 float body_angle = 0;
 
+DriveManager driveManager;
+
 // ---- SENSOR FUNCTIONS ----
 
 /**
@@ -108,7 +111,11 @@ void updateSensors() {
   e2.update();
   e3.update();
 
-  body_angle = imu.getAngle() + imu_offset;
+  // Update values in drive manager
+  float encVels[] = {e1.getUnfilteredSpeed(), e2.getUnfilteredSpeed(), e3.getUnfilteredSpeed()};
+  driveManager.updateOrientation(imu.getRawVelocity(), encVels);
+
+  //body_angle = imu.getAngle() + imu_offset;
 }
 
 // ---- MOTOR FUNCTIONS ----
@@ -162,10 +169,10 @@ void armMotors() {
    @param y Y direction movement modifier. -1.0 to 1.0
    @param angle Current angle of robot in radians
 */
-void updateDrive(float spin, float x, float y, float angle) {
+void updateDrive(float spin, float x, float y) {
   // Calculate the power
   int power[3] = {0, 0, 0};
-  calcDrivePower(power, spin, x, y, angle);
+  driveManager.calcDrivePower(power, spin, x, y);
 
   // update motor power
   m1.set_speed_signed(power[0]);
@@ -235,30 +242,23 @@ void fillLEDs(uint8_t red, uint8_t green, uint8_t blue) {
   strip3.fillColor(strip3.makeColor(red, green, blue));
 }
 
-void updateStrips(uint32_t color, float angle) {
-
-  const static float s1_offset = -PI / 3;
-  const static float s2_offset = PI / 3;
-  const static float s3_offset = PI;
-
+void updateStrips(uint32_t color) {
+  const float OFFSETS[] = {-PI / 3, PI / 3, PI};
   const static float angle_range = PI / 12;
 
-  float norm_angle = normalizeAngle(angle);
+  float norm_angle = driveManager.getCurAngle();
 
-  if (fabs(norm_angle - s1_offset) < angle_range) {
-    strip1.fillColor(color);
-  } else {
-    strip1.fillColor(strip1.makeColor(0, 0, 0));
-  }
-  if (fabs(norm_angle - s2_offset) < angle_range) {
-    strip2.fillColor(color);
-  } else {
-    strip2.fillColor(strip2.makeColor(0, 0, 0));
-  }
-  if (fabs(norm_angle - s3_offset) < angle_range) {
-    strip3.fillColor(color);
-  } else {
-    strip3.fillColor(strip3.makeColor(0, 0, 0));
+  // Iterate through strips and set values
+  for (int i = 0; i < 3; i++) {
+    // Flip the offset for the strip if the bot is flipped
+    float offset = (flip ? -1 : 1) * OFFSETS[i];
+
+    // Set the color
+    if (abs(normalizeAngle(norm_angle + offset)) < angle_range) {
+      strips[i]->fillColor(color);
+    } else {
+      strips[i]->fillColor(LedStrip::makeColor(0, 0, 0));
+    }
   }
 }
 
@@ -316,8 +316,6 @@ void loop() {
       if (controller.buttonClick(RIGHT)) {
         robot_enabled = true;
         spin = 0.1;
-        if (flip)
-          spin = -0.1;
         Serial.println("run");
       }
       if (controller.buttonClick(LEFT)) {
@@ -326,48 +324,38 @@ void loop() {
         Serial.println("stop");
       }
 
-      x = -controller.joystick(
-          RIGHT, X); // For some stupid reason, the x-axis is inverted.
+      x = -controller.joystick(RIGHT, X); // For some stupid reason, the x-axis is inverted.
       y = controller.joystick(RIGHT, Y);
 
-      // adjust angle/facing direction?   -FIXME, adjust to find proper offset
-      imu_offset += (controller.joystick(LEFT, X) * 0.005);
+      // "Rotate". Limit rotation rate to 100deg/s.
+      static unsigned long lastAngleChange = millis();
+      if (millis() - lastAngleChange > 10) {
+        driveManager.rotate(DEG_TO_RAD * controller.joystick(LEFT, X));
+        lastAngleChange = millis();
+      }
 
       // gyro drift comensation
+      // Robot rotates at ~500rpm = 52 rad/s. 
       if (controller.dpadClick(RIGHT) && robot_enabled) {
-        imu.modifyDrift(0.1);
+        driveManager.adjustDrift(0.8);
       }
       if (controller.dpadClick(LEFT) && robot_enabled) {
-        imu.modifyDrift(-0.1);
+        driveManager.adjustDrift(-0.8);
       }
 
       if (controller.dpadClick(UP) && robot_enabled) {
-        if (flip) {
-          spin -= 0.1;
-          if (spin < -1.0) {
-            spin = -1.0;
-          }
-        } else {
-          spin += 0.1;
-          if (spin > 1.0) {
-            spin = 1.0;
-          }
+        spin += 0.1;
+        if (spin > 1.0) {
+          spin = 1.0;
         }
         Serial.println("spin up");
         Serial.println(spin);
       }
 
       if (controller.dpadClick(DOWN) && robot_enabled) {
-        if (flip) {
-          spin += 0.1;
-          if (spin > -0.1) {
-            spin = -0.1;
-          }
-        } else {
-          spin -= 0.1;
-          if (spin < 0.1) {
-            spin = 0.1;
-          }
+        spin -= 0.1;
+        if (spin < 0.1) {
+          spin = 0.1;
         }
         Serial.println("spin down");
         Serial.println(spin);
@@ -385,7 +373,7 @@ void loop() {
 
       if (controller.button(DOWN)) {
         Serial.print("angle: \t");
-        Serial.print((imu.getAngle() * RAD_TO_DEG));
+        Serial.print((driveManager.getCurAngle() * RAD_TO_DEG));
         Serial.println();
       }
 
@@ -439,10 +427,10 @@ void loop() {
 
       // run motors
       if (!full_send) {
-        updateDrive(spin, x, y, body_angle);
+        updateDrive(spin, x, y);
 
         // set led strips to purple
-        updateStrips(strip1.PURPLE, body_angle);
+        updateStrips(LedStrip::PURPLE);
 
       } else {
         // full send mode

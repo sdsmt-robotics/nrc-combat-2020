@@ -4,10 +4,6 @@
 #include <Adafruit_ICM20649.h>
 #include <SimpleKalmanFilter.h>
 
-#include <SimpleKalmanFilter.h>
-
-#define PI_2 2.0 * PI
-
 class IMU {
 public:
   IMU();
