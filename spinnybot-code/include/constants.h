@@ -8,7 +8,7 @@ const int SPIN_MIN_POWER = 100; // min motor power when enabled
 // max movement power. this is the magnitude of max power when moving
 const int TRANS_MAX_POWER = 50;
 
-const int FULL_SEND_POWER = 500; // power to use for full send mode
+const int FULL_SEND_POWER = 800; // power to use for full send mode
 
 const long MOTOR_INIT_TIME = 2000; // wait time for motor init in miliseconds
 

@@ -243,7 +243,7 @@ void updateStrips(uint32_t color, float angle) {
 
   const static float angle_range = PI / 12;
 
-  float norm_angle = normalizeAngle(angle);
+  float norm_angle = normalizeAngle(angle + HALF_PI);
 
   if (fabs(norm_angle - s1_offset) < angle_range) {
     strip1.fillColor(color);
@@ -315,9 +315,9 @@ void loop() {
 
       if (controller.buttonClick(RIGHT)) {
         robot_enabled = true;
-        spin = 0.1;
+        spin = 0.2;
         if (flip)
-          spin = -0.1;
+          spin = -0.2;
         Serial.println("run");
       }
       if (controller.buttonClick(LEFT)) {
