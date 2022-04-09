@@ -19,9 +19,9 @@
 
 IMU imu;
 
-Encoder e1(ENC_1, 360);
+// Encoder e1(ENC_1, 360);
 Encoder e2(ENC_2, 360);
-Encoder e3(ENC_3, 360);
+// Encoder e3(ENC_3, 360);
 
 /* Accelerometers accel(Serial1, ADC_SELECT, ADC_TX,
                      ADC_RX); // note: tx and rx are fliped
@@ -88,9 +88,9 @@ void initSensors() {
   // accel.init();
 
   // init encoders
-  e1.init();
+  // e1.init();
   e2.init();
-  e3.init();
+  // e3.init();
 }
 
 /**
@@ -104,9 +104,9 @@ void updateSensors() {
   // accel.update();
 
   // update encoders
-  e1.update();
+  // e1.update();
   e2.update();
-  e3.update();
+  // e3.update();
 
   body_angle = imu.getAngle() + imu_offset;
 }
@@ -262,11 +262,25 @@ void updateStrips(uint32_t color, float angle) {
   }
 }
 
+// ---- MISC FUNCTIONS ----
+
+// isr for power switch
+void reedSwitchISR() {
+  spin = 0;
+  robot_enabled = false;
+  Serial.println("reed switch isr");
+}
+
 // ---- MAIN FUNCTIONS ----
 
 void setup() {
 
   Serial.begin(115200);
+
+  // setup reedswitch ISR
+  pinMode(REED_SWITCH_PIN, INPUT);
+  attachInterrupt(digitalPinToInterrupt(REED_SWITCH_PIN), reedSwitchISR,
+                  FALLING);
 
   // Initialize the access point and OTA udpater
   Serial.print("Initializing AP...");
@@ -304,6 +318,7 @@ void setup() {
 void loop() {
   // main loop timer
   if (micros() - last_loop > LOOP_INTERVAL) {
+
     last_loop = micros();
 
     // update controls
@@ -315,12 +330,12 @@ void loop() {
 
       if (controller.buttonClick(RIGHT)) {
         robot_enabled = true;
-        spin = 0.2;
+        spin = 0.1;
         if (flip)
           spin = -0.2;
         Serial.println("run");
       }
-      if (controller.buttonClick(LEFT)) {
+      if (controller.buttonClick(DOWN)) {
         spin = 0;
         robot_enabled = false;
         Serial.println("stop");
@@ -331,7 +346,7 @@ void loop() {
       y = controller.joystick(RIGHT, Y);
 
       // adjust angle/facing direction?   -FIXME, adjust to find proper offset
-      imu_offset += (controller.joystick(LEFT, X) * 0.005);
+      imu_offset += (controller.joystick(LEFT, X) * 0.01);
 
       // gyro drift comensation
       if (controller.dpadClick(RIGHT) && robot_enabled) {
@@ -373,29 +388,17 @@ void loop() {
         Serial.println(spin);
       }
 
-      if (controller.dpadClick(LEFT) && !robot_enabled) {
+      if (controller.dpadClick(RIGHT) && !robot_enabled) {
         flip = false;
         Serial.println("spin normal");
       }
 
-      if (controller.dpadClick(RIGHT) && !robot_enabled) {
+      if (controller.dpadClick(LEFT) && !robot_enabled) {
         flip = true;
         Serial.println("spin reverse");
       }
 
-      if (controller.button(DOWN)) {
-        Serial.print("angle: \t");
-        Serial.print((imu.getAngle() * RAD_TO_DEG));
-        Serial.println();
-      }
-
-      if (controller.button(UP)) {
-        Serial.print("accel: \t");
-        Serial.print("");
-        Serial.println();
-      }
-
-      if (controller.bumper(RIGHT) && robot_enabled) {
+      if (controller.button(UP) && robot_enabled) {
         full_send = true;
         Serial.println("FULL SEND!!!");
       } else {
@@ -403,9 +406,12 @@ void loop() {
       }
 
       // re-arm motors when power is reapplyed
-      if (controller.joyButtonClick(LEFT)) {
+      if (controller.buttonClick(LEFT)) {
+
+        robot_enabled = false;
+
         // set LED strips to yellow
-        fillLEDs(255, 255, 0);
+        fillLEDs(255, 255, 255);
         showLEDStrips();
 
         // arm sequence

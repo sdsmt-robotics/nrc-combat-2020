@@ -37,6 +37,8 @@
 
 // ---- MISC ----
 
+#define REED_SWITCH_PIN 34
+
 #define ADAFRUIT_RMT_CHANNEL_MAX 3 // LED strips can use 3 RMT channels 0 - 2
 
 #endif
