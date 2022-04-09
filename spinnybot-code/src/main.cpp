@@ -330,9 +330,11 @@ void loop() {
 
       if (controller.buttonClick(RIGHT)) {
         robot_enabled = true;
-        spin = 0.1;
-        if (flip)
-          spin = -0.2;
+        if (spin >= 0 && flip) {
+          spin = -0.1;
+        } else if (spin <= 0 && !flip) {
+          spin = 0.1;
+        }
         Serial.println("run");
       }
       if (controller.buttonClick(DOWN)) {
@@ -342,18 +344,21 @@ void loop() {
       }
 
       x = -controller.joystick(
-          RIGHT, X); // For some stupid reason, the x-axis is inverted.
-      y = controller.joystick(RIGHT, Y);
+          LEFT, X); // For some stupid reason, the x-axis is inverted.
+      y = controller.joystick(LEFT, Y);
 
       // adjust angle/facing direction?   -FIXME, adjust to find proper offset
-      imu_offset += (controller.joystick(LEFT, X) * 0.01);
+      imu_offset += (controller.joystick(RIGHT, X) * 0.03);
 
       // gyro drift comensation
       if (controller.dpadClick(RIGHT) && robot_enabled) {
         imu.modifyDrift(0.1);
+        Serial.println("drift correct +");
       }
       if (controller.dpadClick(LEFT) && robot_enabled) {
         imu.modifyDrift(-0.1);
+        Serial.println("drift correct -");
+        ;
       }
 
       if (controller.dpadClick(UP) && robot_enabled) {
@@ -368,7 +373,7 @@ void loop() {
             spin = 1.0;
           }
         }
-        Serial.println("spin up");
+        Serial.print("spin up\t");
         Serial.println(spin);
       }
 
@@ -403,23 +408,6 @@ void loop() {
         Serial.println("FULL SEND!!!");
       } else {
         full_send = false;
-      }
-
-      // re-arm motors when power is reapplyed
-      if (controller.buttonClick(LEFT)) {
-
-        robot_enabled = false;
-
-        // set LED strips to yellow
-        fillLEDs(255, 255, 255);
-        showLEDStrips();
-
-        // arm sequence
-        armMotors();
-
-        // set LED strips to green
-        fillLEDs(0, 255, 0);
-        showLEDStrips();
       }
 
     } else {
